@@ -1943,7 +1943,7 @@
 <!-- CAM-Oslo variables -->
 <dme_energy_adjust>.true.</dme_energy_adjust>
 <volc_fraction_coarse   >0.0</volc_fraction_coarse>
-<aerotab_table_dir>noresm-only/atm/cam/camoslo/AeroTab_8jun17</aerotab_table_dir>
+<aerotab_table_dir>noresm-only/atm/cam/camoslo/AeroTab_8jun17/</aerotab_table_dir>
 <dms_source>lana</dms_source>
 <dms_source_type>CYCLICAL</dms_source_type>
 <dms_cycle_year>2000</dms_cycle_year>
