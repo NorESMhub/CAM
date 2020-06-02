@@ -3258,7 +3258,10 @@ subroutine cldprp(lchnk   , &
 !-tht
          tvu(i,k) = tvuo(i,k)
          frz(i,k)  = 0._r8
-
+!+tht 25/05/2020
+         td(i,k)  = (hd(i,k)-grav*zf(i,k)-(1._r8+dcol*tmelt)*rl*qds(i,k)) &
+                           /(cp*( 1._r8 + (cpvir-dcol*(rl/cp))*qds(i,k) ))
+!-tht
       end do
    end do
    if (zmconv_microp) then

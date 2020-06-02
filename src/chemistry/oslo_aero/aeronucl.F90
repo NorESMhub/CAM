@@ -86,7 +86,10 @@ subroutine aeronucl(lchnk, ncol, t, pmid, h2ommr, h2so4pc, oxidorg, coagnuc, nuc
 
     nuclso4(:,:)=0._r8
     nuclorg(:,:)=0._r8
-  
+    nuclrate_bin(:,:)=0._r8
+    nuclrate_pbl(:,:)=0._r8
+    formrate_bin(:,:)=0._r8
+    formrate_pbl(:,:)=0._r8 
     !-- The highest level in planetary boundary layer
     do i=1,ncol
         pblht_lim(i)=MIN(MAX(pblht(i),500._r8),7000._r8)

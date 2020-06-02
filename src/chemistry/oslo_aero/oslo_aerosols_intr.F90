@@ -371,6 +371,7 @@ contains
     !The following logic is based on that process-mode tracers 
     !always follow AFTER the actual tracers!!
 
+      dens_aer(:,:) = 0._r8
    do m = 0, nmodes   ! main loop over aerosol modes
 
        do lphase = 1, 2   ! loop over interstitial / cloud-borne forms

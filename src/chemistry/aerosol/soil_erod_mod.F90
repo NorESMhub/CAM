@@ -86,6 +86,8 @@ contains
     dst_lons(:) = d2r * dst_lons(:)
 
     allocate( soil_erodibility(pcols,begchunk:endchunk), stat=ierr )
+    soil_erodibility(:,:)=0._r8
+
     if( ierr /= 0 ) then
        write(iulog,*) 'soil_erod_init: failed to allocate soil_erodibility_in, ierr = ',ierr
        call endrun('soil_erod_init: failed to allocate soil_erodibility_in')

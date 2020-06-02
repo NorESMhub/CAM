@@ -1307,7 +1307,7 @@ end function chem_is_active
     logical :: lq(pcnst)
 
     if ( .not. chem_step ) return
-
+    ncldwtr(:,:) = 0._r8
     chem_dt = chem_freq*dt
 
     lchnk = state%lchnk

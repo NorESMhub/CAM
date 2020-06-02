@@ -366,7 +366,7 @@ end subroutine aero_model_init
     real(r8), dimension(pcols, pver, numberOfProcessModeTracers) :: oslo_wetdens_processmodes
 
     ncol  = state%ncol
-
+    oslo_wetdens(:,:,:) = 0._r8
     call calcaersize_sub( ncol, &
                      state%t, state%q(1,1,1), state%pmid, state%pdel &
                      ,oslo_dgnumwet , oslo_wetdens                  &

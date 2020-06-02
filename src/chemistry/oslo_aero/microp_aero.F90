@@ -556,6 +556,7 @@ subroutine microp_aero_run ( &
     !-- wy4.0
     
 #ifdef OSLO_AERO
+    cam(:,:,:) = 0._r8
    !qaercwpt(1:ncol,1:pver,:) = 0.0_r8
    !    do m=1,nmodes_oslo
    !            do n=1,getNumberOfTracersInMode(m)

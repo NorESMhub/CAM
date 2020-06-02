@@ -986,6 +986,12 @@ subroutine radiation_tend( &
    lchnk = state%lchnk
    ncol = state%ncol
 
+   per_lw_abs(:,:,:)=0._r8
+   per_tau(:,:,:)=0._r8
+   per_tau_w(:,:,:)=0._r8
+   per_tau_w_g(:,:,:)=0._r8
+   per_tau_w_f(:,:,:)=0._r8
+
    if (present(rd_out)) then
       rd => rd_out
       write_output = .false.

@@ -2087,14 +2087,16 @@ contains
 !      if(precc(i).lt.0.) precc(i)=0.
 !   end do
 #ifdef AEROCOM
-   do kcomp=1,14
-   do k=1,pver
-      do i=1,ncol
-        rnew3d(i,k,kcomp)  =0.0_r8
-        logsig3d(i,k,kcomp)=0.0_r8
-      enddo
-   enddo
-   enddo
+  !do kcomp=1,14
+  !do k=1,pver
+  !   do i=1,ncol
+  !     rnew3d(i,k,kcomp)  =0.0_r8
+  !     logsig3d(i,k,kcomp)=0.0_r8
+        rnew3d  (:,:,:)=0.0_r8
+        logsig3d(:,:,:)=0.0_r8
+  !   enddo
+  !enddo
+  !enddo
 #endif ! aerocom
 #endif ! dirind
 
@@ -2340,7 +2342,7 @@ contains
 !  Estimating hygroscopic growth by use of linear interpolation w.r.t. mass 
 !  fractions of each internally mixed component for each mode (kcomp).
 !
-   call intfrh(lchnk, ncol, v3so4, v3insol, v3oc, v3ss, relhum, frh)
+!   call intfrh(lchnk, ncol, v3so4, v3insol, v3oc, v3ss, relhum, frh)
 !
    do k=1,pver
       do i=1,ncol
@@ -2356,18 +2358,18 @@ contains
         rnewdry11(i,k)  = rnew3d(i,k,11)
         rnewdry13(i,k)  = rnew3d(i,k,13)
         rnewdry14(i,k)  = rnew3d(i,k,14)
-        rnew1(i,k)   = rnew3d(i,k,1)*frh(i,k,1)
-        rnew2(i,k)   = rnew3d(i,k,2)*frh(i,k,2)
-        rnew4(i,k)   = rnew3d(i,k,4)*frh(i,k,4)
-        rnew5(i,k)   = rnew3d(i,k,5)*frh(i,k,5)
-        rnew6(i,k)   = rnew3d(i,k,6)*frh(i,k,6)
-        rnew7(i,k)   = rnew3d(i,k,7)*frh(i,k,7)
-        rnew8(i,k)   = rnew3d(i,k,8)*frh(i,k,8)
-        rnew9(i,k)   = rnew3d(i,k,9)*frh(i,k,9)
-        rnew10(i,k)  = rnew3d(i,k,10)*frh(i,k,10)
-        rnew11(i,k)  = rnew3d(i,k,11)*frh(i,k,11)
-        rnew13(i,k)  = rnew3d(i,k,13)*frh(i,k,13)
-        rnew14(i,k)  = rnew3d(i,k,14)*frh(i,k,14)
+!        rnew1(i,k)   = rnew3d(i,k,1)*frh(i,k,1)
+!        rnew2(i,k)   = rnew3d(i,k,2)*frh(i,k,2)
+!        rnew4(i,k)   = rnew3d(i,k,4)*frh(i,k,4)
+!        rnew5(i,k)   = rnew3d(i,k,5)*frh(i,k,5)
+!        rnew6(i,k)   = rnew3d(i,k,6)*frh(i,k,6)
+!        rnew7(i,k)   = rnew3d(i,k,7)*frh(i,k,7)
+!        rnew8(i,k)   = rnew3d(i,k,8)*frh(i,k,8)
+!        rnew9(i,k)   = rnew3d(i,k,9)*frh(i,k,9)
+!        rnew10(i,k)  = rnew3d(i,k,10)*frh(i,k,10)
+!        rnew11(i,k)  = rnew3d(i,k,11)*frh(i,k,11)
+!        rnew13(i,k)  = rnew3d(i,k,13)*frh(i,k,13)
+!        rnew14(i,k)  = rnew3d(i,k,14)*frh(i,k,14)
         logsig1(i,k) = logsig3d(i,k,1)
         logsig2(i,k) = logsig3d(i,k,2)
         logsig4(i,k) = logsig3d(i,k,4)

@@ -1469,7 +1469,7 @@ end subroutine physics_ptend_copy
     if (present(ent_tnd)) then
      ent_tnd(:ncol)=0._r8
      do k=1,pver
-      ent_tnd(:ncol)=ent_tnd-(state%t(:ncol,k)*cpairv(:ncol,k,lchnk) &
+      ent_tnd(:ncol)=ent_tnd(:ncol)-(state%t(:ncol,k)*cpairv(:ncol,k,lchnk) &
                     +0.5_r8*(state%u(:ncol,k)**2+state%v(:ncol,k)**2))*state%pdel(:ncol,k)
      enddo
     endif

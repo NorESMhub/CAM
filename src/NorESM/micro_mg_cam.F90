@@ -1824,7 +1824,6 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
    real(r8), pointer :: pckdptr(:,:)
 
    !-------------------------------------------------------------------------------
-
    lchnk = state%lchnk
    ncol  = state%ncol
    psetcols = state%psetcols
@@ -2077,7 +2076,6 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
    call post_proc%add_field(p(qiten), p(packed_qitend))
    call post_proc%add_field(p(ncten), p(packed_nctend))
    call post_proc%add_field(p(niten), p(packed_nitend))
-
    if (micro_mg_version > 1) then
       call post_proc%add_field(p(qrten), p(packed_qrtend))
       call post_proc%add_field(p(qsten), p(packed_qstend))
@@ -2180,8 +2178,10 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
    call post_proc%add_field(p(npccno), p(packed_npccno))
    call post_proc%add_field(p(nnuccdo), p(packed_nnuccdo))
    call post_proc%add_field(p(mnudepo), p(packed_mnudepo))
-   call post_proc%add_field(p(nctncons), p(packed_nctncons))
-   call post_proc%add_field(p(nctnnbmn), p(packed_nctnnbmn))
+   if(micro_mg_version <2) then
+      call post_proc%add_field(p(nctncons), p(packed_nctncons))
+      call post_proc%add_field(p(nctnnbmn), p(packed_nctnnbmn))
+   ENDIF
    call post_proc%add_field(p(nctnszmn), p(packed_nctnszmn))
    call post_proc%add_field(p(nctnszmx), p(packed_nctnszmx))
    call post_proc%add_field(p(nctnncld), p(packed_nctnncld))
@@ -2269,7 +2269,6 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
          packed_qs = packer%pack(state_loc%q(:,:,ixsnow))
          packed_ns = packer%pack(state_loc%q(:,:,ixnumsnow))
       end if
-
       select case (micro_mg_version)
       case (1)
          select case (micro_mg_sub_version)
@@ -2314,7 +2313,6 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
       case(2)
          select case (micro_mg_sub_version)
          case (0)
-
             call micro_mg_tend2_0( &
                  mgncol,         nlev,           dtime/num_steps,&
                  packed_t,               packed_q,               &
@@ -2420,7 +2418,6 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
          ptend_loc%q(:,:,ixnumsnow) = packer%unpack(packed_nstend, &
               -state_loc%q(:,:,ixnumsnow)/(dtime/num_steps))
       end if
-
       ! Sum into overall ptend
       call physics_ptend_sum(ptend_loc, ptend, ncol)
 
@@ -3238,8 +3235,10 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
    call outfld ('NPCCNO2  ', npccn,       psetcols, lchnk, avg_subcol_field=use_subcol_microp )
    call outfld ('NNUCCDO  ', nnuccdo,     psetcols, lchnk, avg_subcol_field=use_subcol_microp )
    call outfld ('MNUDEPO  ', mnudepo,     psetcols, lchnk, avg_subcol_field=use_subcol_microp )
-   call outfld ('NCTNCONS ', nctncons,    psetcols, lchnk, avg_subcol_field=use_subcol_microp )
-   call outfld ('NCTNNBMN ', nctnnbmn,    psetcols, lchnk, avg_subcol_field=use_subcol_microp )
+   if (micro_mg_version <2) then   
+      call outfld ('NCTNCONS ', nctncons,    psetcols, lchnk, avg_subcol_field=use_subcol_microp )
+      call outfld ('NCTNNBMN ', nctnnbmn,    psetcols, lchnk, avg_subcol_field=use_subcol_microp )
+   endif
    call outfld ('NCTNSZMN ', nctnszmn,    psetcols, lchnk, avg_subcol_field=use_subcol_microp )
    call outfld ('NCTNSZMX ', nctnszmx,    psetcols, lchnk, avg_subcol_field=use_subcol_microp )
    call outfld ('NCTNNCLD ', nctnncld,    psetcols, lchnk, avg_subcol_field=use_subcol_microp )

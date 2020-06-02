@@ -1274,8 +1274,17 @@ enddo ! iloop
             dload(icol,i)=0.0_r8
           enddo
         enddo
-
-
+     bext550n(:,:,:) = 0._r8
+     babs550n(:,:,:) = 0._r8
+     bext440n(:,:,:) = 0._r8
+     babs440n(:,:,:) = 0._r8
+     bext870n(:,:,:) = 0._r8
+     babs870n(:,:,:) = 0._r8
+     babs500n(:,:,:) = 0._r8
+     babs670n(:,:,:) = 0._r8
+        vnbcarr(:,:) =0.0_r8
+        vaitbcarr(:,:) =0.0_r8
+        cknorm(:,:,:) =0.0_r8
 !000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
 !     AeroCom diagnostics requiring table look-ups with ambient RH. 
