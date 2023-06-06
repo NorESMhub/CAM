@@ -56,7 +56,6 @@ OPTIONS
      -analytic_ic       Enables the (namelist controlled) dycore testing infrastructure
      -aquaplanet        Switch on aqua-planet mode.
      -build_chem_proc   Switch forces the build of the chemistry preprocessor (primarily for testing).
-     -camnor            Build CAM with CAM-Nor modifications
      -carma <name>      Build CAM with specified CARMA microphysics model
                         [ none | bc_strat | cirrus | cirrus_dust | dust | meteor_impact |
                           meteor_smoke | mixed_sulfate | pmc | pmc_sulfate | sea_salt | sulfate | tholin |
@@ -79,7 +78,7 @@ OPTIONS
      -cppdefs <string>  A string of user specified CPP defines.  Appended to
                         Makefile defaults.  E.g. -cppdefs '-DVAR1 -DVAR2'
      -cpl               Coupling framework [mct | nuopc].  Default: mct.
-     -dyn <name>        Dynamical core option: [eul | fv | se ].  Default: fv.
+     -dyn <name>        Dynamical core option: [eul | fv | se | fv3 | mpas].  Default: fv.
      -edit_chem_mech    Invokes CAMCHEM_EDITOR to allow the user to edit the chemistry mechanism file
      -hgrid <name>      Specify horizontal grid.  Use nlatxnlon for spectral grids;
                         dlatxdlon for fv grids (dlat and dlon are the grid cell size
@@ -152,6 +151,7 @@ OPTIONS
      -debug             Switch to turn on building CAM with debugging compiler options.
      -cosp_libdir <dir> Directory containing COSP library.
      -esmf_libdir <dir> Directory containing ESMF library and esmf.mk file.
+     -fv3core_libdir <dir>  Directory containing FV3 library.
      -fc <name>         User specified Fortran compiler.  Overrides Makefile default.
      -fc_type <name>    Type of Fortran compiler [pgi | intel | gnu | pathscale
                         | ibm | nag].  This argument is used in conjunction
@@ -171,6 +171,7 @@ OPTIONS
      -ldflags <string>  A string of user specified load options.  Appended to
                         Makefile defaults.
      -linker <name>     User specified linker.  Overrides Makefile default of \$(FC).
+     -mpas_libdir <dir> Directory containing MPAS library.
      -mct_libdir <dir>  Directory containing MCT library.  Default: build the library from source
                         in a subdirectory of \$cam_bld.
      -mpi_inc <dir>     Directory containing MPI include files.
@@ -239,7 +240,6 @@ GetOptions(
     "cam_exe=s"                 => \$opts{'cam_exe'},
     "cam_exedir=s"              => \$opts{'cam_exedir'},
     "camiop"                    => \$opts{'camiop'},
-    "camnor!"                   => \$opts{'camnor'},
     "cc=s"                      => \$opts{'cc'},
     "cflags=s"                  => \$opts{'cflags'},
     "chem=s"                    => \$opts{'chem'},
@@ -259,6 +259,7 @@ GetOptions(
     "fc_type=s"                 => \$opts{'fc_type'},
     "fflags=s"                  => \$opts{'fflags'},
     "fopt=s"                    => \$opts{'fopt'},
+    "fv3core_libdir=s"          => \$opts{'fv3core_libdir'},
     "gmake=s"                   => \$opts{'gmake'},
     "h|help"                    => \$opts{'help'},
     "hgrid=s"                   => \$opts{'hgrid'},
@@ -270,6 +271,7 @@ GetOptions(
     "max_n_rad_cnst=s"          => \$opts{'max_n_rad_cnst'},
     "mct_libdir=s"              => \$opts{'mct_libdir'},
     "microphys=s"               => \$opts{'microphys'},
+    "mpas_libdir=s"             => \$opts{'mpas_libdir'},
     "mpi_inc=s"                 => \$opts{'mpi_inc'},
     "mpi_lib=s"                 => \$opts{'mpi_lib'},
     "nadv=s"                    => \$opts{'nadv'},
@@ -547,30 +549,11 @@ if (defined $opts{'phys'}) {
     $phys_pkg = lc($opts{'phys'});
 }
 
-# Special configuration for CAM-Nor options
-# Currently, each CAM-Nor selection only works with the CAM6 or CAM_DEV
-#    ESCOMP/CAM physics suites
-my $camnor = 0;
-# user or compset override is only way to turn on this feature
-if (defined $opts{'camnor'}) {
-    $camnor = $opts{'camnor'};
-}
-# Check supported physics suite
-if ($phys_pkg ne 'cam6' and $phys_pkg ne 'cam_dev') {
-  die "ERROR: CAM-Nor (-camnor) is only available for CAM6 and cam_dev.$eol";
-}
-
 # Add to the config object.
 $cfg_ref->set('phys', $phys_pkg);
-$cfg_ref->set('camnor', $camnor);
 
-if ($print>=2) {
-  if ($camnor) {
-    print "Physics package: $phys_pkg with CAM-Nor modifications$eol";
-  } else {
-    print "Physics package: $phys_pkg$eol";
-  }
-}
+if ($print>=2) { print "Physics package: $phys_pkg$eol"; }
+
 
 # Set flag to indicate a simple physics option
 my $simple_phys = 0;
@@ -651,6 +634,10 @@ if (defined $opts{'dyn'}) {
 }
 my $dyn_pkg = $cfg_ref->get('dyn');
 
+if ($dyn_pkg eq 'fv3' and $spmd eq 'OFF') {
+    die "configure: FATAL: the fv3 dycore requires at least 6 tasks SPMD must not be switched off.$eol";
+}
+
 if ($print>=2) { print "Dynamics package: $dyn_pkg$eol"; }
 
 $cfg_ref->set('analytic_ic', (defined $opts{'analytic_ic'}) ? $opts{'analytic_ic'} : 0);
@@ -704,7 +691,7 @@ $waccm_phys = $cfg_ref->get('waccm_phys');
 if ($print>=2) { print "WACCM physics: $waccm_phys$eol"; }
 
 
-# WACCM physics only runs with FV and SEdycores
+# WACCM physics only runs with FV, SE and FV3 dycores
 if ( ($waccm_phys) and ($dyn_pkg eq 'eul') ) {
     die <<"EOF";
 ** ERROR: WACCM physics does not run with the Eulerian spectral dycore.
@@ -1229,6 +1216,9 @@ elsif ($dyn_pkg eq 'eul') {
 }
 elsif ($dyn_pkg eq 'se') {
     $hgrid = 'ne16np4';
+}
+elsif ($dyn_pkg eq 'mpas') {
+    $hgrid = 'mpasa480';
 }
 $cfg_ref->set('hgrid', $hgrid);
 
@@ -1858,6 +1848,11 @@ if ($dyn_pkg eq 'se') {
     }
 }
 
+# FV3 preprocessor symbols to use FMS decomposition functionality and more accurate FV3 thermodynamics.
+if ($dyn_pkg eq 'fv3') {
+    $cfg_cppdefs .= " -Duse_libMPI -Duse_netCDF -DUSE_COND -DMOIST_CAPPA";
+}
+
 # Resolution parameters for vertical grid, number of constituents, chunk size
 my $nlev = $cfg_ref->get('nlev');
 my $nadv = $cfg_ref->get('nadv');
@@ -1956,6 +1951,39 @@ if ($cosp) {
 }
 
 #-----------------------------------------------------------------------------------------------
+# FV3CORE library.
+if ($dyn_pkg eq 'fv3') {
+    # Set the directory used to build fv3core.  Add location and library name
+    # to the user specified load flags.
+    my $fv3core_libdir = '';
+    if (defined $opts{'fv3core_libdir'}) {
+      $fv3core_libdir = $opts{'fv3core_libdir'};
+    } else
+    {
+	$fv3core_libdir = "$cam_bld/atmos_cubed_sphere";
+    }
+
+    $cfg_ref->set('fv3core_libdir', "$fv3core_libdir");
+
+    my $ldflags = $cfg_ref->get('ldflags');
+    $ldflags .= " -L$fv3core_libdir -lfv3core ";
+    $cfg_ref->set('ldflags', $ldflags);
+
+    # create the build directory for fv3core
+    unless (-d $fv3core_libdir or mkdirp($fv3core_libdir)) {
+        die "** Could not create the fv3core build directory: $fv3core_libdir\n";
+    }
+
+    # Write the filepath file.
+    if ($print) { print "creating $fv3core_libdir/Filepath\n"; }
+    write_fv3core_filepath("$fv3core_libdir/Filepath", $cfg_ref);
+
+    # Create the FV3CORE Makefile from a template and copy it into the fv3core bld directory
+    if ($print) { print "creating $fv3core_libdir/Makefile\n"; }
+    write_fv3_makefile("$cam_dir/src/dynamics/fv3/Makefile.in.fv3",  "$fv3core_libdir/Makefile");
+}
+
+#-----------------------------------------------------------------------------------------------
 # MPAS library.
 if ($dyn_pkg eq 'mpas') {
 
@@ -2007,6 +2035,22 @@ $cfg_ref->write_file($config_cache_file, $commandline);
 
 #-------------------------------------------------------------------------------
 
+sub write_fv3core_filepath
+{
+    my ($file, $cfg_ref) = @_;
+    my  $fh = new IO::File;
+
+    $fh->open(">$file") or die "** can't open filepath file: $file\n";
+    my $camsrcdir   = $cfg_ref->get('cam_dir');
+    my $CASEROOT = "$ENV{'CASEROOT'}";
+    print $fh "$CASEROOT/SourceMods/src.cam\n";
+    print $fh "$camsrcdir/src/dynamics/fv3/microphys\n";
+    print $fh "$camsrcdir/src/dynamics/fv3/atmos_cubed_sphere/model\n";
+    print $fh "$camsrcdir/src/dynamics/fv3/atmos_cubed_sphere/tools\n";
+
+    $fh->close;
+}
+#-------------------------------------------------------------------------------
 sub write_filepath
 {
     my ($file, $cfg_ref) = @_;
@@ -2031,7 +2075,6 @@ sub write_filepath
     my $spmd          = $cfg_ref->get('spmd');
     my $offline_drv   = $cfg_ref->get('offline_drv');
     my $inic_val      = $cfg_ref->get('analytic_ic');
-    my $camnor        = $cfg_ref->get('camnor');
 
     # Root directory
     my $camsrcdir = $cfg_ref->get('cam_dir');
@@ -2052,21 +2095,6 @@ sub write_filepath
     my $CASEROOT = "$ENV{'CASEROOT'}";
     print $fh "$CASEROOT/SourceMods/src.cam\n";
 
-    # CAM-Nor has precedence over everything except SourceMods
-    #   Only active in NF or NB compsets
-    if ($camnor) {
-      if ($phys_pkg eq 'cam_dev') {
-        print $fh "$camsrcdir/src/physics/camnor_phys/physics\n";
-      } else {
-        print $fh "$camsrcdir/src/physics/camnor_phys/physics_cam6\n";
-        die "CAM6 not currently supported for NorESM configurations.\n";
-      }
-      print $fh "$camsrcdir/src/physics/camnor_phys/control\n";
-      if ($dyn eq 'fv') {
-        print $fh "$camsrcdir/src/physics/camnor_phys/fv\n";
-      }
-    }
-
     # offline unit driver (defaults to stub)
     print $fh "$camsrcdir/src/unit_drivers\n";
     print $fh "$camsrcdir/src/unit_drivers/${offline_drv}\n";
@@ -2083,7 +2111,7 @@ sub write_filepath
 
     # Weak scaling fix. This has to come before physics/cam and before dycores
     # It also has to come before utils (which is already near the end).
-    if ($dyn eq 'se') {
+    if ($dyn eq 'se' or $dyn eq 'mpas') {
       print $fh "$camsrcdir/src/infrastructure\n";
     }
 
@@ -2256,6 +2284,34 @@ EOF
     $fh_in->close;
 }
 
+
+#-------------------------------------------------------------------------------
+sub write_fv3_makefile
+{
+
+    my ($file_in, $file_out) = @_;
+    my  $fh_in = new IO::File;
+    my  $fh_out = new IO::File;
+
+    $fh_out->open(">$file_out") or die "** can't open file: $file_out\n";
+
+    print $fh_out  <<"EOF";
+
+CAM_BLD      := $cam_bld
+
+EOF
+
+    # Copy the "template" makefile to the new makefile.
+    $fh_in->open("<$file_in") or die "** can't open file: $file_in\n";
+    while (<$fh_in>) {
+        print $fh_out $_;
+    }
+
+    $fh_out->close;
+    $fh_in->close;
+}
+
+
 #-------------------------------------------------------------------------------
 
 sub write_mpas_makefile
@@ -2283,6 +2339,7 @@ EOF
     $fh_out->close;
     $fh_in->close;
 }
+
 
 #-------------------------------------------------------------------------------
 
@@ -2339,6 +2396,11 @@ sub set_horiz_grid
         # in the npg parameter.
 
         $hgrid =~ s/\.pg\d+//;   # strip the '.pgN' extension
+        $cfg_ref->set('hgrid', $hgrid);
+    }
+    elsif ( $dyn_pkg eq 'fv3') {
+        # For FV3 dycore parse the parameters out of the grid specifier string.
+        $hgrid =~ m/C(\d+)/;
         $cfg_ref->set('hgrid', $hgrid);
     }
     elsif ($dyn_pkg =~ m/^eul$|^fv/) {

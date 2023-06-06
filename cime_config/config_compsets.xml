@@ -36,62 +36,34 @@
       - grid  (optional regular expression match for grid to work with the compset)
   </help>
 
-  <!-- ******************************** -->
-  <!-- CAM-Nor compsets                 -->
-  <!-- ******************************** -->
+  <!-- ****************************** -->
+  <!-- CAM nuopc testing -->
+  <!-- ****************************** -->
 
   <compset>
-    <alias>NF2000climo</alias>
-    <lname>2000_CAM60%NORESM_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
+    <alias>F2000Nuopc</alias>
+    <lname>2000_CAM40_CLM50%SP_CICE%PRES_DOCN%DOM_SROF_SGLC_SWAV</lname>
   </compset>
 
-  <compset>
-    <alias>NF2000dev</alias>
-    <lname>2000_CAM%DEV%NORESM_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
-  </compset>
-
-  <compset>
-    <alias>NF1850</alias>
-    <lname>1850_CAM60%NORESM_CLM51%FATES-SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
-  </compset>
-
-  <compset>
-    <alias>NFLT1850_TESTINGONLY_v0c</alias>
-    <lname>1850_CAM%DEV%NORESM%LT%GHGMAM4_CLM51%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
-  </compset>
-
-  <compset>
-    <alias>NFLTHIST_v0c</alias>
-    <lname>HIST_CAM%DEV%LT%NORESM%GHGMAM4_CLM51%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
-  </compset>
-
-  <compset>
-    <alias>NQPC6</alias>
-    <lname>2000_CAM60%NORESM_SLND_SICE_DOCN%AQP3_SROF_SGLC_SWAV</lname>
-  </compset>
-
-  <compset>
-    <alias>NQPC2000climo</alias>
-    <lname>2000_CAM60%NORESM%CCTS1_SLND_SICE_DOCN%AQP3_SROF_SGLC_SWAV</lname>
-  </compset>
-
-  <!-- ******************************** -->
-  <!-- CAM "science supported" compsets -->
-  <!-- ******************************** -->
+  <!-- ****************************** -->
+  <!-- CAM science supported compsets -->
+  <!-- ****************************** -->
 
   <compset>
     <alias>F2000climo</alias>
     <lname>2000_CAM60_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
+    <science_support grid="f09_f09_mg17"/>
   </compset>
 
   <compset>
     <alias>FHIST</alias>
     <lname>HIST_CAM60_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
+    <science_support grid="f09_f09_mg17"/>
   </compset>
 
   <compset>
     <alias>FLTHIST_v0c</alias>
-    <lname>HIST_CAM%DEV%GHGMAM4_CLM51%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
+    <lname>HIST_CAM%DEV%LT%GHGMAM4_CLM51%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
   </compset>
 
   <compset>
@@ -112,6 +84,7 @@
   <compset>
     <alias>FHIST_BGC</alias>
     <lname>HIST_CAM60_CLM50%BGC-CROP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
+<!--    <science_support grid="f09_f09_mg17"/> -->
   </compset>
 
   <!-- CAM simpler model compsets -->
@@ -119,11 +92,17 @@
   <compset>
     <alias>FDABIP04</alias>
     <lname>2000_CAM%DABIP04_SLND_SICE_SOCN_SROF_SGLC_SWAV</lname>
+    <science_support grid="T42z30_T42_mg17"/>
+    <science_support grid="T85z30_T85_mg17"/>
+    <science_support grid="T85z60_T85_mg17"/>
   </compset>
 
   <compset>
     <alias>FHS94</alias>
     <lname>2000_CAM%HS94_SLND_SICE_SOCN_SROF_SGLC_SWAV</lname>
+    <science_support grid="T42z30_T42_mg17"/>
+    <science_support grid="T85z30_T85_mg17"/>
+    <science_support grid="T85z60_T85_mg17"/>
   </compset>
 
   <compset>
@@ -144,11 +123,13 @@
   <compset>
     <alias>FSCAM</alias>
     <lname>2000_CAM60%SCAM_CLM50%SP_CICE%PRES_DOCN%DOM_SROF_SGLC_SWAV</lname>
+    <science_support grid="T42_T42"/>
   </compset>
 
   <compset>
     <alias>FCSCAM</alias>
     <lname>2000_CAM60%SCAM%CCTS1_CLM50%SP_CICE%PRES_DOCN%DOM_SROF_SGLC_SWAV</lname>
+    <science_support grid="T42_T42"/>
   </compset>
 
   <compset>
@@ -221,6 +202,8 @@
   <compset>
     <alias>QPC6</alias>
     <lname>2000_CAM60_SLND_SICE_DOCN%AQP3_SROF_SGLC_SWAV</lname>
+    <science_support grid="f09_f09_mg17"/>
+    <science_support grid="f19_f19_mg17"/>
   </compset>
 
   <compset>
@@ -254,6 +237,8 @@
   <compset>
     <alias>QSC6</alias>
     <lname>2000_CAM60_SLND_SICE_DOCN%SOMAQP_SROF_SGLC_SWAV</lname>
+    <science_support grid="f09_f09_mg17"/>
+    <science_support grid="f19_f19_mg17"/>
   </compset>
 
   <compset>
@@ -412,36 +397,43 @@
   <compset>
     <alias>FWHIST</alias>
     <lname>HIST_CAM60%WCTS_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
+    <science_support grid="f09_f09_mg17"/>
   </compset>
 
   <compset>
     <alias>FWHIST_BGC</alias>
     <lname>HIST_CAM60%WCTS_CLM50%BGC-CROP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
+    <science_support grid="f09_f09_mg17"/>
   </compset>
 
   <compset>
     <alias>FWsc2010climo</alias>
     <lname>2010_CAM60%WCSC_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
+    <science_support grid="f09_f09_mg17"/>
   </compset>
 
   <compset>
     <alias>FWsc2000climo</alias>
     <lname>2000_CAM60%WCSC_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
+    <science_support grid="f09_f09_mg17"/>
   </compset>
 
   <compset>
     <alias>FWsc1850</alias>
     <lname>1850_CAM60%WCSC_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
+    <science_support grid="f09_f09_mg17"/>
   </compset>
 
   <compset>
     <alias>FWscHIST</alias>
     <lname>HIST_CAM60%WCSC_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
+    <science_support grid="f09_f09_mg17"/>
   </compset>
 
   <compset>
     <alias>FW1850</alias>
     <lname>1850_CAM60%WCTS_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
+    <science_support grid="f09_f09_mg17"/>
   </compset>
 
   <!-- ****************************** -->
