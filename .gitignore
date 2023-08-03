@@ -18,6 +18,7 @@ libraries/mct
 libraries/parallelio
 src/atmos_phys
 src/dynamics/mpas/dycore
+src/hemco
 share
 
 # Ignore compiled python
