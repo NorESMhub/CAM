@@ -157,6 +157,10 @@
 <ncdata dyn="fv"  hgrid="0.47x0.63" nlev="130" waccmx="1">atm/waccm/ic/FC6X2000_f05_spinup01.cam.i.0002-01-01-00000_c190711.nc</ncdata>
 <ncdata dyn="fv"  hgrid="4x5"       nlev="130" waccmx="1"  ic_ymd="101" aquaplanet="1">atm/waccm/ic/waccmx_mam4_aqua_4x5_L130_c180803.nc</ncdata>
 <ncdata dyn="fv"  hgrid="1.9x2.5"   nlev="130" waccmx="1"  ic_ymd="101" aquaplanet="1">atm/waccm/ic/waccmx_mam4_aqua_1.9x2.5_L130_c180803.nc</ncdata>
+<ncdata dyn="se"  hgrid="ne3np4" nlev="32" npg="3" aquaplanet="1"       >atm/cam/inic/se/cam6_QPC6_aqua_ne3pg3_mg37_L32_01-01-31_c221214.nc</ncdata>
+<ncdata dyn="se"  hgrid="ne3np4" nlev="58" npg="3" aquaplanet="1"       >atm/cam/inic/se/cam6_QPC6_aqua_ne3pg3_mg37_L58_01-01-31_c221214.nc</ncdata>
+<ncdata dyn="se"  hgrid="ne3np4" nlev="32" npg="3"                      >atm/cam/inic/se/cam6_QPC6_topo_ne3pg3_mg37_L32_01-01-31_c221214.nc</ncdata>
+<ncdata dyn="se"  hgrid="ne3np4" nlev="58" npg="3"                      >atm/cam/inic/se/cam6_QPC6_topo_ne3pg3_mg37_L58_01-01-31_c221214.nc</ncdata>
 <ncdata dyn="se"  hgrid="ne5np4"    nlev="126" waccmx="1"               >atm/waccm/ic/waccmx_aqua_ne5np4_126L_c210304.nc</ncdata>
 <ncdata dyn="se"  hgrid="ne16np4"   nlev="126" waccmx="1"               >atm/waccm/ic/waccmx_ne16np4_126L_c200108.nc</ncdata>
 <ncdata dyn="se"  hgrid="ne16np4"   nlev="130" waccmx="1"               >atm/waccm/ic/fx2000_phys-ionos-cpl_ne16_spinup03.cam.i.0002-01-01-00000_c201005.nc</ncdata>
@@ -216,9 +220,9 @@
 <ncdata dyn="se" hgrid="ne3np4"   nlev="32"             ic_ymd="101" >atm/cam/inic/se/cam6_QPC6_topo_ne3pg3_mg37_L32_01-01-31_c221214.nc</ncdata>
 <ncdata dyn="se" hgrid="ne3np4"   nlev="58"             ic_ymd="101" >atm/cam/inic/se/cam6_QPC6_topo_ne3pg3_mg37_L58_01-01-31_c221214.nc</ncdata>
 <ncdata dyn="se" hgrid="ne3np4"   nlev="93"             ic_ymd="101" >atm/cam/inic/se/cam6_QPC6_topo_ne3pg3_mg37_L93_01-01-31_c221214.nc</ncdata>
-<ncdata dyn="se" hgrid="ne5np4"   nlev="30"             ic_ymd="101" >atm/cam/inic/homme/cami-mam3_0000-01_ne5np4_L30.140707.nc</ncdata>
 <ncdata dyn="se" hgrid="ne5np4"   nlev="32"             ic_ymd="101" >atm/cam/inic/se/F2000climo_ne5pg3_mg37_L32_01-01-31_c230520.nc</ncdata>
 <ncdata dyn="se" hgrid="ne5np4"   nlev="58"             ic_ymd="101" >atm/cam/inic/se/F2000climo_ne5pg3_mg37_L58_01-01-31_c230520.nc</ncdata>
+
 <ncdata dyn="se" hgrid="ne16np4"  nlev="26"             ic_ymd="101" >atm/cam/inic/se/ape_topo_cam4_ne16np4_L26_c171020.nc</ncdata>
 <ncdata dyn="se" hgrid="ne16np4"  nlev="30"             ic_ymd="101" >atm/cam/inic/se/ape_topo_cam4_ne16np4_L30_c171020.nc</ncdata>
 <ncdata dyn="se" hgrid="ne16np4"  nlev="32"             ic_ymd="101" >atm/cam/inic/se/ape_topo_cam4_ne16np4_L32_c171020.nc</ncdata>
@@ -236,6 +240,9 @@
 
 <ncdata dyn="se" hgrid="ne240np4" nlev="30"             ic_ymd="101" >atm/cam/inic/homme/cami-mam3_0000-01-ne240np4_L30_c111004.nc</ncdata>
 
+<ncdata dyn="se" hgrid="ne3np4"   nlev="32"  aquaplanet="1" ic_ymd="101" >atm/cam/inic/se/cam6_QPC6_aqua_ne3pg3_mg37_L32_01-01-31_c221214.nc</ncdata>
+<ncdata dyn="se" hgrid="ne3np4"   nlev="58"  aquaplanet="1" ic_ymd="101" >atm/cam/inic/se/cam6_QPC6_aqua_ne3pg3_mg37_L58_01-01-31_c221214.nc</ncdata>
+<ncdata dyn="se" hgrid="ne3np4"   nlev="93"  aquaplanet="1" ic_ymd="101" >atm/cam/inic/se/cam6_QPC6_aqua_ne3pg3_mg37_L93_01-01-31_c221214.nc</ncdata>
 <ncdata dyn="se" hgrid="ne5np4"  nlev="26"  aquaplanet="1" ic_ymd="101" >atm/cam/inic/se/ape_cam4_ne5np4_L26_c170517.nc</ncdata>
 <ncdata dyn="se" hgrid="ne16np4"  nlev="26"  aquaplanet="1" ic_ymd="101" >atm/cam/inic/se/ape_cam4_ne16np4_L26_c170417.nc</ncdata>
 <ncdata dyn="se" hgrid="ne30np4"  nlev="26"  aquaplanet="1" ic_ymd="101" >atm/cam/inic/se/ape_cam4_ne30np4_L26_c170417.nc</ncdata>
@@ -248,9 +255,6 @@
 <ncdata dyn="se" hgrid="ne30np4"  nlev="30"  aquaplanet="1" ic_ymd="101" >atm/cam/inic/se/ape_cam5_ne30np4_L30_c170417.nc</ncdata>
 <ncdata dyn="se" hgrid="ne120np4" nlev="30"  aquaplanet="1" ic_ymd="101" >atm/cam/inic/se/ape_cam5_ne120np4_L30_c170419.nc</ncdata>
 
-<ncdata dyn="se" hgrid="ne3np4"   nlev="32"  aquaplanet="1" ic_ymd="101" >atm/cam/inic/se/cam6_QPC6_aqua_ne3pg3_mg37_L32_01-01-31_c221214.nc</ncdata>
-<ncdata dyn="se" hgrid="ne3np4"   nlev="58"  aquaplanet="1" ic_ymd="101" >atm/cam/inic/se/cam6_QPC6_aqua_ne3pg3_mg37_L58_01-01-31_c221214.nc</ncdata>
-<ncdata dyn="se" hgrid="ne3np4"   nlev="93"  aquaplanet="1" ic_ymd="101" >atm/cam/inic/se/cam6_QPC6_aqua_ne3pg3_mg37_L93_01-01-31_c221214.nc</ncdata>
 <ncdata dyn="se" hgrid="ne5np4"   nlev="32"  aquaplanet="1" ic_ymd="101" >atm/cam/inic/se/ape_cam6_ne5np4_L32_c170517.nc</ncdata>
 <ncdata dyn="se" hgrid="ne16np4"  nlev="32"  aquaplanet="1" ic_ymd="101" >atm/cam/inic/se/ape_cam6_ne16np4_L32_c170509.nc</ncdata>
 <ncdata dyn="se" hgrid="ne30np4"  nlev="32"  aquaplanet="1" ic_ymd="101" >atm/cam/inic/se/ape_cam6_ne30np4_L32_c170509.nc</ncdata>
@@ -304,13 +308,13 @@
 <bnd_topo hgrid="ne120np4"        >atm/cam/topo/se/ne120np4_nc3000_Co015_Fi001_PF_nullRR_Nsw010_20171011.nc</bnd_topo>
 <bnd_topo hgrid="ne240np4"        >atm/cam/topo/se/ne240np4_nc3000_Co008_Fi001_PF_nullRR_Nsw005_20171014.nc</bnd_topo>
 
+<bnd_topo hgrid="ne3np4"   npg="3">atm/cam/topo/se/ne3pg3_gmted2010_modis_bedmachine_nc0540_Laplace1000_noleak_20230209.nc</bnd_topo>
 <bnd_topo hgrid="ne5np4"   npg="2">atm/cam/topo/se/ne5pg2_nc3000_Co360_Fi001_MulG_PF_nullRR_Nsw060_20170706.nc</bnd_topo>
 <bnd_topo hgrid="ne30np4"  npg="2">atm/cam/topo/se/ne30pg2_nc3000_Co060_Fi001_PF_nullRR_Nsw042_20171014.nc</bnd_topo>
 <bnd_topo hgrid="ne60np4"  npg="2">atm/cam/topo/se/ne60pg2_nc3000_Co030_Fi001_PF_nullRR_Nsw021_20171014.nc</bnd_topo>
 <bnd_topo hgrid="ne120np4" npg="2">atm/cam/topo/se/ne120pg2_nc3000_Co015_Fi001_PF_nullRR_Nsw010_20171012.nc</bnd_topo>
 <bnd_topo hgrid="ne240np4" npg="2">atm/cam/topo/se/ne240pg2_nc3000_Co008_Fi001_PF_nullRR_Nsw005_20171014.nc</bnd_topo>
 
-<bnd_topo hgrid="ne3np4"   npg="3">atm/cam/topo/se/ne3pg3_gmted2010_modis_bedmachine_nc0540_Laplace1000_noleak_20230209.nc</bnd_topo>
 <bnd_topo hgrid="ne5np4"   npg="3">atm/cam/topo/se/ne5pg3_nc3000_Co360_Fi001_MulG_PF_nullRR_Nsw064_20170516.nc</bnd_topo>
 <bnd_topo hgrid="ne16np4"  npg="3">atm/cam/topo/se/ne16pg3_nc3000_Co120_Fi001_PF_nullRR_Nsw084_20171012.nc</bnd_topo>
 <bnd_topo hgrid="ne30np4"  npg="3">atm/cam/topo/se/ne30pg3_gmted2010_modis_bedmachine_nc3000_Laplace0100_20230105.nc</bnd_topo>
@@ -1890,18 +1894,16 @@
 <gas_wetdep_method  phys="spcam_m2005"   >OFF</gas_wetdep_method>
 
 <!-- Dry Dep surface data file needed by prognostic MAM on unstructured grid only. -->
-<drydep_srf_file hgrid="ne3np4"  npg="3" >atm/cam/chem/trop_mam/atmsrf_ne3np4.pg3_c221214.nc</drydep_srf_file>
-<drydep_srf_file hgrid="ne5np4"          >atm/cam/chem/trop_mam/atmsrf_ne5np4_110920.nc</drydep_srf_file>
+<drydep_srf_file hgrid="ne3np4"   npg="3">atm/cam/chem/trop_mam/atmsrf_ne3np4.pg3_cdf5_c221214.nc</drydep_srf_file>
 <drydep_srf_file hgrid="ne5np4"   npg="3">atm/cam/chem/trop_mam/atmsrf_ne5pg3_201105.nc</drydep_srf_file>
-<drydep_srf_file hgrid="ne16np4"         >atm/cam/chem/trop_mam/atmsrf_ne16np4_110920.nc</drydep_srf_file>
+<drydep_srf_file hgrid="ne5np4"          >atm/cam/chem/trop_mam/atmsrf_ne5np4_cdf5_110920.nc</drydep_srf_file>
+<drydep_srf_file hgrid="ne16np4"         >atm/cam/chem/trop_mam/atmsrf_ne16np4_cdf5_110920.nc</drydep_srf_file>
 <drydep_srf_file hgrid="ne16np4"  npg="3">atm/cam/chem/trop_mam/atmsrf_ne16pg3_c230520.nc</drydep_srf_file>
-<drydep_srf_file hgrid="ne30np4"         >atm/cam/chem/trop_mam/atmsrf_ne30np4_110920.nc</drydep_srf_file>
-<drydep_srf_file hgrid="ne30np4"  npg="2">atm/cam/chem/trop_mam/atmsrf_ne30np4.pg2_200108.nc</drydep_srf_file>
-<drydep_srf_file hgrid="ne30np4"  npg="3">atm/cam/chem/trop_mam/atmsrf_ne30pg3_180522.nc</drydep_srf_file>
+<drydep_srf_file hgrid="ne30np4"         >atm/cam/chem/trop_mam/atmsrf_ne30np4_cdf5_110920.nc</drydep_srf_file>
+<drydep_srf_file hgrid="ne30np4"  npg="3">atm/cam/chem/trop_mam/atmsrf_ne30pg3_cdf5_180522.nc</drydep_srf_file>
 <drydep_srf_file hgrid="ne60np4"         >atm/cam/chem/trop_mam/atmsrf_ne60np4_110920.nc</drydep_srf_file>
-<drydep_srf_file hgrid="ne120np4"        >atm/cam/chem/trop_mam/atmsrf_ne120np4_110920.nc</drydep_srf_file>
-<drydep_srf_file hgrid="ne120np4" npg="2">atm/cam/chem/trop_mam/atmsrf_ne120np4.pg2_200109.nc</drydep_srf_file>
-<drydep_srf_file hgrid="ne240np4"        >atm/cam/chem/trop_mam/atmsrf_ne240np4_110920.nc</drydep_srf_file>
+<drydep_srf_file hgrid="ne120np4"        >atm/cam/chem/trop_mam/atmsrf_ne120np4_cdf5_110920.nc</drydep_srf_file>
+<drydep_srf_file hgrid="ne240np4"        >atm/cam/chem/trop_mam/atmsrf_ne240np4_cdf5_110920.nc</drydep_srf_file>
 
 <drydep_srf_file hgrid="ne0np4CONUS.ne30x8"      >atm/cam/chem/trop_mam/atmsrf_ne0np4conus30x8_161116.nc</drydep_srf_file>
 <drydep_srf_file hgrid="ne0np4.ARCTIC.ne30x4"    >atm/cam/chem/trop_mam/atmsrf_ne30x4_ARCTIC_191011.nc</drydep_srf_file>
@@ -2184,7 +2186,6 @@
 <micro_mg_version     microphys="mg1">    1          </micro_mg_version>
 <micro_mg_sub_version microphys="mg1">    0          </micro_mg_sub_version>
 <micro_mg_num_steps   microphys="mg1">    1          </micro_mg_num_steps>
-
 <micro_mg_version     microphys="mg2">    2          </micro_mg_version>
 <micro_mg_sub_version microphys="mg2">    0          </micro_mg_sub_version>
 <micro_mg_num_steps   microphys="mg2">    1          </micro_mg_num_steps>
@@ -2959,7 +2960,6 @@
 <fv3_nwat phys="adiabatic"                                                  > 1         </fv3_nwat>
 <fv3_nwat phys="kessler"                                                    > 3         </fv3_nwat>
 <fv3_nwat phys="tj2016"                                                     > 1         </fv3_nwat>
-<fv3_nwat phys="grayrad"                                                    > 1         </fv3_nwat>
 <fv3_fv_sg_adj                                                              > 0         </fv3_fv_sg_adj>
 <fv3_grid_type                                                              > 0         </fv3_grid_type>
 <fv3_hord_dp        dyn="fv3"                                               > -10        </fv3_hord_dp>
@@ -3177,14 +3177,15 @@
 
 <rxn_rate_sums chem="waccm_ma_mam5">
   'O3S_Loss = 2.0*O_O3 + O1D_H2O + HO2_O + HO2_O3 + OH_O + OH_O3 + H_O3 + 2.0*NO2_O + 2.0*jno3_b + 2.0*CLO_O + 2.0*jcl2o2 + ',
-	     '2.0*CLO_CLOa + 2.0*CLO_CLOb + 2.0*BRO_CLOb + 2.0*BRO_CLOc + 2.0*BRO_BRO + 2.0*BRO_O + CLO_HO2 + BRO_HO2 + S_O3'
+            '2.0*CLO_CLOa + 2.0*CLO_CLOb + 2.0*BRO_CLOb + 2.0*BRO_CLOc + 2.0*BRO_BRO + 2.0*BRO_O + CLO_HO2 + BRO_HO2 + S_O3'
 </rxn_rate_sums>
 <rxn_rate_sums chem="waccm_ma_mam5" waccmx="1">
   'O3S_Loss = 2.0*O_O3 + O1D_H2O + HO2_O + HO2_O3 + OH_O + OH_O3 + H_O3 + 2.0*NO2_O + 2.0*jno3_b + 2.0*CLO_O + 2.0*jcl2o2 + ',
-	     '2.0*CLO_CLOa + 2.0*CLO_CLOb + 2.0*BRO_CLOb + 2.0*BRO_CLOc + 2.0*BRO_BRO + 2.0*BRO_O + CLO_HO2 + BRO_HO2 + S_O3',
+            '2.0*CLO_CLOa + 2.0*CLO_CLOb + 2.0*BRO_CLOb + 2.0*BRO_CLOc + 2.0*BRO_BRO + 2.0*BRO_O + CLO_HO2 + BRO_HO2 + S_O3',
   'SolIonRate_Tot = jeuv_1 + jeuv_2 + jeuv_3 + jeuv_4 + jeuv_5 + jeuv_6 + jeuv_7 + jeuv_8 + jeuv_9 + jeuv_10 + jeuv_11 + ',
                    'jeuv_14 + jeuv_15 + jeuv_16 + jeuv_17 + jeuv_18 + jeuv_19 + jeuv_20 + jeuv_21 + jeuv_22 + jeuv_23',
 </rxn_rate_sums>
+
 <rxn_rate_sums chem="trop_strat_mam5_ts2">
     'O3_Prod = NO_HO2 + CH3O2_NO + HOCH2OO_NO + C2H5O2_NO + CH3CO3_NO + EO2_NO + C3H7O2_NO + PO2_NO + ',
                'RO2_NO + ENEO2_NO + MACRO2_NOa + jhonitr + ',
@@ -3362,4 +3363,5 @@
 <!-- use 2x2.5 degree HEMCO grid for 1.9x2.5 degree simulation -->
 <hemco_grid_xdim hgrid="1.9x2.5">144</hemco_grid_xdim>
 <hemco_grid_ydim hgrid="1.9x2.5">91</hemco_grid_ydim>
+
 </namelist_defaults>

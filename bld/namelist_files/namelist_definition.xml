@@ -53,7 +53,6 @@
           This is an optional attribute that is mainly useful for variables
           that have only a small number of allowed values.
                                                                         -->
-
 <!-- Frierson Simple Physics Parameters -->
 
 <entry id="frierson_Wind_min" type="real" category="frierson"
@@ -168,7 +167,7 @@
        The ocean temperatures are initailized with the values:
         T_s = Tmin + Tdlt*exp[-0.5*(Lat/Twidth)^2]
        Default: 26.
-       </entry>
+</entry>
 
 <!-- Nudging Parameters -->
 
@@ -2952,7 +2951,7 @@ Default: .false.
 <entry id="hetfrz_bc_scalfac" type="real" category="microphys"
        group="hetfrz_classnuc_nl" valid_values="" >
 Heterogeneous freezing scaling factor for black carbon aerosols.
-Default: 0.01
+Default: 0.0
 </entry>
 
 <entry id="hetfrz_dust_scalfac" type="real" category="microphys"
@@ -5096,7 +5095,6 @@ Default: set by build-namelist.
 Force emission year for HEMCO clock if positive. This will force cycling of data on this year.
 Default: set by build-namelist for climo cases, otherwise -1 to use model clock.
 </entry>
-
 
 <!-- Reference Pressures -->
 
