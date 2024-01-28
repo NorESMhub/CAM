@@ -68,8 +68,8 @@ module physpkg
   integer ::  cldliqini_idx      = 0
   integer ::  cldiceini_idx      = 0
 !AL
-  integer ::  cldncini_idx       = 0 
-  integer ::  cldniini_idx       = 0 
+  integer ::  cldncini_idx       = 0
+  integer ::  cldniini_idx       = 0
 !AK
   integer ::  prec_str_idx       = 0
   integer ::  snow_str_idx       = 0
@@ -1348,7 +1348,7 @@ contains
     real(r8) :: tmp_cldni(pcols,pver) ! tmp space
 !AL
 
-    !tht: variables for dme_energy_adjust 
+    !tht: variables for dme_energy_adjust
     real(r8):: eflx(pcols), dsema(pcols)
     logical, parameter:: ohf_adjust =.true.  ! condensates have surface specific enthalpy
 
@@ -1666,7 +1666,7 @@ contains
    !call diag_phys_tend_writeout (state, pbuf,  tend, ztodt, tmp_q, tmp_cldliq, tmp_cldice, &
    !     qini, cldliqini, cldiceini)
      call diag_phys_tend_writeout (state, pbuf,  tend, ztodt, tmp_q, tmp_t, tmp_cldliq, tmp_cldice, &
-          tmp_cldnc,tmp_cldni,qini, cldliqini, cldiceini, cldncini, cldniini, eflx, dsema ) 
+          tmp_cldnc,tmp_cldni,qini, cldliqini, cldiceini, cldncini, cldniini, eflx, dsema )
 !AL-tht
 
     call clybry_fam_set( ncol, lchnk, map2chm, state%q, pbuf )
@@ -2309,7 +2309,7 @@ contains
 
        call t_stopf('bc_aerosols')
 
-    end if 
+    end if
 
     !===================================================
     ! Moist physical parameteriztions complete:
@@ -2440,8 +2440,10 @@ subroutine phys_timestep_init(phys_state, cam_in, cam_out, pbuf2d)
   call aircraft_emit_adv(phys_state, pbuf2d)
   call prescribed_volcaero_adv(phys_state, pbuf2d)
   call prescribed_strataero_adv(phys_state, pbuf2d)
+
 #ifdef OSLO_AERO
-  call oslo_aero_ocean_time(phys_state, pbuf2d)
+  ! Ocean_species
+  call oslo_aero_ocean_adv(phys_state, pbuf2d)
 #endif
 
   ! prescribed aerosol deposition fluxes

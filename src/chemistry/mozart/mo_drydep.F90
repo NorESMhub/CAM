@@ -1616,9 +1616,6 @@ contains
 
     ! determine if modal aerosols are active so that fraction_landuse array is initialized for modal aerosal dry dep
     call phys_getopts(prog_modal_aero_out=prog_modal_aero)
-#ifdef OSLO_AERO
-    prog_modal_aero = .TRUE.
-#endif
 
     call dvel_inti_fromlnd()
 

@@ -12,9 +12,6 @@ module mo_srf_emissions
   use ppgrid,        only : pcols, begchunk, endchunk
   use cam_logfile,   only : iulog
   use tracer_data,   only : trfld,trfile
-#ifdef OSLO_AERO
-  use oslo_aero_ocean, only: oslo_aero_dms_inq
-#endif
 
   implicit none
 
@@ -42,9 +39,6 @@ module mo_srf_emissions
   type(emission), allocatable :: emissions(:)
   integer                     :: n_emis_files 
   integer :: c10h16_ndx, isop_ndx
-#ifdef OSLO_AERO
-  integer :: dms_ndx
-#endif
 
 contains
 
@@ -263,10 +257,6 @@ contains
     c10h16_ndx = get_spc_ndx('C10H16')
     isop_ndx = get_spc_ndx('ISOP')
 
-#ifdef OSLO_AERO
-    dms_ndx = get_spc_ndx('DMS')
-#endif
-
   end subroutine srf_emissions_inti
 
   subroutine set_srf_emissions_time( pbuf2d, state )
@@ -382,16 +372,6 @@ contains
     doy_loc     = aint( calday )
     declination = dec_max * cos((doy_loc - 172._r8)*twopi/dayspy)
     tod = (calday - doy_loc) + .5_r8
-
-#ifdef OSLO_AERO
-    ! Remove DMS emissions if option is not "from file" 
-    ! Online emissions are treated in seasalt module
-    if (.not. oslo_aero_dms_inq())  then ! Returns "True" if "emissions from file"
-       if (dms_ndx .gt. 0)then
-          sflx(:,dms_ndx) = 0.0_r8
-       end if
-    end if
-#endif
 
     do i = 1,ncol
        !

@@ -72,9 +72,6 @@ use cam_logfile,      only : iulog
 use ref_pres,         only : do_molec_diff, nbot_molec
 use phys_control,     only : phys_getopts
 use time_manager,     only : is_first_step
-#ifdef OSLO_AERO
-  use oslo_aero_share, only: getNumberOfAerosolTracers, fillAerosolTracerList
-#endif
 
 implicit none
 private
@@ -321,16 +318,14 @@ subroutine vertical_diffusion_init(pbuf2d)
 
   ! prog_modal_aero determines whether prognostic modal aerosols are present in the run.
   call phys_getopts(prog_modal_aero_out=prog_modal_aero)
-
-#ifdef OSLO_AERO
-  prog_modal_aero = .TRUE.
-  pmam_ncnst = getNumberOfAerosolTracers()
-  allocate(pmam_cnst_idx(pmam_ncnst))
-  call fillAerosolTracerList(pmam_cnst_idx)
-#else
   if (prog_modal_aero) then
-     ! NOTE THAT THIS BREAKS THE CONCEPT OF KEEPEING MAM-AEROSOLS OUT OF
-     ! DIFFUSION, BUT IF YOU ARE USING MAM, YOU SHOULD NOT BEE HERE ANYWAY!!
+
+     ! Get the constituent indices of the number and mass mixing ratios of the modal
+     ! aerosols.
+     !
+     ! N.B. - This implementation assumes that the prognostic modal aerosols are
+     !        impacting the climate calculation (i.e., can get info from list 0).
+     !
 
      ! First need total number of mam constituents
      call rad_cnst_get_info(0, nmodes=nmodes)
@@ -338,6 +333,7 @@ subroutine vertical_diffusion_init(pbuf2d)
         call rad_cnst_get_info(0, m, nspec=nspec)
         pmam_ncnst = pmam_ncnst + 1 + nspec
      end do
+
      allocate(pmam_cnst_idx(pmam_ncnst))
 
      ! Get the constituent indicies
@@ -352,7 +348,6 @@ subroutine vertical_diffusion_init(pbuf2d)
         end do
      end do
   end if
-#endif
 
   ! Initialize upper boundary condition module
 
@@ -579,10 +574,6 @@ subroutine vertical_diffusion_init(pbuf2d)
   if( history_budget ) then
      call add_default( vdiffnam(ixcldliq), history_budget_histfile_num, ' ' )
      call add_default( vdiffnam(ixcldice), history_budget_histfile_num, ' ' )
-#ifdef OSLO_AERO
-     call add_default( vdiffnam(ixnumliq), history_budget_histfile_num, ' ' )
-     call add_default( vdiffnam(ixnumice), history_budget_histfile_num, ' ' )
-#endif
      if( history_budget_histfile_num > 1 ) then
         call add_default(  vdiffnam(1), history_budget_histfile_num, ' ' )
         call add_default( 'DTV'       , history_budget_histfile_num, ' ' )
@@ -1062,16 +1053,16 @@ subroutine vertical_diffusion_tend( &
           tem2(:ncol,:), ftem(:ncol,:))
      ftem_prePBL(:ncol,:) = state%q(:ncol,:,1)/ftem(:ncol,:)*100._r8
 
-     call outfld( 'qt_pre_PBL   ', qt_prePBL,                 pcols, lchnk )
-     call outfld( 'sl_pre_PBL   ', sl_prePBL,                 pcols, lchnk )
-     call outfld( 'slv_pre_PBL  ', slv_prePBL,                pcols, lchnk )
-     call outfld( 'u_pre_PBL    ', state%u,                   pcols, lchnk )
-     call outfld( 'v_pre_PBL    ', state%v,                   pcols, lchnk )
+     call outfld( 'qt_pre_PBL   ', qt_prePBL,             pcols, lchnk )
+     call outfld( 'sl_pre_PBL   ', sl_prePBL,             pcols, lchnk )
+     call outfld( 'slv_pre_PBL  ', slv_prePBL,            pcols, lchnk )
+     call outfld( 'u_pre_PBL    ', state%u,               pcols, lchnk )
+     call outfld( 'v_pre_PBL    ', state%v,               pcols, lchnk )
      call outfld( 'qv_pre_PBL   ', state%q(:,:,1),        pcols, lchnk )
      call outfld( 'ql_pre_PBL   ', state%q(:,:,ixcldliq), pcols, lchnk )
      call outfld( 'qi_pre_PBL   ', state%q(:,:,ixcldice), pcols, lchnk )
-     call outfld( 't_pre_PBL    ', state%t,                   pcols, lchnk )
-     call outfld( 'rh_pre_PBL   ', ftem_prePBL,               pcols, lchnk )
+     call outfld( 't_pre_PBL    ', state%t,               pcols, lchnk )
+     call outfld( 'rh_pre_PBL   ', ftem_prePBL,           pcols, lchnk )
 
   end if
 
@@ -1179,14 +1170,11 @@ subroutine vertical_diffusion_tend( &
      ! Modal aerosol species not diffused, so just add the explicit surface fluxes to the
      ! lowest layer
 
-     ! NOTE: Oslo aero adds emissions together with dry deposition
-#ifndef OSLO_AERO
      tmp1(:ncol) = ztodt * gravit * state%rpdel(:ncol,pver)
      do m = 1, pmam_ncnst
         l = pmam_cnst_idx(m)
         q_tmp(:ncol,pver,l) = q_tmp(:ncol,pver,l) + tmp1(:ncol) * cam_in%cflx(:ncol,l)
      enddo
-#endif
   end if
 
   ! -------------------------------------------------------- !
@@ -1398,32 +1386,33 @@ subroutine vertical_diffusion_tend( &
 
   if (.not. do_pbl_diags) then
 
-     call outfld( 'sl_aft_PBL'   , sl,                        pcols, lchnk )
-     call outfld( 'qt_aft_PBL'   , qt,                        pcols, lchnk )
-     call outfld( 'slv_aft_PBL'  , slv,                       pcols, lchnk )
-     call outfld( 'u_aft_PBL'    , u_aft_PBL,                 pcols, lchnk )
-     call outfld( 'v_aft_PBL'    , v_aft_PBL,                 pcols, lchnk )
-     call outfld( 'qv_aft_PBL'   , qv_aft_PBL,                pcols, lchnk )
-     call outfld( 'ql_aft_PBL'   , ql_aft_PBL,                pcols, lchnk )
-     call outfld( 'qi_aft_PBL'   , qi_aft_PBL,                pcols, lchnk )
-     call outfld( 't_aft_PBL '   , t_aftPBL,                  pcols, lchnk )
-     call outfld( 'rh_aft_PBL'   , ftem_aftPBL,               pcols, lchnk )
-     call outfld( 'slflx_PBL'    , slflx,                     pcols, lchnk )
-     call outfld( 'qtflx_PBL'    , qtflx,                     pcols, lchnk )
-     call outfld( 'uflx_PBL'     , uflx,                      pcols, lchnk )
-     call outfld( 'vflx_PBL'     , vflx,                      pcols, lchnk )
-     call outfld( 'slflx_cg_PBL' , slflx_cg,                  pcols, lchnk )
-     call outfld( 'qtflx_cg_PBL' , qtflx_cg,                  pcols, lchnk )
-     call outfld( 'uflx_cg_PBL'  , uflx_cg,                   pcols, lchnk )
-     call outfld( 'vflx_cg_PBL'  , vflx_cg,                   pcols, lchnk )
-     call outfld( 'slten_PBL'    , slten,                     pcols, lchnk )
-     call outfld( 'uten_PBL'     , ptend%u(:,:),              pcols, lchnk )
-     call outfld( 'vten_PBL'     , ptend%v(:,:),              pcols, lchnk )
-     call outfld( 'qvten_PBL'    , ptend%q(:,:,1),            pcols, lchnk )
-     call outfld( 'qlten_PBL'    , ptend%q(:,:,ixcldliq),     pcols, lchnk )
-     call outfld( 'qiten_PBL'    , ptend%q(:,:,ixcldice),     pcols, lchnk )
-     call outfld( 'tten_PBL'     , tten,                      pcols, lchnk )
-     call outfld( 'rhten_PBL'    , rhten,                     pcols, lchnk )
+     call outfld( 'sl_aft_PBL'   , sl,                    pcols, lchnk )
+     call outfld( 'qt_aft_PBL'   , qt,                    pcols, lchnk )
+     call outfld( 'slv_aft_PBL'  , slv,                   pcols, lchnk )
+     call outfld( 'u_aft_PBL'    , u_aft_PBL,             pcols, lchnk )
+     call outfld( 'v_aft_PBL'    , v_aft_PBL,             pcols, lchnk )
+     call outfld( 'qv_aft_PBL'   , qv_aft_PBL,            pcols, lchnk )
+     call outfld( 'ql_aft_PBL'   , ql_aft_PBL,            pcols, lchnk )
+     call outfld( 'qi_aft_PBL'   , qi_aft_PBL,            pcols, lchnk )
+     call outfld( 't_aft_PBL '   , t_aftPBL,              pcols, lchnk )
+     call outfld( 'rh_aft_PBL'   , ftem_aftPBL,           pcols, lchnk )
+     call outfld( 'slflx_PBL'    , slflx,                 pcols, lchnk )
+     call outfld( 'qtflx_PBL'    , qtflx,                 pcols, lchnk )
+     call outfld( 'uflx_PBL'     , uflx,                  pcols, lchnk )
+     call outfld( 'vflx_PBL'     , vflx,                  pcols, lchnk )
+     call outfld( 'slflx_cg_PBL' , slflx_cg,              pcols, lchnk )
+     call outfld( 'qtflx_cg_PBL' , qtflx_cg,              pcols, lchnk )
+     call outfld( 'uflx_cg_PBL'  , uflx_cg,               pcols, lchnk )
+     call outfld( 'vflx_cg_PBL'  , vflx_cg,               pcols, lchnk )
+     call outfld( 'slten_PBL'    , slten,                 pcols, lchnk )
+     call outfld( 'qtten_PBL'    , qtten,                 pcols, lchnk )
+     call outfld( 'uten_PBL'     , ptend%u(:,:),          pcols, lchnk )
+     call outfld( 'vten_PBL'     , ptend%v(:,:),          pcols, lchnk )
+     call outfld( 'qvten_PBL'    , ptend%q(:,:,1),        pcols, lchnk )
+     call outfld( 'qlten_PBL'    , ptend%q(:,:,ixcldliq), pcols, lchnk )
+     call outfld( 'qiten_PBL'    , ptend%q(:,:,ixcldice), pcols, lchnk )
+     call outfld( 'tten_PBL'     , tten,                  pcols, lchnk )
+     call outfld( 'rhten_PBL'    , rhten,                 pcols, lchnk )
 
   end if
 

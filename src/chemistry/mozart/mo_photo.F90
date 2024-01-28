@@ -119,11 +119,7 @@ contains
     use ioFileMod,     only : getfil
     use mo_chem_utls,  only : get_spc_ndx, get_rxt_ndx, get_inv_ndx
     use mo_jlong,      only : jlong_init
-#ifdef OSLO_AERO
-    use oslo_aero_seasalt, only : sslt_names=>seasalt_names, sslt_ncnst=>seasalt_nbin
-#else
     use seasalt_model, only : sslt_names=>seasalt_names, sslt_ncnst=>seasalt_nbin
-#endif
     use mo_jshort,     only : jshort_init
     use mo_jeuv,       only : jeuv_init, neuv
     use phys_grid,     only : get_ncols_p, get_rlat_all_p    
@@ -980,11 +976,7 @@ contains
     use mo_photoin,   only : photoin
     use mo_tuv_inti,  only : nlng
     use time_manager, only : get_curr_date
-#ifdef OSLO_AERO
-    use oslo_aero_dust, only : dust_nbin
-#else
     use dust_model,   only : dust_nbin
-#endif
     use phys_grid,    only : get_rlat_all_p, get_rlon_all_p
 
     implicit none

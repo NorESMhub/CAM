@@ -347,11 +347,7 @@ end function chem_is
     use tracer_cnst,      only: tracer_cnst_defaultopts, tracer_cnst_setopts
     use tracer_srcs,      only: tracer_srcs_defaultopts, tracer_srcs_setopts
     use aero_model,       only: aero_model_readnl
-#ifdef OSLO_AERO
-    use oslo_aero_dust,   only: oslo_aero_dust_readnl 
-#else
     use dust_model,       only: dust_readnl
-#endif
     use gas_wetdep_opts,  only: gas_wetdep_readnl
     use upper_bc,         only: ubc_defaultopts, ubc_setopts
     use mo_drydep,        only: drydep_srf_file
@@ -670,11 +666,7 @@ end function chem_is
         tgcm_ubc_fixed_tod_in = tgcm_ubc_fixed_tod )
 
    call aero_model_readnl(nlfile)
-#ifdef OSLO_AERO
-   call oslo_aero_dust_readnl(nlfile)     
-#else
    call dust_readnl(nlfile)     
-#endif
 !
    call gas_wetdep_readnl(nlfile)
    call gcr_ionization_readnl(nlfile)
@@ -771,12 +763,12 @@ end function chem_is_active
     use infnan,                only : nan, assignment(=)
     use mo_chem_utls,          only : get_spc_ndx
     use cam_abortutils,        only : endrun
+    use aero_model,            only : aero_model_init
     use mo_setsox,             only : sox_inti
     use constituents,          only : sflxnam
     use noy_ubc,             only : noy_ubc_init
     use fire_emissions,      only : fire_emissions_init
     use short_lived_species, only : short_lived_species_initic
-    use aero_model,            only : aero_model_init
     
     type(physics_buffer_desc), pointer :: pbuf2d(:,:)
     type(physics_state), intent(in):: phys_state(begchunk:endchunk)
@@ -982,13 +974,13 @@ end function chem_is_active
 !================================================================================
 !================================================================================
   subroutine chem_emissions( state, cam_in )
+    use aero_model,       only: aero_model_emissions
     use camsrfexch,       only: cam_in_t     
     use constituents,     only: sflxnam
     use cam_history,      only: outfld
     use mo_srf_emissions, only: set_srf_emissions
     use cam_cpl_indices,  only: index_x2a_Fall_flxvoc
     use fire_emissions,   only: fire_emissions_srf
-    use aero_model,       only: aero_model_emissions
 
     ! Arguments:
 

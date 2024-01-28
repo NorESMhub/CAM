@@ -6,11 +6,7 @@ module mo_gas_phase_chemdr
   use cam_history,      only : fieldname_len
   use chem_mods,        only : phtcnt, rxntot, gas_pcnst
   use chem_mods,        only : rxt_tag_cnt, rxt_tag_lst, rxt_tag_map, extcnt, num_rnts
-#ifdef OSLO_AERO  
-  use oslo_aero_dust,   only : dust_names, ndust => dust_nbin
-#else
   use dust_model,       only : dust_names, ndust => dust_nbin
-#endif
   use ppgrid,           only : pcols, pver
   use phys_control,     only : phys_getopts
   use carma_flags_mod,  only : carma_hetchem_feedback
@@ -30,10 +26,6 @@ module mo_gas_phase_chemdr
   integer :: het1_ndx
   integer :: ndx_cldfr, ndx_cmfdqr, ndx_nevapr, ndx_cldtop, ndx_prain
   integer :: ndx_h2so4
-#ifdef OSLO_AERO
-  logical :: inv_o3, inv_oh, inv_no3, inv_ho2
-  integer :: id_o3, id_oh, id_no3, id_ho2
-#endif
 !
 ! CCMI
 !
@@ -61,11 +53,7 @@ contains
 
   subroutine gas_phase_chemdr_inti()
 
-#ifdef OSLO_AERO
-    use mo_chem_utls,      only : get_spc_ndx, get_extfrc_ndx, get_rxt_ndx, get_inv_ndx
-#else
     use mo_chem_utls,      only : get_spc_ndx, get_extfrc_ndx, get_rxt_ndx
-#endif
     use cam_history,       only : addfld,add_default,horiz_only
     use mo_chm_diags,      only : chm_diags_inti
     use constituents,      only : cnst_get_ind
@@ -86,25 +74,6 @@ contains
 
     call phys_getopts( convproc_do_aer_out = convproc_do_aer, history_cesm_forcing_out=history_cesm_forcing )
    
-#ifdef OSLO_AERO
-    inv_o3   = get_inv_ndx('O3') > 0
-    inv_oh   = get_inv_ndx('OH') > 0
-    inv_no3  = get_inv_ndx('NO3') > 0
-    inv_ho2  = get_inv_ndx('HO2') > 0
-    if (inv_o3) then
-       id_o3 = get_inv_ndx('O3')
-    endif
-    if (inv_oh) then
-       id_oh = get_inv_ndx('OH')
-    endif
-    if (inv_no3) then
-       id_no3 = get_inv_ndx('NO3')
-    endif
-    if (inv_ho2) then
-       id_ho2 = get_inv_ndx('HO2')
-    endif
-#endif
-
     ndx_h2so4 = get_spc_ndx('H2SO4')
 !
 ! CCMI
@@ -231,23 +200,6 @@ contains
     call addfld( 'HCL_GAS',    (/ 'lev' /), 'I', 'mol/mol', 'gas-phase hcl' )
     call addfld( 'HCL_STS',    (/ 'lev' /), 'I', 'mol/mol', 'STS condensed HCL' )
 
-#ifdef OSLO_AERO
-    ! Adding extra fields for oxi-output (before and after diurnal variations.)
-    call addfld ('OH_bef    ',  (/ 'lev' /), 'A','unit', 'OH invariants before adding diurnal variations'           )
-    call addfld ('HO2_bef   ',  (/ 'lev' /), 'A','unit', 'HO2 invariants before adding diurnal variations'          )
-    call addfld ('NO3_bef   ',  (/ 'lev' /), 'A','unit', 'NO3 invariants before adding diurnal variations'          )
-    call addfld ('OH_aft    ',  (/ 'lev' /), 'A','unit', 'OH invariants after adding diurnal variations'            )
-    call addfld ('HO2_aft   ',  (/ 'lev' /), 'A','unit', 'HO2 invariants after adding diurnal variations'           )
-    call addfld ('NO3_aft   ',  (/ 'lev' /), 'A','unit', 'NO3 invariants after adding diurnal variations'           )
-
-    call add_default ('OH_bef       ', 1, ' ')
-    call add_default ('HO2_bef      ', 1, ' ')
-    call add_default ('NO3_bef      ', 1, ' ')
-    call add_default ('OH_aft       ', 1, ' ')
-    call add_default ('HO2_aft      ', 1, ' ')
-    call add_default ('NO3_aft      ', 1, ' ')
-#endif
-
     if (het1_ndx>0) then
        call addfld( 'het1_total', (/ 'lev' /), 'I', '/s', 'total N2O5 + H2O het rate constant' )
     endif
@@ -343,9 +295,6 @@ contains
     use mo_chm_diags,      only : chm_diags, het_diags
     use perf_mod,          only : t_startf, t_stopf
     use gas_wetdep_opts,   only : gas_wetdep_method
-#ifdef OSLO_AERO
-    use oslo_aero_diurnal_var, only : set_diurnal_invariants
-#endif
     use physics_buffer,    only : physics_buffer_desc, pbuf_get_field, pbuf_old_tim_idx
     use infnan,            only : nan, assignment(=)
     use rate_diags,        only : rate_diags_calc
@@ -360,6 +309,7 @@ contains
 ! for aqueous chemistry and aerosol growth
 !
     use aero_model,        only : aero_model_gasaerexch
+
     use aero_model,        only : aero_model_strat_surfarea
 
     implicit none
@@ -672,21 +622,6 @@ contains
     !-----------------------------------------------------------------------  
     call setinv( invariants, tfld, h2ovmr, vmr, pmid, ncol, lchnk, pbuf )
 
-#ifdef OSLO_AERO
-    !-----------------------------------------------------------------------      
-    !        ... Set the "day/night cycle for prescribed oxidants"
-    !----------------------------------------------------------------------- 
-    call outfld('OH_bef',    invariants(:,:,id_oh),  ncol, lchnk)
-    call outfld('HO2_bef',   invariants(:,:,id_ho2), ncol, lchnk)
-    call outfld('NO3_bef',   invariants(:,:,id_no3), ncol, lchnk)
-
-    if (inv_oh.or.inv_ho2.or.inv_no3)  & !++IH: added inv_no3
-      call set_diurnal_invariants(invariants,delt,ncol,lchnk,inv_oh,inv_ho2,id_oh,id_ho2,inv_no3,id_no3) !++IH: added inv_no3 and id_no3
-  
-    call outfld('OH_aft',    invariants(:,:,id_oh),  ncol, lchnk)
-    call outfld('HO2_aft',   invariants(:,:,id_ho2), ncol, lchnk)
-    call outfld('NO3_aft',   invariants(:,:,id_no3), ncol, lchnk)
-#endif
     !-----------------------------------------------------------------------      
     !        ... stratosphere aerosol surface area
     !-----------------------------------------------------------------------  
@@ -1183,17 +1118,11 @@ contains
        endif
     end do
 
-#ifdef OSLO_AERO
-    call chm_diags( lchnk, ncol, vmr(:ncol,:,:), mmr_new(:ncol,:,:), &
-                    reaction_rates(:ncol,:,:), invariants(:ncol,:,:), depvel(:ncol,:),  sflx(:ncol,:), &
-                    mmr_tend(:ncol,:,:), pdel(:ncol,:), pmid(:ncol,:), troplev(:ncol), wetdepflx_diag(:ncol,:), &
-                    nhx_nitrogen_flx(:ncol), noy_nitrogen_flx(:ncol), pbuf )
-#else
     call chm_diags( lchnk, ncol, vmr(:ncol,:,:), mmr_new(:ncol,:,:), &
                     reaction_rates(:ncol,:,:), invariants(:ncol,:,:), depvel(:ncol,:),  sflx(:ncol,:), &
                     mmr_tend(:ncol,:,:), pdel(:ncol,:), pmid(:ncol,:), troplev(:ncol), wetdepflx_diag(:ncol,:), &
                     nhx_nitrogen_flx(:ncol), noy_nitrogen_flx(:ncol) )
-#endif
+
     call rate_diags_calc( reaction_rates(:,:,:), vmr(:,:,:), invariants(:,:,indexm), ncol, lchnk )
 !
 ! jfl

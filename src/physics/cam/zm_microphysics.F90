@@ -1465,13 +1465,12 @@ subroutine zm_mphy(su,    qu,   mu,   du,   eu,    cmel,  cmei,  zf,   pm,   te,
 
                     end if
 
-#ifndef OSLO_AERO
                     call activate_modal(  &
                        wu(i,k), wmix, wdiab, wmin, wmax,                 &
                        t(i,k), rho(i,k), naermod, aero%nmodes, vaerosol, &
                        hygro, fn, fm,                  &
                        fluxn, fluxm, flux_fullact, in_cloud_in=in_cloud, smax_f=smax_f)
-#endif
+
                     do m = 1, aero%nmodes
                        nlsrc = nlsrc + fn(m)*naermod(m)  !  number nucleated
                     end do

@@ -38,9 +38,6 @@ subroutine read_namelist(nlfilename, single_column, scmlat, scmlon)
    use physconst,           only: physconst_readnl
    use physics_buffer,      only: pbuf_readnl
    use phys_control,        only: phys_ctl_readnl
-#ifdef OSLO_AERO
-   use oslo_aero_control,   only: oslo_aero_ctl_readnl
-#endif
    use wv_saturation,       only: wv_sat_readnl
    use ref_pres,            only: ref_pres_readnl
    use cam3_aero_data,      only: cam3_aero_data_readnl
@@ -48,11 +45,7 @@ subroutine read_namelist(nlfilename, single_column, scmlat, scmlon)
    use dadadj_cam,          only: dadadj_readnl
    use macrop_driver,       only: macrop_driver_readnl
    use microp_driver,       only: microp_driver_readnl
-#ifdef OSLO_AERO
-   use oslo_aero_microp,    only: oslo_aero_microp_readnl
-#else
    use microp_aero,         only: microp_aero_readnl
-#endif
    use subcol,              only: subcol_readnl
    use cloud_fraction,      only: cldfrc_readnl
    use cldfrc2m,            only: cldfrc2m_readnl
@@ -143,11 +136,7 @@ subroutine read_namelist(nlfilename, single_column, scmlat, scmlon)
    call dadadj_readnl(nlfilename)
    call macrop_driver_readnl(nlfilename)
    call microp_driver_readnl(nlfilename)
-#ifdef OSLO_AERO
-   call oslo_aero_microp_readnl(nlfilename)
-#else
    call microp_aero_readnl(nlfilename)
-#endif
    call clubb_readnl(nlfilename)
    call subcol_readnl(nlfilename)
    call cldfrc_readnl(nlfilename)
@@ -190,9 +179,6 @@ subroutine read_namelist(nlfilename, single_column, scmlat, scmlon)
    call rayleigh_friction_readnl(nlfilename)
 #if ( defined OFFLINE_DYN )
    call metdata_readnl(nlfilename)
-#endif
-#ifdef OSLO_AERO
-   call oslo_aero_ctl_readnl(nlfilename)
 #endif
    call offline_driver_readnl(nlfilename)
    call analytic_ic_readnl(nlfilename)

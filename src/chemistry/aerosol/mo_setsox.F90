@@ -23,38 +23,30 @@ module MO_SETSOX
 
 contains
 
-!-----------------------------------------------------------------------
-!-----------------------------------------------------------------------
+!-----------------------------------------------------------------------      
+!-----------------------------------------------------------------------      
   subroutine sox_inti
-    !-----------------------------------------------------------------------
+    !-----------------------------------------------------------------------      
     !	... initialize the hetero sox routine
-    !-----------------------------------------------------------------------
+    !-----------------------------------------------------------------------      
 
     use mo_chem_utls, only : get_spc_ndx, get_inv_ndx
     use spmd_utils,   only : masterproc
     use phys_control, only : phys_getopts
-#ifdef OSLO_AERO
-    use oslo_aero_sox_cldaero, only : sox_cldaero_init
-#else
     use sox_cldaero_mod, only : sox_cldaero_init
-#endif
+
     implicit none
 
 
     call phys_getopts( &
          prog_modal_aero_out=modal_aerosols )
 
-#ifdef OSLO_AERO
-   cloud_borne = .true.
-   modal_aerosols = .true.
-#else
-   cloud_borne = modal_aerosols
-#endif
+    cloud_borne = modal_aerosols
 
     !-----------------------------------------------------------------
     !       ... get species indicies
     !-----------------------------------------------------------------
-
+    
     if (cloud_borne) then
        id_h2so4 = get_spc_ndx( 'H2SO4' )
     else
@@ -127,16 +119,16 @@ contains
           write(iulog,*) 'mozart will do sox aerosols'
           write(iulog,*) '-----------------------------------------'
        endif
-    else
+    else 
        return
     end if
 
     call sox_cldaero_init()
 
   end subroutine sox_inti
-
-!-----------------------------------------------------------------------
-!-----------------------------------------------------------------------
+  
+!-----------------------------------------------------------------------      
+!-----------------------------------------------------------------------      
   subroutine SETSOX( &
        ncol,   &
        lchnk,  &
@@ -163,7 +155,7 @@ contains
        aqso4_o3_3d &
        )
 
-    !-----------------------------------------------------------------------
+    !-----------------------------------------------------------------------      
     !          ... Compute heterogeneous reactions of SOX
     !
     !       (0) using initial PH to calculate PH
@@ -176,27 +168,22 @@ contains
     !           (b) PARTIONING
     !           (c) REACTION rates
     !           (d) PREDICTION
-    !-----------------------------------------------------------------------
+    !-----------------------------------------------------------------------      
     !
     use ppgrid,       only : pcols, pver
     use chem_mods,    only : gas_pcnst, nfs
     use chem_mods,    only : adv_mass
     use physconst,    only : mwdry, gravit
     use mo_constants, only : pi
-#ifdef OSLO_AERO
-    use oslo_aero_sox_cldaero, only : sox_cldaero_update, sox_cldaero_create_obj, sox_cldaero_destroy_obj
-    use oslo_aero_sox_cldaero, only : cldaero_conc_t
-#else
     use sox_cldaero_mod, only : sox_cldaero_update, sox_cldaero_create_obj, sox_cldaero_destroy_obj
     use cldaero_mod,     only : cldaero_conc_t
-#endif
 
     !
     implicit none
     !
-    !-----------------------------------------------------------------------
+    !-----------------------------------------------------------------------      
     !      ... Dummy arguments
-    !-----------------------------------------------------------------------
+    !-----------------------------------------------------------------------      
     integer,          intent(in)    :: ncol              ! num of columns in chunk
     integer,          intent(in)    :: lchnk             ! chunk id
     integer,          intent(in)    :: loffset           ! offset of chem tracers in the advected tracers array
@@ -223,11 +210,11 @@ contains
     real(r8),         intent(out), optional :: aqso4_o3_3d(:, :)    ! 3D SO4 aqueous phase chemistry due to O3 (kg/m2)
 
 
-    !-----------------------------------------------------------------------
+    !-----------------------------------------------------------------------      
     !      ... Local variables
     !
     !           xhno3 ... in mixing ratio
-    !-----------------------------------------------------------------------
+    !-----------------------------------------------------------------------      
     integer,  parameter :: itermax = 20
     real(r8), parameter :: ph0 = 5.0_r8  ! INITIAL PH VALUES
     real(r8), parameter :: const0 = 1.e3_r8/6.023e23_r8
@@ -262,10 +249,10 @@ contains
 
     real(r8) :: hno3g(ncol,pver), nh3g(ncol,pver)
     !
-    !-----------------------------------------------------------------------
-    !            for Ho2(g) -> H2o2(a) formation
+    !-----------------------------------------------------------------------      
+    !            for Ho2(g) -> H2o2(a) formation 
     !            schwartz JGR, 1984, 11589
-    !-----------------------------------------------------------------------
+    !-----------------------------------------------------------------------      
     real(r8) :: kh4    ! kh2+kh3
     real(r8) :: xam    ! air density /cm3
     real(r8) :: ho2s   ! ho2s = ho2(a)+o2-
@@ -316,7 +303,7 @@ contains
     xph0 = 10._r8**(-ph0)                      ! initial PH value
 
     do k = 1,pver
-       cfact(:,k) = xhnm(:,k)     &          ! /cm3(a)
+       cfact(:,k) = xhnm(:,k)     &          ! /cm3(a)  
             * 1.e6_r8             &          ! /m3(a)
             * 1.38e-23_r8/287._r8 &          ! Kg(a)/m3(a)
             * 1.e-3_r8                       ! Kg(a)/L(a)
@@ -377,13 +364,13 @@ contains
        if (id_msa > 0) xmsa (:,k) = qin(:,k,id_msa)
 
     end do
-
+    
     !-----------------------------------------------------------------
     !       ... Temperature dependent Henry constants
     !-----------------------------------------------------------------
     ver_loop0: do k = 1,pver                               !! pver loop for STEP 0
        col_loop0: do i = 1,ncol
-
+          
           if (cloud_borne .and. cldfrc(i,k)>0._r8) then
              xso4(i,k) = xso4c(i,k) / cldfrc(i,k)
              xnh4(i,k) = xnh4c(i,k) / cldfrc(i,k)
@@ -599,7 +586,7 @@ contains
                       xph(i,k) = 10.0_r8**(-yph)
                       converged = .true.
                       exit
-                   else
+                   else 
                       ! do another iteration
                       converged = .false.
                    end if
@@ -650,9 +637,9 @@ contains
           patm = press(i,k)/101300._r8        ! press is in pascal
           xam  = press(i,k)/(1.38e-23_r8*tz)  ! air density /M3
 
-          !-----------------------------------------------------------------------
+          !-----------------------------------------------------------------------      
           !        ... hno3
-          !-----------------------------------------------------------------------
+          !-----------------------------------------------------------------------      
           xk = 2.1e5_r8 *EXP( 8700._r8*work1(i) )
           xe = 15.4_r8
           hehno3(i,k)  = xk*(1._r8 + xe/xph(i,k))
@@ -688,7 +675,7 @@ contains
           heo3(i,k) = xk
 
           !------------------------------------------------------------------------
-          !       ... for Ho2(g) -> H2o2(a) formation
+          !       ... for Ho2(g) -> H2o2(a) formation 
           !           schwartz JGR, 1984, 11589
           !------------------------------------------------------------------------
           kh4 = (kh2 + kh3*kh1/xph(i,k)) / ((1._r8 + kh1/xph(i,k))**2)
@@ -710,7 +697,7 @@ contains
           endif
 
           !-----------------------------------------------
-          !       ... Partioning
+          !       ... Partioning 
           !-----------------------------------------------
 
           !-----------------------------------------------------------------
@@ -768,8 +755,8 @@ contains
           !-----------------------------------------------------------------
           !       ... Prediction after aqueous phase
           !       so4
-          !       When Cloud is present
-          !
+          !       When Cloud is present 
+          !   
           !       S(IV) + H2O2 = S(VI)
           !       S(IV) + O3   = S(VI)
           !
@@ -777,12 +764,12 @@ contains
           !           (1) Seinfeld
           !           (2) Benkovitz
           !-----------------------------------------------------------------
-
+          
           !............................
           !       S(IV) + H2O2 = S(VI)
           !............................
-
-          IF (XL .ge. 1.e-8_r8) THEN    !! WHEN CLOUD IS PRESENTED
+          
+          IF (XL .ge. 1.e-8_r8) THEN    !! WHEN CLOUD IS PRESENTED          
 
              if (cloud_borne) then
                 patm_x = patm
@@ -838,7 +825,7 @@ contains
                    xso2(i,k)  = xso2(i,k)  - ccc
                 end if
              END IF
-
+             
              if (modal_aerosols) then
                 xdelso4hp(i,k)  =  xso4(i,k) - xso4_init(i,k)
              endif
@@ -852,7 +839,7 @@ contains
                   * xl          &                                ! [mole/L(a)/s]
                   / const0      &                                ! [/L(a)/s]
                   / xhnm(i,k)                                    ! [mixing ratio/s]
-
+             
              ccc = pso4*dtime
              ccc = max(ccc, 1.e-30_r8)
 
@@ -875,7 +862,7 @@ contains
          ncol, lchnk, loffset, dtime, mbar, pdel, press, tfld, cldnum, cldfrc, cfact, cldconc%xlwc, &
          xdelso4hp, xh2so4, xso4, xso4_init, nh3g, hno3g, xnh3, xhno3, xnh4c,  xno3c, xmsa, xso2, xh2o2, qcw, qin, &
          aqso4, aqh2so4, aqso4_h2o2, aqso4_o3, aqso4_h2o2_3d=aqso4_h2o2_3d, aqso4_o3_3d=aqso4_o3_3d )
-
+    
     xphlwc(:,:) = 0._r8
     do k = 1, pver
        do i = 1, ncol
