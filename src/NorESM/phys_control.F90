@@ -237,9 +237,9 @@ subroutine phys_ctl_readnl(nlfile)
 
    ! prog_modal_aero determines whether prognostic modal aerosols are present in the run.
    prog_modal_aero = index(cam_chempkg,'_mam')>0
-   ! OSLO_AERO beg
+#ifdef OSLO_AERO
    prog_modal_aero = .FALSE.
-   ! OSLO_AERO end
+#endif 
 end subroutine phys_ctl_readnl
 
 !===============================================================================

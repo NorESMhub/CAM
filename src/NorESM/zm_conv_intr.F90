@@ -645,8 +645,7 @@ subroutine zm_conv_tend(pblh    ,mcon    ,cme     , &
                     state%t       ,state%q(:,:,1),      prec    ,jctop   ,jcbot   , &
                     pblh    ,state%zm      ,state%phis    ,state%zi      ,ptend_loc%q(:,:,1)    , &
                     ptend_loc%s    , state%pmid     ,state%pint    ,state%pdel     , &
-!                   .5_r8*ztodt    ,mcon    ,cme     , cape,      &
-                    .5_r8*ztodt    ,mcon    ,cme     , cape, eurt,& !+tht eurt
+                    .5_r8*ztodt    ,mcon    ,cme     , cape, eurt,&
                     tpert   ,dlf     ,pflx    ,zdu     ,rprd    , &
                     mu,      md,      du,      eu,      ed,       &
 !                   dp,      dsubcld, jt,      maxg,    ideep,    &

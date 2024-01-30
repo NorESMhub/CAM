@@ -15,9 +15,9 @@ module physpkg
   use spmd_utils,       only: masterproc
   use physconst,        only: latvap, latice, rh2o
   use physics_types,    only: physics_state, physics_tend, physics_state_set_grid, &
-                              physics_ptend, physics_tend_init, physics_update,    &
-                              physics_type_alloc, physics_ptend_dealloc,&
-                              physics_state_alloc, physics_state_dealloc, physics_tend_alloc, physics_tend_dealloc
+       physics_ptend, physics_tend_init, physics_update,    &
+       physics_type_alloc, physics_ptend_dealloc,&
+       physics_state_alloc, physics_state_dealloc, physics_tend_alloc, physics_tend_dealloc
   use phys_grid,        only: get_ncols_p
   use phys_gmean,       only: gmean_mass
   use ppgrid,           only: begchunk, endchunk, pcols, pver, pverp, psubcols
@@ -31,11 +31,13 @@ module physpkg
   use perf_mod
   use cam_logfile,     only: iulog
   use camsrfexch,      only: cam_export
+
   use modal_aero_calcsize,    only: modal_aero_calcsize_init, modal_aero_calcsize_diag, modal_aero_calcsize_reg
   use modal_aero_wateruptake, only: modal_aero_wateruptake_init, modal_aero_wateruptake_dr, modal_aero_wateruptake_reg
 
   implicit none
   private
+  save
 
   ! Public methods
   public phys_register ! was initindx  - register physics methods
@@ -82,12 +84,6 @@ module physpkg
   integer ::  prec_sh_idx        = 0
   integer ::  snow_sh_idx        = 0
   integer ::  dlfzm_idx          = 0     ! detrained convective cloud water mixing ratio.
-
-#ifdef AEROCOM
-logical :: do_aerocom = .true.
-#else
-logical :: do_aerocom = .false.
-#endif
 
 !=======================================================================
 contains
@@ -230,6 +226,7 @@ contains
 
        ! Register CLUBB_SGS here
        if (do_clubb_sgs) call clubb_register_cam()
+
 
        call pbuf_add_field('PREC_STR',  'physpkg',dtype_r8,(/pcols/),prec_str_idx)
        call pbuf_add_field('SNOW_STR',  'physpkg',dtype_r8,(/pcols/),snow_str_idx)
@@ -1265,6 +1262,7 @@ contains
     use waccmx_phys_intr,   only: waccmx_phys_ion_elec_temp_tend ! WACCM-X
     use aoa_tracers,        only: aoa_tracers_timestep_tend
     use physconst,          only: rhoh2o, latvap,latice
+    use aero_model,         only: aero_model_drydep
     use carma_intr,         only: carma_emission_tend, carma_timestep_tend
     use carma_flags_mod,    only: carma_do_aerosol, carma_do_emission
     use check_energy,       only: check_energy_chng, calc_te_and_aam_budgets
@@ -1285,7 +1283,7 @@ contains
     use qneg_module,        only: qneg4
     use co2_cycle,          only: co2_cycle_set_ptend
     use nudging,            only: Nudge_Model,Nudge_ON,nudging_timestep_tend
-    use aero_model,    only: aero_model_drydep
+
     !
     ! Arguments
     !
@@ -1711,6 +1709,11 @@ contains
     use dadadj_cam,      only: dadadj_tend
     use rk_stratiform,   only: rk_stratiform_tend
     use microp_driver,   only: microp_driver_tend
+#ifdef OSLO_AERO
+    use oslo_aero_microp,only: oslo_aero_microp_run
+#else
+    use microp_aero,     only: microp_aero_run
+#endif
     use macrop_driver,   only: macrop_driver_tend
     use physics_types,   only: physics_state, physics_tend, physics_ptend, &
          physics_update, physics_ptend_init, physics_ptend_sum, &
@@ -1726,6 +1729,7 @@ contains
     use check_energy,    only: check_tracers_data, check_tracers_init, check_tracers_chng
     use check_energy,    only: calc_te_and_aam_budgets
     use dycore,          only: dycore_is
+    use aero_model,      only: aero_model_wetdep
     use carma_intr,      only: carma_wetdep_tend, carma_timestep_tend
     use carma_flags_mod, only: carma_do_detrain, carma_do_cldice, carma_do_cldliq,  carma_do_wetdep
     use radiation,       only: radiation_tend
@@ -1740,13 +1744,10 @@ contains
     use subcol,          only: subcol_gen, subcol_ptend_avg
     use subcol_utils,    only: subcol_ptend_copy, is_subcol_on
     use qneg_module,     only: qneg3
-    use aero_model,      only: aero_model_wetdep
 #ifdef OSLO_AERO
-    use oslo_aero_microp,only: oslo_aero_microp_run
     use oslo_aero_share
-#else
-    use microp_aero,     only: microp_aero_run
 #endif
+
     implicit none
 
     real(r8), intent(in) :: ztodt                          ! 2 delta t (model time increment)
@@ -1788,16 +1789,16 @@ contains
 
     integer :: i,k,m                           ! Longitude, level, constituent indices
     integer :: ixcldice, ixcldliq              ! constituent indices for cloud liquid and ice water.
-    !AL
+!AL
     integer :: ixcldni, ixcldnc              ! constituent indices for cloud liquid and ice water.
-    !AL
+!AL
     ! for macro/micro co-substepping
     integer :: macmic_it                       ! iteration variables
     real(r8) :: cld_macmic_ztodt               ! modified timestep
-
 #ifdef OSLO_AERO
-    integer kcomp                              ! mode number (1-14) oslo_aero
+    integer kcomp                              ! mode number (1-14)
 #endif
+
     ! physics buffer fields to compute tendencies for stratiform package
     integer itim_old, ifld
     real(r8), pointer, dimension(:,:) :: cld        ! cloud fraction
@@ -1809,10 +1810,10 @@ contains
     real(r8), pointer, dimension(:,:) :: cldliqini
     real(r8), pointer, dimension(:,:) :: cldiceini
     real(r8), pointer, dimension(:,:) :: dtcore
-    !AL
+!AL
     real(r8), pointer, dimension(:,:) :: cldncini
     real(r8), pointer, dimension(:,:) :: cldniini
-    !AL
+!AL
     real(r8), pointer, dimension(:,:,:) :: fracis  ! fraction of transported species that are insoluble
 
     real(r8), pointer :: dlfzm(:,:)                ! ZM detrained convective cloud water mixing ratio.
@@ -1879,10 +1880,10 @@ contains
     call pbuf_get_field(pbuf, qini_idx, qini)
     call pbuf_get_field(pbuf, cldliqini_idx, cldliqini)
     call pbuf_get_field(pbuf, cldiceini_idx, cldiceini)
-    !AL
+!AL
     call pbuf_get_field(pbuf, cldncini_idx, cldncini)
     call pbuf_get_field(pbuf, cldniini_idx, cldniini)
-    !AL
+!AL
 
     ifld   =  pbuf_get_index('DTCORE')
     call pbuf_get_field(pbuf, ifld, dtcore, start=(/1,1,itim_old/), kount=(/pcols,pver,1/) )
@@ -1943,12 +1944,12 @@ contains
     qini     (:ncol,:pver) = state%q(:ncol,:pver,       1)
     cldliqini(:ncol,:pver) = state%q(:ncol,:pver,ixcldliq)
     cldiceini(:ncol,:pver) = state%q(:ncol,:pver,ixcldice)
-    !AL
+!AL
     call cnst_get_ind('NUMLIQ', ixcldnc)
     call cnst_get_ind('NUMICE', ixcldni)
     cldncini(:ncol,:pver) = state%q(:ncol,:pver,ixcldnc)
     cldniini(:ncol,:pver) = state%q(:ncol,:pver,ixcldni)
-    !AL
+!AL
 
     call outfld('TEOUT', teout       , pcols, lchnk   )
     call outfld('TEINP', state%te_ini, pcols, lchnk   )
@@ -2003,8 +2004,8 @@ contains
     call pbuf_get_field(pbuf, snow_pcw_idx, snow_pcw )
 
     if (use_subcol_microp) then
-       call pbuf_get_field(pbuf, prec_str_idx, prec_str_sc, col_type=col_type_subcol)
-       call pbuf_get_field(pbuf, snow_str_idx, snow_str_sc, col_type=col_type_subcol)
+      call pbuf_get_field(pbuf, prec_str_idx, prec_str_sc, col_type=col_type_subcol)
+      call pbuf_get_field(pbuf, snow_str_idx, snow_str_sc, col_type=col_type_subcol)
     end if
 
     ! Check energy integrals, including "reserved liquid"
@@ -2146,8 +2147,8 @@ contains
              ! =====================================================
 
              call clubb_tend_cam(state, ptend, pbuf, cld_macmic_ztodt,&
-                  cmfmc, cam_in, macmic_it, cld_macmic_num_steps, &
-                  dlf, det_s, det_ice)
+                cmfmc, cam_in, macmic_it, cld_macmic_num_steps, &
+                dlf, det_s, det_ice)
 
              ! Since we "added" the reserved liquid back in this routine, we need
              ! to account for it in the energy checker
@@ -2167,10 +2168,10 @@ contains
 
              ! Use actual qflux (not lhf/latvap) for consistency with surface fluxes and revised code
              call check_energy_chng(state, tend, "clubb_tend", nstep, ztodt, &
-                  cam_in%cflx(:ncol,1)/cld_macmic_num_steps, &
-                  flx_cnd(:ncol)/cld_macmic_num_steps, &
-                  det_ice(:ncol)/cld_macmic_num_steps, &
-                  flx_heat(:ncol)/cld_macmic_num_steps)
+                cam_in%cflx(:ncol,1)/cld_macmic_num_steps, &
+                flx_cnd(:ncol)/cld_macmic_num_steps, &
+                det_ice(:ncol)/cld_macmic_num_steps, &
+                flx_heat(:ncol)/cld_macmic_num_steps)
 
           endif
 
@@ -2201,6 +2202,7 @@ contains
           call microp_aero_run(state, ptend_aero, cld_macmic_ztodt, pbuf)
           call t_stopf('microp_aero_run')
 #endif
+
           call t_startf('microp_tend')
 
           if (use_subcol_microp) then
@@ -2309,7 +2311,7 @@ contains
 
        call t_stopf('bc_aerosols')
 
-    end if
+   endif
 
     !===================================================
     ! Moist physical parameteriztions complete:
@@ -2339,7 +2341,7 @@ contains
 
 
     call radiation_tend( &
-         state, ptend, pbuf, cam_out, cam_in, net_flx)
+       state, ptend, pbuf, cam_out, cam_in, net_flx)
 
     ! Set net flux used by spectral dycores
     do i=1,ncol
@@ -2404,7 +2406,7 @@ subroutine phys_timestep_init(phys_state, cam_in, cam_out, pbuf2d)
   use iop_forcing,         only: scam_use_iop_srf
   use nudging,             only: Nudge_Model, nudging_timestep_init
 #ifdef OSLO_AERO
-  use oslo_aero_ocean,     only: oslo_aero_ocean_time
+  use oslo_aero_ocean,     only: oslo_aero_ocean_adv
 #endif
 
   implicit none
@@ -2440,9 +2442,7 @@ subroutine phys_timestep_init(phys_state, cam_in, cam_out, pbuf2d)
   call aircraft_emit_adv(phys_state, pbuf2d)
   call prescribed_volcaero_adv(phys_state, pbuf2d)
   call prescribed_strataero_adv(phys_state, pbuf2d)
-
 #ifdef OSLO_AERO
-  ! Ocean_species
   call oslo_aero_ocean_adv(phys_state, pbuf2d)
 #endif
 

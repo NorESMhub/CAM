@@ -104,12 +104,6 @@ integer :: tpert_idx=-1, qpert_idx=-1, pblh_idx=-1
 
 integer :: trefmxav_idx = -1, trefmnav_idx = -1
 
-#ifdef AEROCOM
-logical :: do_aerocom = .true.
-#else
-logical :: do_aerocom = .false.
-#endif
-
 contains
 
 !==============================================================================
@@ -188,16 +182,12 @@ contains
 
     integer :: k, m
     integer :: ixcldice, ixcldliq ! constituent indices for cloud liquid and ice water.
-!AL
     integer :: ixcldni, ixcldnc ! constituent indices for cloud liquid and ice water.
-!AL
     integer :: ierr
 
-!+ AEROCOM beg
-    character(len=10) :: modeString
-    character(len=20) :: varname
-    integer :: i, irh
-!+ AEROCOM end
+    character(len=10) :: modeString ! aerocom
+    character(len=20) :: varname    ! aerocom
+    integer           :: i          ! aerocom
 
     ! outfld calls in diag_phys_writeout
     call addfld (cnst_name(1), (/ 'lev' /), 'A', 'kg/kg',    cnst_longname(1))
@@ -225,7 +215,8 @@ contains
     call addfld (apcnst(1), (/ 'lev' /), 'A','kg/kg',         trim(cnst_longname(1))//' (after physics)')
     if ( dycore_is('LR') .or. dycore_is('SE') ) then
       call addfld ('TFIX',    horiz_only,  'A', 'K/s',        'T fixer (T equivalent of Energy correction)')
-!+tht
+
+      !+tht
       call addfld ('EBREAK', horiz_only, 'A','W/m2',          'Global-mean energy-nonconservation (W/m2)')
       call addfld ('PTTEND_DME', (/ 'lev' /), 'A', 'K/s ', &
                    'T-tendency due to dry mass adjustment at the end of tphysac'    )
@@ -233,7 +224,7 @@ contains
                    'Column DSE tendency due to mass adjustment at end of tphysac'   )
       call addfld ('EFLX    '  ,  horiz_only, 'A','W/m2 ', &
                    'Material enthalpy flux due to mass adjustment at end of tphysac')
-!-tht
+      !-tht
     end if
     call addfld ('TTEND_TOT', (/ 'lev' /), 'A', 'K/s',        'Total temperature tendency')
 
@@ -313,6 +304,7 @@ contains
 
     call addfld ('ATMEINT',    horiz_only,  'A', 'J/m2','Vertically integrated total atmospheric energy ')
 
+#ifdef OSLO_AERO
     call addfld ('AOD_VIS ',horiz_only, 'A','unitless','Aerosol optical depth at 0.442-0.625um') ! CAM4-Oslo: 0.35-0.64um
     call addfld ('ABSVIS  ',horiz_only, 'A','unitless','Aerosol absorptive optical depth at 0.442-0.625um') ! CAM4-Oslo: 0.35-0.64um
     call addfld ('AODVVOLC ',horiz_only, 'A','unitless','CMIP6 volcanic aerosol optical depth at 0.442-0.625um') ! CAM4-Oslo: 0.35-0.64um
@@ -327,7 +319,6 @@ contains
     call addfld ('EXTVIS  ',(/'lev'/),  'A','1/km    ','Aerosol extinction')
     call addfld ('BVISVOLC ',(/'lev'/),   'A','1/km    ','CMIP6 volcanic aerosol extinction at 0.442-0.625um')
 
-    ! AEROFFL start
     call addfld ('FSNT_DRF',horiz_only, 'A','W/m^2','Total column absorbed solar flux (DIRind)')
     call addfld ('FSNTCDRF',horiz_only, 'A','W/m^2','Clear sky total column absorbed solar flux (DIRind)' )
     call addfld ('FSNS_DRF',horiz_only, 'A','W/m^2   ','Surface absorbed solar flux (DIRind)' )
@@ -341,9 +332,8 @@ contains
     call addfld ('FSUS_DRF',horiz_only, 'A','W/m^2   ','SW upwelling flux at surface')
     call addfld ('FSDSCDRF',horiz_only, 'A','W/m^2   ','SW downwelling clear sky flux at surface')
     call addfld ('FLUS    ',horiz_only, 'A','W/m^2   ','LW surface upwelling flux')
-    ! AEROFFL end
 
-    if (do_aerocom) then
+#ifdef AEROCOM
       call addfld ('AKCXS   ',horiz_only, 'A','mg/m2   ','Scheme excess aerosol mass burden')
       call addfld ('PMTOT   ',horiz_only, 'A','ug/m3   ','Aerosol PM, all sizes')
       call addfld ('PM25    ',horiz_only, 'A','ug/m3   ','Aerosol PM2.5')
@@ -456,7 +446,7 @@ contains
       call addfld ('DGT_SO4 ',horiz_only, 'A','unitless','SO4 aerosol optical depth 550nm gt05')
       call addfld ('DGT_POM ',horiz_only, 'A','unitless','OC aerosol optical depth 550nm gt05')
       call addfld ('DGT_BC  ',horiz_only, 'A','unitless','BC aerosol optical depth 550nm gt05')
-      call addfld ('AIRMASS ',horiz_only, 'A','kg/m2   ','Vertically integrated airmass')     !akc6
+      call addfld ('AIRMASS ',horiz_only, 'A','kg/m2   ','Vertically integrated airmass')
       call addfld ('NNAT_0  ',(/'lev'/),'A','1/cm3   ','Aerosol mode 0 number concentration')
       call addfld ('NNAT_1  ',(/'lev'/),'A','1/cm3   ','Aerosol mode 1 number concentration')
       call addfld ('NNAT_2  ',(/'lev'/),'A','1/cm3   ','Aerosol mode 2 number concentration')
@@ -474,7 +464,7 @@ contains
       call addfld ('BATOTVIS',(/'lev'/),'A','1/km','Aerosol 3d absorption at 0.442-0.625') ! CAM4-Oslo: 0.35-0.64um
       call addfld ('BATSW13 ',(/'lev'/),'A','1/km','Aerosol 3d SW absorption at 3.077-3.846um')
       call addfld ('BATLW01 ',(/'lev'/),'A','1/km','Aerosol 3d LW absorption depth at 3.077-3.846um')
-#ifdef OSLO_AERO
+
       do i=1,nbmodes
          modeString="  "
          write(modeString,"(I2)"),i
@@ -489,8 +479,9 @@ contains
          varName = "Cxsrel"//trim(modeString)
          if(i.ne.3) call addfld(varName, horiz_only, 'A', 'unitless', 'relative exessive added mass column for mode'//modeString)
       enddo
-#endif
-   end if
+
+#endif  ! AEROCOM
+#endif  ! OSLO_AERO
 
     if (history_amwg) then
       call add_default ('PHIS    '  , 1, ' ')
@@ -566,10 +557,6 @@ contains
       call add_default ('PTTEND'          , history_budget_histfile_num, ' ')
     end if
 
-!akc6+ CNVCLD is zero
-!   call add_default ('CNVCLD  ', 1, ' ')
-!akc6-
-
     ! create history variables for fourier coefficients of the diurnal
     ! and semidiurnal tide in T, U, V, and Z3
     call tidal_diag_init()
@@ -610,23 +597,24 @@ contains
     ! Axial Angular Momentum diagnostics
     !
     call addfld ('MR_pBF',   horiz_only, 'A', 'kg*m2/s*rad2',&
-    'Total column wind axial angular momentum before energy fixer')
+         'Total column wind axial angular momentum before energy fixer')
     call addfld ('MR_pBP',   horiz_only, 'A', 'kg*m2/s*rad2',&
-    'Total column wind axial angular momentum before parameterizations')
+         'Total column wind axial angular momentum before parameterizations')
     call addfld ('MR_pAP',   horiz_only, 'A', 'kg*m2/s*rad2',&
          'Total column wind axial angular momentum after parameterizations')
     call addfld ('MR_pAM',   horiz_only, 'A', 'kg*m2/s*rad2',&
          'Total column wind axial angular momentum after dry mass correction')
 
     call addfld ('MO_pBF',   horiz_only, 'A', 'kg*m2/s*rad2',&
-    'Total column mass axial angular momentum before energy fixer')
+         'Total column mass axial angular momentum before energy fixer')
     call addfld ('MO_pBP',   horiz_only, 'A', 'kg*m2/s*rad2',&
-    'Total column mass axial angular momentum before parameterizations')
+         'Total column mass axial angular momentum before parameterizations')
     call addfld ('MO_pAP',   horiz_only, 'A', 'kg*m2/s*rad2',&
          'Total column mass axial angular momentum after parameterizations')
     call addfld ('MO_pAM',   horiz_only, 'A', 'kg*m2/s*rad2',&
          'Total column mass axial angular momentum after dry mass correction')
 
+#ifdef OSLO_AERO
    call add_default ('AOD_VIS ', 1, ' ')
    call add_default ('ABSVIS  ', 1, ' ')
    call add_default ('AODVVOLC', 1, ' ')
@@ -636,168 +624,168 @@ contains
    call add_default ('CABSVIS ', 1, ' ')
    call add_default ('CLDFREE ', 1, ' ')
    call add_default ('N_AER   ', 1, ' ')
-!-   call add_default ('N_AERORG', 1, ' ')
    call add_default ('SSAVIS  ', 1, ' ')
    call add_default ('ASYMMVIS', 1, ' ')
    call add_default ('EXTVIS  ', 1, ' ')
    call add_default ('BVISVOLC', 1, ' ')
-     call add_default ('FSNT_DRF', 1, ' ')
-     call add_default ('FSNTCDRF', 1, ' ')
-     call add_default ('FSNS_DRF', 1, ' ')
-     call add_default ('FSNSCDRF', 1, ' ')
-     call add_default ('QRS_DRF ', 1, ' ')
-     call add_default ('QRSC_DRF', 1, ' ')
-     call add_default ('FLNT_DRF', 1, ' ')
-     call add_default ('FLNTCDRF', 1, ' ')
-     call add_default ('FSUTADRF', 1, ' ')
-     call add_default ('FSDS_DRF', 1, ' ')
-     call add_default ('FSUS_DRF', 1, ' ')
-     call add_default ('FSDSCDRF', 1, ' ')
-     call add_default ('FLUS    ', 1, ' ')
-     if (do_aerocom) then
-      call add_default ('AKCXS   ', 1, ' ')
-      call add_default ('PMTOT   ', 1, ' ')
-      call add_default ('PM25    ', 1, ' ')
-      call add_default ('PM2P5   ', 1, ' ')
-      call add_default ('MMRPM2P5', 1, ' ')
-      call add_default ('MMRPM1  ', 1, ' ')
-      call add_default ('GRIDAREA', 1, ' ')
-      call add_default ('DAERH2O ', 1, ' ')
-      call add_default ('MMR_AH2O', 1, ' ')
-      call add_default ('ECDRYAER', 1, ' ')
-      call add_default ('ABSDRYAE', 1, ' ')
-      call add_default ('ECDRY440', 1, ' ')
-      call add_default ('ABSDR440', 1, ' ')
-      call add_default ('ECDRY870', 1, ' ')
-      call add_default ('ABSDR870', 1, ' ')
-      call add_default ('ASYMMDRY', 1, ' ')
-      call add_default ('ECDRYLT1', 1, ' ')
-      call add_default ('ABSDRYBC', 1, ' ')
-      call add_default ('ABSDRYOC', 1, ' ')
-      call add_default ('ABSDRYSU', 1, ' ')
-      call add_default ('ABSDRYSS', 1, ' ')
-      call add_default ('ABSDRYDU', 1, ' ')
-      call add_default ('OD550DRY', 1, ' ')
-      call add_default ('AB550DRY', 1, ' ')
-      call add_default ('DERLT05 ', 1, ' ')
-      call add_default ('DERGT05 ', 1, ' ')
-      call add_default ('DER     ', 1, ' ')
-      call add_default ('DOD440  ', 1, ' ')
-      call add_default ('ABS440  ', 1, ' ')
-      call add_default ('DOD500  ', 1, ' ')
-      call add_default ('ABS500  ', 1, ' ')
-      call add_default ('DOD550  ', 1, ' ')
-      call add_default ('ABS550  ', 1, ' ')
-      call add_default ('ABS550AL', 1, ' ')
-      call add_default ('DOD670  ', 1, ' ')
-      call add_default ('ABS670  ', 1, ' ')
-      call add_default ('DOD870  ', 1, ' ')
-      call add_default ('ABS870  ', 1, ' ')
-      call add_default ('DLOAD_MI', 1, ' ')
-      call add_default ('DLOAD_SS', 1, ' ')
-      call add_default ('DLOAD_S4', 1, ' ')
-      call add_default ('DLOAD_OC', 1, ' ')
-      call add_default ('DLOAD_BC', 1, ' ')
-      call add_default ('LOADBCAC', 1, ' ')
-      call add_default ('LOADBC0 ', 1, ' ')
-      call add_default ('LOADBC2 ', 1, ' ')
-      call add_default ('LOADBC4 ', 1, ' ')
-      call add_default ('LOADBC12', 1, ' ')
-      call add_default ('LOADBC14', 1, ' ')
-      call add_default ('LOADOCAC', 1, ' ')
-      call add_default ('LOADOC4 ', 1, ' ')
-      call add_default ('LOADOC14', 1, ' ')
-!
-      call add_default ('EC550AER', 1, ' ')
-      call add_default ('ABS550_A', 1, ' ')
-      call add_default ('BS550AER', 1, ' ')
-!
-      call add_default ('EC550SO4', 1, ' ')
-      call add_default ('EC550BC ', 1, ' ')
-      call add_default ('EC550POM', 1, ' ')
-      call add_default ('EC550SS ', 1, ' ')
-      call add_default ('EC550DU ', 1, ' ')
-!
-      call add_default ('CDOD440 ', 1, ' ')
-      call add_default ('CDOD550 ', 1, ' ')
-      call add_default ('CABS550 ', 1, ' ')
-      call add_default ('CABS550A', 1, ' ')
-      call add_default ('CDOD870 ', 1, ' ')
-      call add_default ('A550_DU ', 1, ' ')
-      call add_default ('A550_SS ', 1, ' ')
-      call add_default ('A550_SO4', 1, ' ')
-      call add_default ('A550_POM', 1, ' ')
-      call add_default ('A550_BC ', 1, ' ')
-      call add_default ('D440_DU ', 1, ' ')
-      call add_default ('D440_SS ', 1, ' ')
-      call add_default ('D440_SO4', 1, ' ')
-      call add_default ('D440_POM', 1, ' ')
-      call add_default ('D440_BC ', 1, ' ')
-      call add_default ('D500_DU ', 1, ' ')
-      call add_default ('D500_SS ', 1, ' ')
-      call add_default ('D500_SO4', 1, ' ')
-      call add_default ('D500_POM', 1, ' ')
-      call add_default ('D500_BC ', 1, ' ')
-      call add_default ('D550_DU ', 1, ' ')
-      call add_default ('D550_SS ', 1, ' ')
-      call add_default ('D550_SO4', 1, ' ')
-      call add_default ('D550_POM', 1, ' ')
-      call add_default ('D550_BC ', 1, ' ')
-      call add_default ('D670_DU ', 1, ' ')
-      call add_default ('D670_SS ', 1, ' ')
-      call add_default ('D670_SO4', 1, ' ')
-      call add_default ('D670_POM', 1, ' ')
-      call add_default ('D670_BC ', 1, ' ')
-      call add_default ('D870_DU ', 1, ' ')
-      call add_default ('D870_SS ', 1, ' ')
-      call add_default ('D870_SO4', 1, ' ')
-      call add_default ('D870_POM', 1, ' ')
-      call add_default ('D870_BC ', 1, ' ')
-      call add_default ('DLT_DUST', 1, ' ')
-      call add_default ('DLT_SS  ', 1, ' ')
-      call add_default ('DLT_SO4 ', 1, ' ')
-      call add_default ('DLT_POM ', 1, ' ')
-      call add_default ('DLT_BC  ', 1, ' ')
-      call add_default ('DGT_DUST', 1, ' ')
-      call add_default ('DGT_SS  ', 1, ' ')
-      call add_default ('DGT_SO4 ', 1, ' ')
-      call add_default ('DGT_POM ', 1, ' ')
-      call add_default ('DGT_BC  ', 1, ' ')
-      call add_default ('NNAT_0  ', 1, ' ')
-      call add_default ('NNAT_1  ', 1, ' ')
-      call add_default ('NNAT_2  ', 1, ' ')
-      call add_default ('NNAT_4  ', 1, ' ')
-      call add_default ('NNAT_5  ', 1, ' ')
-      call add_default ('NNAT_6  ', 1, ' ')
-      call add_default ('NNAT_7  ', 1, ' ')
-      call add_default ('NNAT_8  ', 1, ' ')
-      call add_default ('NNAT_9  ', 1, ' ')
-      call add_default ('NNAT_10 ', 1, ' ')
-      call add_default ('NNAT_12 ', 1, ' ')
-      call add_default ('NNAT_14 ', 1, ' ')
-      call add_default ('AIRMASSL', 1, ' ')  !akc6
-      call add_default ('AIRMASS ', 1, ' ')  !akc6
-      call add_default ('BETOTVIS', 1, ' ')
-      call add_default ('BATOTVIS', 1, ' ')
-      call add_default ('BATSW13 ', 1, ' ')
-      call add_default ('BATLW01 ', 1, ' ')
-#ifdef OSLO_AERO
-      do i=1,nbmodes
-         modeString="  "
-         write(modeString,"(I2)"),i
-         if(i.lt.10) modeString="0"//adjustl(modeString)
-         varName = "Camrel"//trim(modeString)
-         if(i.ne.3) call add_default(varName, 1, ' ')
-      enddo
-      do i=1,nbmodes
-         modeString="  "
-         write(modeString,"(I2)"),i
-         if(i.lt.10) modeString="0"//adjustl(modeString)
-         varName = "Cxsrel"//trim(modeString)
-         if(i.ne.3) call add_default(varName, 1, ' ')
-      enddo
-#endif
-   end if
+   call add_default ('FSNT_DRF', 1, ' ')
+   call add_default ('FSNTCDRF', 1, ' ')
+   call add_default ('FSNS_DRF', 1, ' ')
+   call add_default ('FSNSCDRF', 1, ' ')
+   call add_default ('QRS_DRF ', 1, ' ')
+   call add_default ('QRSC_DRF', 1, ' ')
+   call add_default ('FLNT_DRF', 1, ' ')
+   call add_default ('FLNTCDRF', 1, ' ')
+   call add_default ('FSUTADRF', 1, ' ')
+   call add_default ('FSDS_DRF', 1, ' ')
+   call add_default ('FSUS_DRF', 1, ' ')
+   call add_default ('FSDSCDRF', 1, ' ')
+   call add_default ('FLUS    ', 1, ' ')
+#ifdef AEROCOM
+   call add_default ('AKCXS   ', 1, ' ')
+   call add_default ('PMTOT   ', 1, ' ')
+   call add_default ('PM25    ', 1, ' ')
+   call add_default ('PM2P5   ', 1, ' ')
+   call add_default ('MMRPM2P5', 1, ' ')
+   call add_default ('MMRPM1  ', 1, ' ')
+   call add_default ('GRIDAREA', 1, ' ')
+   call add_default ('DAERH2O ', 1, ' ')
+   call add_default ('MMR_AH2O', 1, ' ')
+   call add_default ('ECDRYAER', 1, ' ')
+   call add_default ('ABSDRYAE', 1, ' ')
+   call add_default ('ECDRY440', 1, ' ')
+   call add_default ('ABSDR440', 1, ' ')
+   call add_default ('ECDRY870', 1, ' ')
+   call add_default ('ABSDR870', 1, ' ')
+   call add_default ('ASYMMDRY', 1, ' ')
+   call add_default ('ECDRYLT1', 1, ' ')
+   call add_default ('ABSDRYBC', 1, ' ')
+   call add_default ('ABSDRYOC', 1, ' ')
+   call add_default ('ABSDRYSU', 1, ' ')
+   call add_default ('ABSDRYSS', 1, ' ')
+   call add_default ('ABSDRYDU', 1, ' ')
+   call add_default ('OD550DRY', 1, ' ')
+   call add_default ('AB550DRY', 1, ' ')
+   call add_default ('DERLT05 ', 1, ' ')
+   call add_default ('DERGT05 ', 1, ' ')
+   call add_default ('DER     ', 1, ' ')
+   call add_default ('DOD440  ', 1, ' ')
+   call add_default ('ABS440  ', 1, ' ')
+   call add_default ('DOD500  ', 1, ' ')
+   call add_default ('ABS500  ', 1, ' ')
+   call add_default ('DOD550  ', 1, ' ')
+   call add_default ('ABS550  ', 1, ' ')
+   call add_default ('ABS550AL', 1, ' ')
+   call add_default ('DOD670  ', 1, ' ')
+   call add_default ('ABS670  ', 1, ' ')
+   call add_default ('DOD870  ', 1, ' ')
+   call add_default ('ABS870  ', 1, ' ')
+   call add_default ('DLOAD_MI', 1, ' ')
+   call add_default ('DLOAD_SS', 1, ' ')
+   call add_default ('DLOAD_S4', 1, ' ')
+   call add_default ('DLOAD_OC', 1, ' ')
+   call add_default ('DLOAD_BC', 1, ' ')
+   call add_default ('LOADBCAC', 1, ' ')
+   call add_default ('LOADBC0 ', 1, ' ')
+   call add_default ('LOADBC2 ', 1, ' ')
+   call add_default ('LOADBC4 ', 1, ' ')
+   call add_default ('LOADBC12', 1, ' ')
+   call add_default ('LOADBC14', 1, ' ')
+   call add_default ('LOADOCAC', 1, ' ')
+   call add_default ('LOADOC4 ', 1, ' ')
+   call add_default ('LOADOC14', 1, ' ')
+   !
+   call add_default ('EC550AER', 1, ' ')
+   call add_default ('ABS550_A', 1, ' ')
+   call add_default ('BS550AER', 1, ' ')
+   !
+   call add_default ('EC550SO4', 1, ' ')
+   call add_default ('EC550BC ', 1, ' ')
+   call add_default ('EC550POM', 1, ' ')
+   call add_default ('EC550SS ', 1, ' ')
+   call add_default ('EC550DU ', 1, ' ')
+   !
+   call add_default ('CDOD440 ', 1, ' ')
+   call add_default ('CDOD550 ', 1, ' ')
+   call add_default ('CABS550 ', 1, ' ')
+   call add_default ('CABS550A', 1, ' ')
+   call add_default ('CDOD870 ', 1, ' ')
+   call add_default ('A550_DU ', 1, ' ')
+   call add_default ('A550_SS ', 1, ' ')
+   call add_default ('A550_SO4', 1, ' ')
+   call add_default ('A550_POM', 1, ' ')
+   call add_default ('A550_BC ', 1, ' ')
+   call add_default ('D440_DU ', 1, ' ')
+   call add_default ('D440_SS ', 1, ' ')
+   call add_default ('D440_SO4', 1, ' ')
+   call add_default ('D440_POM', 1, ' ')
+   call add_default ('D440_BC ', 1, ' ')
+   call add_default ('D500_DU ', 1, ' ')
+   call add_default ('D500_SS ', 1, ' ')
+   call add_default ('D500_SO4', 1, ' ')
+   call add_default ('D500_POM', 1, ' ')
+   call add_default ('D500_BC ', 1, ' ')
+   call add_default ('D550_DU ', 1, ' ')
+   call add_default ('D550_SS ', 1, ' ')
+   call add_default ('D550_SO4', 1, ' ')
+   call add_default ('D550_POM', 1, ' ')
+   call add_default ('D550_BC ', 1, ' ')
+   call add_default ('D670_DU ', 1, ' ')
+   call add_default ('D670_SS ', 1, ' ')
+   call add_default ('D670_SO4', 1, ' ')
+   call add_default ('D670_POM', 1, ' ')
+   call add_default ('D670_BC ', 1, ' ')
+   call add_default ('D870_DU ', 1, ' ')
+   call add_default ('D870_SS ', 1, ' ')
+   call add_default ('D870_SO4', 1, ' ')
+   call add_default ('D870_POM', 1, ' ')
+   call add_default ('D870_BC ', 1, ' ')
+   call add_default ('DLT_DUST', 1, ' ')
+   call add_default ('DLT_SS  ', 1, ' ')
+   call add_default ('DLT_SO4 ', 1, ' ')
+   call add_default ('DLT_POM ', 1, ' ')
+   call add_default ('DLT_BC  ', 1, ' ')
+   call add_default ('DGT_DUST', 1, ' ')
+   call add_default ('DGT_SS  ', 1, ' ')
+   call add_default ('DGT_SO4 ', 1, ' ')
+   call add_default ('DGT_POM ', 1, ' ')
+   call add_default ('DGT_BC  ', 1, ' ')
+   call add_default ('NNAT_0  ', 1, ' ')
+   call add_default ('NNAT_1  ', 1, ' ')
+   call add_default ('NNAT_2  ', 1, ' ')
+   call add_default ('NNAT_4  ', 1, ' ')
+   call add_default ('NNAT_5  ', 1, ' ')
+   call add_default ('NNAT_6  ', 1, ' ')
+   call add_default ('NNAT_7  ', 1, ' ')
+   call add_default ('NNAT_8  ', 1, ' ')
+   call add_default ('NNAT_9  ', 1, ' ')
+   call add_default ('NNAT_10 ', 1, ' ')
+   call add_default ('NNAT_12 ', 1, ' ')
+   call add_default ('NNAT_14 ', 1, ' ')
+   call add_default ('AIRMASSL', 1, ' ')
+   call add_default ('AIRMASS ', 1, ' ')
+   call add_default ('BETOTVIS', 1, ' ')
+   call add_default ('BATOTVIS', 1, ' ')
+   call add_default ('BATSW13 ', 1, ' ')
+   call add_default ('BATLW01 ', 1, ' ')
+
+   do i=1,nbmodes
+      modeString="  "
+      write(modeString,"(I2)"),i
+      if(i.lt.10) modeString="0"//adjustl(modeString)
+      varName = "Camrel"//trim(modeString)
+      if(i.ne.3) call add_default(varName, 1, ' ')
+   enddo
+   do i=1,nbmodes
+      modeString="  "
+      write(modeString,"(I2)"),i
+      if(i.lt.10) modeString="0"//adjustl(modeString)
+      varName = "Cxsrel"//trim(modeString)
+      if(i.ne.3) call add_default(varName, 1, ' ')
+   enddo
+
+#endif  ! aerocom
+#endif  ! oslo_aero
 
   end subroutine diag_init_dry
 
@@ -815,10 +803,9 @@ contains
     integer :: k, m
     integer :: ixcldice, ixcldliq ! constituent indices for cloud liquid and ice water.
     integer :: ierr
-    !AL
     integer :: ixcldnc
     integer :: ixcldni
-    !AL
+
     ! column burdens for all constituents except water vapor
     call constituent_burden_init
 
@@ -859,10 +846,9 @@ contains
     call addfld ('DTCOND_12_SIN',(/ 'lev' /), 'A','K/s','T tendency - moist processes 12hr. sin coeff.')
     call addfld ('DTCOND_08_COS',(/ 'lev' /), 'A','K/s','T tendency - moist processes  8hr. cos coeff.')
     call addfld ('DTCOND_08_SIN',(/ 'lev' /), 'A','K/s','T tendency - moist processes  8hr. sin coeff.')
-!AL
+
     call cnst_get_ind('NUMLIQ', ixcldnc)
     call cnst_get_ind('NUMICE', ixcldni)
-!AL
 
     call addfld ('PRECL',    horiz_only, 'A', 'm/s','Large-scale (stable) precipitation rate (liq + ice)'                )
     call addfld ('PRECC',    horiz_only, 'A', 'm/s','Convective precipitation rate (liq + ice)'                          )
@@ -921,10 +907,8 @@ contains
     if (ixcldice > 0) then
       call addfld (ptendnam(ixcldice),(/ 'lev' /), 'A', 'kg/kg/s',trim(cnst_name(ixcldice))//' total physics tendency ')
     end if
-!AL
     call addfld (ptendnam(ixcldnc), (/ 'lev' /), 'A', '#/kg/s ',trim(cnst_name(ixcldnc))//' total physics tendency ')
     call addfld (ptendnam(ixcldni), (/ 'lev' /), 'A', '#/kg/s ',trim(cnst_name(ixcldni))//' total physics tendency ')
-!AL
     if ( dycore_is('LR') )then
       call addfld (dmetendnam(       1),(/ 'lev' /), 'A','kg/kg/s', &
            trim(cnst_name(       1))//' dme adjustment tendency (FV) ')
@@ -936,19 +920,15 @@ contains
         call addfld (dmetendnam(ixcldice),(/ 'lev' /), 'A','kg/kg/s', &
              trim(cnst_name(ixcldice))//' dme adjustment tendency (FV) ')
       end if
-!AL
       call addfld (dmetendnam(ixcldnc),(/ 'lev' /), 'A','#/kg/s ',   &
            trim(cnst_name(ixcldnc))//' dme adjustment tendency (FV) ')
       call addfld (dmetendnam(ixcldni),(/ 'lev' /), 'A','#/kg/s ',   &
            trim(cnst_name(ixcldni))//' dme adjustment tendency (FV) ')
-!AL
     end if
 
     if ( history_budget ) then
-!AL
       call add_default (ptendnam(ixcldnc), history_budget_histfile_num, ' ')
       call add_default (ptendnam(ixcldni), history_budget_histfile_num, ' ')
-!AL
     end if
 
     ! outfld calls in diag_physvar_ic
@@ -982,9 +962,10 @@ contains
     call addfld('a2x_DSTWET4',  horiz_only, 'A',  'kg/m2/s', 'wetdep of dust (bin4)')
     call addfld('a2x_DSTDRY4',  horiz_only, 'A',  'kg/m2/s', 'drydep of dust (bin4)')
 
-    if (do_aerocom) then
+#ifdef AEROCOM
        call add_default ('RHW     ', 1, ' ')
     end if
+#endif  ! aerocom
 
     ! defaults
     if (history_amwg) then
@@ -1754,24 +1735,22 @@ contains
        call outfld ('RELHUM  ',ftem    ,pcols   ,lchnk     )
     end if
 
-    if (do_aerocom) then
-          ! We want RHW output always when AEROCOM is on (not only if added to a namelist)
-          ! RH w.r.t liquid (water)
-          call qsat_water (state%t(:ncol,:), state%pmid(:ncol,:), &
-               esl(:ncol,:), ftem(:ncol,:))
-          ftem(:ncol,:) = state%q(:ncol,:,1)/ftem(:ncol,:)*100._r8
-          call outfld ('RHW  ',ftem    ,pcols   ,lchnk     )
-       end if
+#ifdef AEROCOM
+    ! We want RHW output always when AEROCOM is on (not only if added to a namelist)
+    ! RH w.r.t liquid (water)
+    call qsat_water (state%t(:ncol,:), state%pmid(:ncol,:), esl(:ncol,:), ftem(:ncol,:))
+    ftem(:ncol,:) = state%q(:ncol,:,1)/ftem(:ncol,:)*100._r8
+    call outfld ('RHW  ',ftem    ,pcols   ,lchnk     )
+#endif
 
     if (hist_fld_active('RHW') .or. hist_fld_active('RHI') .or. hist_fld_active('RHCFMIP') ) then
 
-    if (.not. do_aerocom) then
+#ifndef AEROCOM
        ! RH w.r.t liquid (water)
-       call qsat_water (state%t(:ncol,:), state%pmid(:ncol,:), &
-            esl(:ncol,:), ftem(:ncol,:))
+       call qsat_water (state%t(:ncol,:), state%pmid(:ncol,:), esl(:ncol,:), ftem(:ncol,:))
        ftem(:ncol,:) = state%q(:ncol,:,1)/ftem(:ncol,:)*100._r8
        call outfld ('RHW  ',ftem    ,pcols   ,lchnk     )
-    end if
+#endif
 
       ! Convert to RHI (ice)
       do i=1,ncol
@@ -2441,8 +2420,8 @@ contains
     if (dycore_is('LR')) then
       tmp_t(:ncol,:pver) = (state%t(:ncol,:pver) - tmp_t(:ncol,:pver))/ztodt ! T tendency
       call outfld('PTTEND_DME', tmp_t, pcols, lchnk   )
-      if(present(dsema))call outfld('IETEND_DME', dsema, pcols, lchnk)       ! dry enthalpy
-      if(present(eflx) )call outfld('EFLX'      ,  eflx, pcols, lchnk)       ! moist enthalpy
+      if (present(dsema))call outfld('IETEND_DME', dsema, pcols, lchnk)       ! dry enthalpy
+      if (present(eflx) )call outfld('EFLX'      ,  eflx, pcols, lchnk)       ! moist enthalpy
     end if
 
     ! Total physics tendency for Temperature
@@ -2452,10 +2431,10 @@ contains
       call check_energy_get_integrals( heat_glob_out=heat_glob , tedif_glob_out=tedif_glob ) !+tht tedif
       ftem2(:ncol)  = heat_glob/cpair
       call outfld('TFIX', ftem2, pcols, lchnk   )
-!+tht
+
       ftem2(:ncol)  = tedif_glob/ztodt
       call outfld('EBREAK', ftem2, pcols, lchnk   )
-!-tht
+
       ftem3(:ncol,:pver)  = tend%dtdt(:ncol,:pver) - heat_glob/cpair
     else
       ftem3(:ncol,:pver)  = tend%dtdt(:ncol,:pver)
@@ -2491,43 +2470,36 @@ contains
 
     ! Arguments
 
-    type(physics_state), intent(in)    :: state
+     type(physics_state), intent(in)    :: state
+     type(physics_buffer_desc), pointer :: pbuf(:)
+     type(physics_tend ), intent(in)    :: tend
+     real(r8),            intent(in)    :: ztodt                  ! physics timestep
+     real(r8),            intent(inout) :: tmp_q     (pcols,pver) ! As input, holds pre-adjusted tracers (FV)
+     real(r8),            intent(inout) :: tmp_cldliq(pcols,pver) ! As input, holds pre-adjusted tracers (FV)
+     real(r8),            intent(inout) :: tmp_cldice(pcols,pver) ! As input, holds pre-adjusted tracers (FV)
+     real(r8),            intent(in)    :: qini      (pcols,pver) ! tracer fields at beginning of physics
+     real(r8),            intent(in)    :: cldliqini (pcols,pver) ! tracer fields at beginning of physics
+     real(r8),            intent(in)    :: cldiceini (pcols,pver) ! tracer fields at beginning of physics
+     real(r8),            intent(inout) :: tmp_cldnc(pcols,pver)  ! As input, holds pre-adjusted tracers (FV)
+     real(r8),            intent(inout) :: tmp_cldni(pcols,pver)  ! As input, holds pre-adjusted tracers (FV)
+     real(r8),            intent(in   ) :: cldncini (pcols,pver)  ! tracer fields at beginning of physics
+     real(r8),            intent(in   ) :: cldniini (pcols,pver)  ! tracer fields at beginning of physics
 
-    type(physics_buffer_desc), pointer :: pbuf(:)
-    type(physics_tend ), intent(in)    :: tend
-    real(r8),            intent(in)    :: ztodt                  ! physics timestep
-    real(r8),            intent(inout) :: tmp_q     (pcols,pver) ! As input, holds pre-adjusted tracers (FV)
-    real(r8),            intent(inout) :: tmp_cldliq(pcols,pver) ! As input, holds pre-adjusted tracers (FV)
-    real(r8),            intent(inout) :: tmp_cldice(pcols,pver) ! As input, holds pre-adjusted tracers (FV)
-    real(r8),            intent(in)    :: qini      (pcols,pver) ! tracer fields at beginning of physics
-    real(r8),            intent(in)    :: cldliqini (pcols,pver) ! tracer fields at beginning of physics
-    real(r8),            intent(in)    :: cldiceini (pcols,pver) ! tracer fields at beginning of physics
-!AL
-   real(r8)           , intent(inout) :: tmp_cldnc(pcols,pver) ! As input, holds pre-adjusted tracers (FV)
-   real(r8)           , intent(inout) :: tmp_cldni(pcols,pver) ! As input, holds pre-adjusted tracers (FV)
-   real(r8)           , intent(in   ) :: cldncini (pcols,pver) ! tracer fields at beginning of physics
-   real(r8)           , intent(in   ) :: cldniini (pcols,pver) ! tracer fields at beginning of physics
-!AL
     !---------------------------Local workspace-----------------------------
-
     integer  :: lchnk  ! chunk index
     integer  :: ncol   ! number of columns in chunk
     real(r8) :: ftem3(pcols,pver) ! Temporary workspace for outfld variables
     real(r8) :: rtdt
     integer  :: ixcldice, ixcldliq! constituent indices for cloud liquid and ice water.
-!AL
-   integer  :: ixnumice, ixnumliq! constituent indices for cloud liquid and ice water.
-!AL
+    integer  :: ixnumice, ixnumliq! constituent indices for cloud liquid and ice water.
 
     lchnk = state%lchnk
     ncol  = state%ncol
     rtdt  = 1._r8/ztodt
     call cnst_get_ind('CLDLIQ', ixcldliq, abort=.false.)
     call cnst_get_ind('CLDICE', ixcldice, abort=.false.)
-!AL
     call cnst_get_ind('NUMLIQ', ixnumliq)
     call cnst_get_ind('NUMICE', ixnumice)
-!AL
 
     if ( cnst_cam_outfld(       1) ) then
       call outfld (apcnst(       1), state%q(:,:,       1), pcols, lchnk)
@@ -2570,12 +2542,10 @@ contains
           call outfld (dmetendnam(ixcldice), tmp_cldice, pcols, lchnk)
         end if
       end if
-!AL
       tmp_cldnc(:ncol,:pver) = (state%q(:ncol,:pver,ixnumliq) - tmp_cldnc(:ncol,:pver))*rtdt
       tmp_cldni(:ncol,:pver) = (state%q(:ncol,:pver,ixnumice) - tmp_cldni(:ncol,:pver))*rtdt
       if ( cnst_cam_outfld(ixnumliq) ) call outfld (dmetendnam(ixnumliq), tmp_cldnc, pcols, lchnk)
       if ( cnst_cam_outfld(ixnumice) ) call outfld (dmetendnam(ixnumice), tmp_cldni, pcols, lchnk)
-!AL
    end if
 
     ! Total physics tendency for moisture and other tracers
@@ -2596,7 +2566,6 @@ contains
         call outfld (ptendnam(ixcldice), ftem3, pcols, lchnk)
       end if
     end if
-!AL
     if ( cnst_cam_outfld(ixnumliq) ) then
       ftem3(:ncol,:pver) = (state%q(:ncol,:pver,ixnumliq) - cldncini(:ncol,:pver) )*rtdt
       call outfld (ptendnam(ixnumliq), ftem3, pcols, lchnk)
@@ -2606,19 +2575,14 @@ contains
       call outfld (ptendnam(ixnumice), ftem3, pcols, lchnk)
     end if
 
-!AL
-
   end subroutine diag_phys_tend_writeout_moist
 
 !#######################################################################
 
-!AL
-!  subroutine diag_phys_tend_writeout(state, pbuf,  tend, ztodt,               &
-!       tmp_q, tmp_cldliq, tmp_cldice, qini, cldliqini, cldiceini)
-!AL
-  subroutine diag_phys_tend_writeout(state, pbuf,  tend, ztodt              &
-       , tmp_q, tmp_t, tmp_cldliq, tmp_cldice, tmp_cldnc,tmp_cldni                 &
-       , qini, cldliqini, cldiceini,cldncini, cldniini, eflx, dsema)
+  subroutine diag_phys_tend_writeout(state, pbuf,  tend, ztodt,   &
+       tmp_q, tmp_t, tmp_cldliq, tmp_cldice, tmp_cldnc,tmp_cldni, &
+       qini, cldliqini, cldiceini,cldncini, cldniini, eflx, dsema)
+
     !---------------------------------------------------------------
     !
     ! Purpose:  Dump physics tendencies for moisture and temperature
@@ -2627,35 +2591,31 @@ contains
 
     ! Arguments
 
-    type(physics_state), intent(in)    :: state
-
-    type(physics_buffer_desc), pointer :: pbuf(:)
-    type(physics_tend ), intent(in)    :: tend
-    real(r8),            intent(in)    :: ztodt                  ! physics timestep
-    real(r8)           , intent(inout) :: tmp_q     (pcols,pver) ! As input, holds pre-adjusted tracers (FV)
-    real(r8)           , intent(inout) :: tmp_t     (pcols,pver) !tht: holds last physics_updated T (FV)
-    real(r8),            intent(inout) :: tmp_cldliq(pcols,pver) ! As input, holds pre-adjusted tracers (FV)
-    real(r8),            intent(inout) :: tmp_cldice(pcols,pver) ! As input, holds pre-adjusted tracers (FV)
-    real(r8),            intent(in)    :: qini      (pcols,pver) ! tracer fields at beginning of physics
-    real(r8),            intent(in)    :: cldliqini (pcols,pver) ! tracer fields at beginning of physics
-    real(r8),            intent(in)    :: cldiceini (pcols,pver) ! tracer fields at beginning of physics
-!AL
-   real(r8)           , intent(inout)    :: tmp_cldnc(pcols,pver) ! As input, holds pre-adjusted tracers (FV)
-   real(r8)           , intent(inout)    :: tmp_cldni(pcols,pver) ! As input, holds pre-adjusted tracers (FV)
-   real(r8)           , intent(in   ) :: cldncini (pcols,pver) ! tracer fields at beginning of physics
-   real(r8)           , intent(in   ) :: cldniini (pcols,pver) ! tracer fields at beginning of physics
-!AL
-    real(r8)           , intent(in), optional ::eflx (pcols    ) !tht: surface sensible heat flux assoc.with mass adj.
-    real(r8)           , intent(in), optional ::dsema(pcols    ) !tht: column enthalpy tendency assoc. with mass adj.
+     type(physics_state), intent(in)           :: state
+     type(physics_buffer_desc), pointer        :: pbuf(:)
+     type(physics_tend ), intent(in)           :: tend
+     real(r8),            intent(in)           :: ztodt                   ! physics timestep
+     real(r8),            intent(inout)        :: tmp_q      (pcols,pver) ! As input, holds pre-adjusted tracers (FV)
+     real(r8),            intent(inout)        :: tmp_t      (pcols,pver) ! tht: holds last physics_updated T (FV)
+     real(r8),            intent(inout)        :: tmp_cldliq (pcols,pver) ! As input, holds pre-adjusted tracers (FV)
+     real(r8),            intent(inout)        :: tmp_cldice (pcols,pver) ! As input, holds pre-adjusted tracers (FV)
+     real(r8),            intent(in)           :: qini       (pcols,pver) ! tracer fields at beginning of physics
+     real(r8),            intent(in)           :: cldliqini  (pcols,pver) ! tracer fields at beginning of physics
+     real(r8),            intent(in)           :: cldiceini  (pcols,pver) ! tracer fields at beginning of physics
+     real(r8),            intent(inout)        :: tmp_cldnc  (pcols,pver) ! As input, holds pre-adjusted tracers (FV)
+     real(r8),            intent(inout)        :: tmp_cldni  (pcols,pver) ! As input, holds pre-adjusted tracers (FV)
+     real(r8),            intent(in   )        :: cldncini   (pcols,pver) ! tracer fields at beginning of physics
+     real(r8),            intent(in   )        :: cldniini   (pcols,pver) ! tracer fields at beginning of physics
+     real(r8),            intent(in), optional :: eflx       (pcols)      ! tht: surface sensible heat flux assoc.with mass adj.
+     real(r8),            intent(in), optional :: dsema      (pcols)      ! tht: column enthalpy tendency assoc. with mass adj.
 
     !-----------------------------------------------------------------------
 
-   !call diag_phys_tend_writeout_dry(state, pbuf, tend, ztodt)
     call diag_phys_tend_writeout_dry(state, pbuf, tend, ztodt, tmp_t, eflx, dsema) !tht
     if (moist_physics) then
-      call diag_phys_tend_writeout_moist(state, pbuf,  tend, ztodt,           &
-           tmp_q, tmp_cldliq, tmp_cldice, tmp_cldnc, tmp_cldni                &
-           ,qini, cldliqini, cldiceini , cldncini, cldniini)
+      call diag_phys_tend_writeout_moist(state, pbuf,  tend, ztodt, &
+           tmp_q, tmp_cldliq, tmp_cldice, tmp_cldnc, tmp_cldni,     &
+           qini, cldliqini, cldiceini , cldncini, cldniini)
     end if
 
   end subroutine diag_phys_tend_writeout
