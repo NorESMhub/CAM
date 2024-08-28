@@ -3136,6 +3136,7 @@ if ($simple_phys) {$use_simple_phys = '.true.';}
 $nl->set_variable_value('phys_ctl_nl', 'use_simple_phys', $use_simple_phys);
 
 #Cam-Oslo options
+add_default($nl, 'use_aerocom');
 add_default($nl, 'volc_fraction_coarse');
 add_default($nl, 'aerotab_table_dir');
 add_default($nl, 'ocean_filepath');

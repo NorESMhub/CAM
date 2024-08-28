@@ -52,7 +52,6 @@ OPTIONS
   Options used to determine the CAM model configuration.  These options will have an
   effect whether running CAM from CESM scripts or running via CAM standalone scripts:
 
-     -aerocom           Enable AEROCOM cpp-def for OSLO_AERO
      -[no]age_of_air_trcs Switch on [off] age of air tracers. Default: on for waccm_phys, otherwise off.
      -analytic_ic       Enables the (namelist controlled) dycore testing infrastructure
      -aquaplanet        Switch on aqua-planet mode.
@@ -233,7 +232,6 @@ my %opts = (
             cache       => "config_cache.xml",
             );
 GetOptions(
-    "aerocom!"                  => \$opts{'aerocom'},
     "age_of_air_trcs!"          => \$opts{'age_of_air_trcs'},
     "analytic_ic"               => \$opts{'analytic_ic'},
     "aquaplanet"                => \$opts{'aquaplanet'},
@@ -1968,14 +1966,6 @@ if ($silhs == 1) {
 
 # Simple Models
 if ($simple_phys) { $cfg_cppdefs .= ' -DSIMPLE'; }
-
-# Turn on aerocom
-my $aerocom_opt = (defined $opts{'aerocom'}) ? 1 : 0;
-$cfg_ref->set('aerocom', $aerocom_opt);
-my $aerocom = $cfg_ref->get('aerocom');
-if ($aerocom eq 1) {
-    $cfg_cppdefs .= ' -DAEROCOM';
-}
 
 # UNICON
 if ($unicon) { $cfg_cppdefs .= ' -DUSE_UNICON'; }
