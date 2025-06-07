@@ -3023,8 +3023,74 @@ level from 100 to 125 hPa applied only in the polar regions (false).
 Default: .true.
 </entry>
 
+<!-- Secondary ice production -->
+<entry id="rafsip_on" type="logical" category="microphys"
+       group="sec_ice_nl" valid_values="" >
+  If .true., compute secondary ice production using random forests method.
+  Default: .true.
+</entry>
 
+<entry id="forestfileALL" type="char*256" input_pathname="abs" category="microphys"
+       group="sec_ice_nl" valid_values="" >
+  ML parameters for the forestALL RFR model.
+  Georgakaki, P., &amp; Nenes, A. (2024).
+  RaFSIP: Parameterizing ice multiplication in models using a machine learning
+  approach. Journal of Advances in Modeling Earth Systems, 16,
+  e2023MS003923.
+  https://doi.org/10.1029/2023MS003923
+  Default: None
+</entry>
 
+<entry id="forestfileBRDS" type="char*256" input_pathname="abs" category="microphys"
+       group="sec_ice_nl" valid_values="" >
+  ML parameters for the forestBRDS RFR model.
+  Georgakaki, P., &amp; Nenes, A. (2024).
+  RaFSIP: Parameterizing ice multiplication in models using a machine learning
+  approach. Journal of Advances in Modeling Earth Systems, 16,
+  e2023MS003923.
+  https://doi.org/10.1029/2023MS003923
+  Default: None
+</entry>
+
+<entry id="forestfileBRHM" type="char*256" input_pathname="abs" category="microphys"
+       group="sec_ice_nl" valid_values="" >
+  ML parameters for the forestBRHM RFR model.
+  Georgakaki, P., &amp; Nenes, A. (2024).
+  RaFSIP: Parameterizing ice multiplication in models using a machine learning
+  approach. Journal of Advances in Modeling Earth Systems, 16,
+  e2023MS003923.
+  https://doi.org/10.1029/2023MS003923
+  Default: None
+</entry>
+
+<entry id="forestfileBR" type="char*256" input_pathname="abs" category="microphys"
+       group="sec_ice_nl" valid_values="" >
+  ML parameters for the forestBR RFR model.
+  Georgakaki, P., &amp; Nenes, A. (2024).
+  RaFSIP: Parameterizing ice multiplication in models using a machine learning
+  approach. Journal of Advances in Modeling Earth Systems, 16,
+  e2023MS003923.
+  https://doi.org/10.1029/2023MS003923
+  Default: None
+</entry>
+
+<entry id="forestfileBRwarm" type="char*256" input_pathname="abs" category="microphys"
+       group="sec_ice_nl" valid_values="" >
+  ML parameters for the forestBRwarm RFR model.
+  Georgakaki, P., &amp; Nenes, A. (2024).
+  RaFSIP: Parameterizing ice multiplication in models using a machine learning
+  approach. Journal of Advances in Modeling Earth Systems, 16,
+  e2023MS003923.
+  https://doi.org/10.1029/2023MS003923
+  Default: None
+</entry>
+
+<entry id="rafsip_diags" type="char*4" category="history"
+       group="sec_ice_nl" valid_values="None,SIP,All" >
+  SIP: Total secondary ice production amount and it's components
+  All: sip outputs plus inputs to SIP computation (except temperature)
+  default: none
+</entry>
 
 <!-- hkconv Moist Convection -->
 <entry id="hkconv_cmftau" type="real" category="conv"

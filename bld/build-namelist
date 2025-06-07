@@ -3506,6 +3506,22 @@ add_default($nl, 'microp_aero_wsub_min');
 add_default($nl, 'microp_aero_wsub_min_asf');
 add_default($nl, 'microp_aero_wsubi_min');
 
+# Check usage of random forests secondary ice production
+add_default($nl, 'rafsip_on');
+if ($nl->get_value('rafsip_on') =~ m/$TRUE/io) {
+  if ($nl->get_value('micro_mg_do_cldice') =~ m/$FALSE/io) {
+    # Generate an error since both of these variables would have to be
+    #    set manually for this condition
+    die "$ProgName - Error: Cannot set rafsip_on = .true. if micro_mg_do_cldice = .false.\n";
+  }
+  add_default($nl, 'forestfileALL');
+  add_default($nl, 'forestfileBRDS');
+  add_default($nl, 'forestfileBRHM');
+  add_default($nl, 'forestfileBR');
+  add_default($nl, 'forestfileBRwarm');
+  add_default($nl, 'rafsip_diags');
+}
+
 # Ice nucleation options
 if (!$simple_phys) {
     if ($chem =~ /_mam/ or $carma =~ /trop_strat/) {

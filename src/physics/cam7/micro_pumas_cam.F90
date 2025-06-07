@@ -255,12 +255,12 @@ contains
 subroutine micro_pumas_cam_readnl(nlfile)
 
   use namelist_utils,  only: find_group_name
-  use units,           only: getunit, freeunit
-  use spmd_utils,      only: mpicom, mstrid=>masterprocid, mpi_integer, mpi_real8, &
-                             mpi_logical, mpi_character
+  use spmd_utils,      only: mpicom, mstrid=>masterprocid, mpi_integer
+  use spmd_utils,      only: mpi_real8, mpi_logical, mpi_character
 
   use stochastic_emulated_cam, only: stochastic_emulated_readnl
   use stochastic_tau_cam,      only: stochastic_tau_readnl
+  use module_random_forests,   only: sec_ice_readnl
 
   character(len=*), intent(in) :: nlfile  ! filepath for file containing namelist input
 
@@ -293,8 +293,7 @@ subroutine micro_pumas_cam_readnl(nlfile)
   !-----------------------------------------------------------------------------
 
   if (masterproc) then
-     unitn = getunit()
-     open( unitn, file=trim(nlfile), status='old' )
+     open( newunit=unitn, file=trim(nlfile), status='old' )
      call find_group_name(unitn, 'micro_mg_nl', status=ierr)
      if (ierr == 0) then
         read(unitn, micro_mg_nl, iostat=ierr)
@@ -303,7 +302,6 @@ subroutine micro_pumas_cam_readnl(nlfile)
         end if
      end if
      close(unitn)
-     call freeunit(unitn)
 
      ! set local variables
      do_cldice = micro_mg_do_cldice
@@ -551,6 +549,8 @@ subroutine micro_pumas_cam_readnl(nlfile)
   else if (trim(micro_mg_warm_rain) == 'tau') then
      call stochastic_tau_readnl(nlfile)
   end if
+
+  call sec_ice_readnl(nlfile)
 
 contains
 
@@ -864,11 +864,12 @@ end subroutine micro_pumas_cam_init_cnst
 !===============================================================================
 
 subroutine micro_pumas_cam_init(pbuf2d)
-   use time_manager,   only: is_first_step
-   use micro_pumas_utils, only: micro_pumas_utils_init
-   use micro_pumas_ccpp, only: micro_pumas_ccpp_init
-   use stochastic_tau_cam, only:  stochastic_tau_init_cam
-   use stochastic_emulated_cam, only:  stochastic_emulated_init_cam
+   use time_manager,            only: is_first_step
+   use micro_pumas_utils,       only: micro_pumas_utils_init
+   use micro_pumas_ccpp,        only: micro_pumas_ccpp_init
+   use stochastic_tau_cam,      only: stochastic_tau_init_cam
+   use stochastic_emulated_cam, only: stochastic_emulated_init_cam
+   use module_random_forests,   only: rafsip_on, rafsip_diags
 
    !-----------------------------------------------------------------------
    !
@@ -1244,6 +1245,38 @@ subroutine micro_pumas_cam_init(pbuf2d)
    ! qc limiter (only output in versions 1.5 and later)
    call addfld('QCRAT', (/ 'lev' /), 'A', 'fraction', 'Qc Limiter: Fraction of qc tendency applied', sampled_on_subcycle=.true.)
 
+   ! NorESM diagnostic fields
+   if (rafsip_on) then
+      call addfld ('NSUBCO   ', (/ 'trop_cld_lev' /), 'A', '1/kg/s  ', 'NC tendency evaporation of droplet'            )
+      call addfld ('NPRC1O   ', (/ 'trop_cld_lev' /), 'A', '1/kg/s  ', 'NC tendency autoconversion'                    )
+      call addfld ('NIMELTO  ', (/ 'trop_cld_lev' /), 'A', '1/kg/s  ', 'NI tendency melting'                           )
+      call addfld ('NIHOMOO  ', (/ 'trop_cld_lev' /), 'A', '1/kg/s  ', 'NI tendency homogeneous freezing'              )
+      call addfld ('NSUBIO   ', (/ 'trop_cld_lev' /), 'A', '1/kg/s  ', 'NI tendency evaporation of ice cloud number'   )
+      call addfld ('NPCCNO   ', (/ 'trop_cld_lev' /), 'A', '1/kg/s  ', 'NC activation'                                 )
+      call addfld ('NCTNSZMX ', (/ 'trop_cld_lev' /), 'A', '1/kg/s  ', 'NC tuning: maximum slope parameter'            )
+      call addfld ('NCTNSZMN ', (/ 'trop_cld_lev' /), 'A', '1/kg/s  ', 'NC tuning: minimum slope parameter'            )
+      call addfld ('NCTNNCLD ', (/ 'trop_cld_lev' /), 'A', '1/kg/s  ', 'NC tuning: removal of nc for zero cloud water' )
+      call addfld ('NITNCONS ', (/ 'trop_cld_lev' /), 'A', '1/kg/s  ', 'NI tuning: conservation of ni '                )
+      call addfld ('NITNSZMN ', (/ 'trop_cld_lev' /), 'A', '1/kg/s  ', 'NI tuning: minimum slope parameter'            )
+      call addfld ('NITNSZMX ', (/ 'trop_cld_lev' /), 'A', '1/kg/s  ', 'NI tuning: maximum slope parameter'            )
+      call addfld ('NITNNCLD ', (/ 'trop_cld_lev' /), 'A', '1/kg/s  ', 'NI tuning: removal of nI for zero cloud ice'   )
+      call addfld ('FRZR     ', (/ 'trop_cld_lev' /), 'A', 'kg/kg/s ', 'Mass freezing rain to snow'                    )
+      call addfld ('NFRZR    ', (/ 'trop_cld_lev' /), 'A', '1/kg/s  ', 'Number freezing rain to snow'                  )
+      if (trim(rafsip_diags) /= 'None') then
+         call addfld ('BR_RATE  ', (/ 'trop_cld_lev' /), 'A', '1/kg/s', 'SIP rate due to collisional break-up'            )
+         call addfld ('DS_RATE  ', (/ 'trop_cld_lev' /), 'A', '1/kg/s', 'SIP rate due to droplet-shattering'              )
+         call addfld ('HM_RATE  ', (/ 'trop_cld_lev' /), 'A', '1/kg/s', 'SIP rate due to Hallett-Mossop'                  )
+         call addfld ('SIP_RATE ', (/ 'trop_cld_lev' /), 'A', '1/kg/s', 'Total SIP Rate Predicted By The RaFSIP (kg-1 s-1)')
+      end if
+      if (trim(rafsip_diags) == 'All') then
+         call addfld ('RaFIWC   ', (/ 'trop_cld_lev' /), 'A', '1/kg/s', 'TOTAL ICE WATER CONTENT IN KG/KG INPUT TO RaFSIP')
+         call addfld ('RaFRIMC  ', (/ 'trop_cld_lev' /), 'A', '1/kg/s', 'TOTAL CLOUD DROPLET RIMING IN KG/KG/S INPUT TO RaFSIP')
+         call addfld ('RaFRIMR  ', (/ 'trop_cld_lev' /), 'A', '1/kg/s', 'TOTAL RAINDROP RIMING IN KG/KG/S INPUT TO RaFSIP')
+         call addfld ('RaFRHI   ', (/ 'trop_cld_lev' /), 'A', '1/kg/s', 'RELATIVE HUMIDITY WRT ICE INPUT TO RaFSIP')
+         call addfld ('RaFLWC   ', (/ 'trop_cld_lev' /), 'A', '1/kg/s', 'TOTAL LIQUID WATER CONTENT IN KG/KG INPUT TO RaFSIP')
+      end if
+   end if
+
    ! determine the add_default fields
    call phys_getopts(history_amwg_out           = history_amwg         , &
                      history_budget_out         = history_budget       , &
@@ -1375,6 +1408,38 @@ subroutine micro_pumas_cam_init(pbuf2d)
          call add_default(bpcnst   (ixgraupel), budget_histfile, ' ')
       end if
 
+      ! NorESM secondary ice diagnostic fields
+      if (rafsip_on) then
+         call add_default ('NSUBCO',    budget_histfile, ' ')
+         call add_default ('NPRC1O',    budget_histfile, ' ')
+         call add_default ('NIMELTO',   budget_histfile, ' ')
+         call add_default ('NIHOMOO',   budget_histfile, ' ')
+         call add_default ('NSUBIO',    budget_histfile, ' ')
+         call add_default ('NPCCNO',    budget_histfile, ' ')
+
+         call add_default ('NCTNSZMX',  budget_histfile, ' ')
+         call add_default ('NCTNSZMN',  budget_histfile, ' ')
+         call add_default ('NCTNNCLD',  budget_histfile, ' ')
+         call add_default ('NITNCONS',  budget_histfile, ' ')
+         call add_default ('NITNSZMX',  budget_histfile, ' ')
+         call add_default ('NITNSZMN',  budget_histfile, ' ')
+         call add_default ('NITNNCLD',  budget_histfile, ' ')
+         call add_default ('FRZR',      budget_histfile, ' ')
+         call add_default ('NFRZR',     budget_histfile, ' ')
+         if (trim(rafsip_diags) /= 'None') then
+            call add_default ('BR_RATE  ', budget_histfile, ' ')
+            call add_default ('DS_RATE  ', budget_histfile, ' ')
+            call add_default ('HM_RATE  ', budget_histfile, ' ')
+            call add_default ('SIP_RATE ', budget_histfile, ' ')
+         end if
+         if (trim(rafsip_diags) == 'All') then
+            call add_default ('RaFIWC   ', budget_histfile, ' ')
+            call add_default ('RaFRIMC  ', budget_histfile, ' ')
+            call add_default ('RaFRIMR  ', budget_histfile, ' ')
+            call add_default ('RaFRHI   ', budget_histfile, ' ')
+            call add_default ('RaFLWC   ', budget_histfile, ' ')
+         end if
+      end if
    end if
 
    ! physics buffer indices
@@ -1490,7 +1555,8 @@ subroutine micro_pumas_cam_tend(state, ptend, dtime, pbuf)
    use infnan,          only: nan, assignment(=)
    use cam_abortutils,  only: handle_allocate_error
 
-   use stochastic_tau_cam, only: ncd
+   use stochastic_tau_cam,    only: ncd
+   use module_random_forests, only: rafsip_on, rafsip_diags
 
    type(physics_state),         intent(in)    :: state
    type(physics_ptend),         intent(out)   :: ptend
@@ -1995,7 +2061,7 @@ subroutine micro_pumas_cam_tend(state, ptend, dtime, pbuf)
    !     all the other arrays in this routine are dimensioned pver.  This is required because
    !     PUMAS only gets the top_lev:pver array subsection, and the proc_rates arrays
    !     need to be the same levels.
-   call proc_rates%allocate(ncol, nlev, ncd, micro_mg_warm_rain, pumas_errstring)
+   call proc_rates%allocate(ncol, nlev, ncd, micro_mg_warm_rain, rafsip_on, rafsip_diags, pumas_errstring)
 
    call handle_errmsg(pumas_errstring, subname="micro_pumas_cam_tend")
 
@@ -3696,6 +3762,39 @@ subroutine micro_pumas_cam_tend(state, ptend, dtime, pbuf)
 
    end if
 
+   ! NorESM secondary ice diagnostic fields
+   if (rafsip_on) then
+      call outfld ('NSUBCO',    proc_rates%nsubctot,    ncol, lchnk, avg_subcol_field=use_subcol_microp)
+      call outfld ('NPRC1O',    proc_rates%nprc1tot,    ncol, lchnk, avg_subcol_field=use_subcol_microp)
+      call outfld ('NIMELTO',   proc_rates%nimelttot,   ncol, lchnk, avg_subcol_field=use_subcol_microp)
+      call outfld ('NIHOMOO',   proc_rates%nihomotot,   ncol, lchnk, avg_subcol_field=use_subcol_microp)
+      call outfld ('NSUBIO',    proc_rates%nsubitot,    ncol, lchnk, avg_subcol_field=use_subcol_microp)
+      call outfld ('NPCCNO',    proc_rates%npccntot,    ncol, lchnk, avg_subcol_field=use_subcol_microp)
+
+      call outfld ('NCTNSZMX',  proc_rates%nctnszmx,    ncol, lchnk, avg_subcol_field=use_subcol_microp)
+      call outfld ('NCTNSZMN',  proc_rates%nctnszmn,    ncol, lchnk, avg_subcol_field=use_subcol_microp)
+      call outfld ('NCTNNCLD',  proc_rates%nctnncld,    ncol, lchnk, avg_subcol_field=use_subcol_microp)
+      call outfld ('NITNCONS',  proc_rates%nitncons,    ncol, lchnk, avg_subcol_field=use_subcol_microp)
+      call outfld ('NITNSZMX',  proc_rates%nitnszmx,    ncol, lchnk, avg_subcol_field=use_subcol_microp)
+      call outfld ('NITNSZMN',  proc_rates%nitnszmn,    ncol, lchnk, avg_subcol_field=use_subcol_microp)
+      call outfld ('NITNNCLD',  proc_rates%nitnncld,    ncol, lchnk, avg_subcol_field=use_subcol_microp)
+      call outfld ('FRZR',      proc_rates%frzr,        ncol, lchnk, avg_subcol_field=use_subcol_microp)
+      call outfld ('NFRZR',     proc_rates%nfrzr,       ncol, lchnk, avg_subcol_field=use_subcol_microp)
+      if (trim(rafsip_diags) /= 'None') then
+         call outfld ('BR_RATE',   proc_rates%BR_RATE,     ncol, lchnk, avg_subcol_field=use_subcol_microp)
+         call outfld ('DS_RATE',   proc_rates%DS_RATE,     ncol, lchnk, avg_subcol_field=use_subcol_microp)
+         call outfld ('HM_RATE',   proc_rates%HM_RATE,     ncol, lchnk, avg_subcol_field=use_subcol_microp)
+         call outfld ('SIP_RATE',  proc_rates%SIP_RATE,    ncol, lchnk, avg_subcol_field=use_subcol_microp)
+      end if
+      if (trim(rafsip_diags) == 'All') then
+         call outfld('RaFIWC',     proc_rates%IWC,         ncol, lchnk, avg_subcol_field=use_subcol_microp)
+         call outfld('RaFRIMC',    proc_rates%RIMC,        ncol, lchnk, avg_subcol_field=use_subcol_microp)
+         call outfld('RaFRIMR',    proc_rates%RIMR,        ncol, lchnk, avg_subcol_field=use_subcol_microp)
+         call outfld('RaFRHI',     proc_rates%RHI,         ncol, lchnk, avg_subcol_field=use_subcol_microp)
+         call outfld('RaFLWC',     proc_rates%LWC,         ncol, lchnk, avg_subcol_field=use_subcol_microp)
+      end if
+   end if
+
    ! Example subcolumn outfld call
    if (use_subcol_microp) then
       call outfld('FICE_SCOL',   nfice,       psubcols*pcols, lchnk)
@@ -3809,7 +3908,7 @@ subroutine micro_pumas_cam_tend(state, ptend, dtime, pbuf)
    end if
 
    ! deallocate the proc_rates DDT
-   call proc_rates%deallocate(micro_mg_warm_rain)
+   call proc_rates%deallocate(micro_mg_warm_rain, rafsip_on)
 
    ! ptend_loc is deallocated in physics_update above
    call physics_state_dealloc(state_loc)

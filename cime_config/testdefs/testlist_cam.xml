@@ -77,6 +77,15 @@
       <option name="wallclock">00:20:00</option>
     </options>
   </test>
+  <test compset="NF1850" grid="ne16pg3_ne16pg3_mtn14" name="ERP_Ln9" testmods="cam/secice">
+    <machines>
+      <machine name="betzy" compiler="intel" category="aux_cam_noresm"/>
+    </machines>
+    <options>
+      <option name="wallclock">00:20:00</option>
+      <option name="comment">Test of secondary ice microphysics</option>
+    </options>
+  </test>
 
 <!--              @@@@@@@@@@@@@@@@@@@@@@@@@@@                 -->
 <!--              CAM test-supported COMPSETS                 -->

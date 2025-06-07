@@ -2388,6 +2388,15 @@
 <nucleate_ice_strat                     >1.0D0</nucleate_ice_strat>
 <nucleate_ice_use_troplev               >.true.</nucleate_ice_use_troplev>
 
+<!-- Secondary ice production -->
+<rafsip_on>.false.</rafsip_on>
+<forestfileALL>atm/cam/RaFSIP/forestALL.txt</forestfileALL>
+<forestfileBRDS>atm/cam/RaFSIP/forestBRDS.txt</forestfileBRDS>
+<forestfileBRHM>atm/cam/RaFSIP/forestBRHM.txt</forestfileBRHM>
+<forestfileBR>atm/cam/RaFSIP/forestBR.txt</forestfileBR>
+<forestfileBRwarm>atm/cam/RaFSIP/forestBRwarm.txt</forestfileBRwarm>
+<rafsip_diags>None</rafsip_diags>
+
 <chem_use_chemtrop>.true.</chem_use_chemtrop>
 
 <prescribed_strataero_use_chemtrop>.false.</prescribed_strataero_use_chemtrop>
