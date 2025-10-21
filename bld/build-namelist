@@ -455,8 +455,7 @@ if ($print>=2) {
 # Composition of air
 add_default($nl, 'dry_air_species');
 add_default($nl, 'water_species_in_air');
-# Enthalpy flux
-add_default($nl, 'compute_enthalpy_flux');
+
 # Spectral Element dycore
 my $dyn = $cfg->get('dyn');
 
@@ -4553,6 +4552,7 @@ add_default($nl, 'history_gas');
 add_default($nl, 'history_aerosol_forcing');
 add_default($nl, 'history_aerosol_radiation');
 add_default($nl, 'history_aerosol_debug_output');
+add_default($nl, 'history_enthalpy_flux');
 
 # The history output for the AMWG variability diagnostics assumes that auxilliary history
 # files h1, h2, and h3 contain daily, 6-hrly, and 3-hrly output respectively.  If this output

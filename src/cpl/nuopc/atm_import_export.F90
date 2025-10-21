@@ -13,7 +13,7 @@ module atm_import_export
   use shr_mpi_mod       , only : shr_mpi_min, shr_mpi_max
   use nuopc_shr_methods , only : chkerr
   use cam_logfile       , only : iulog
-  use cam_history       , only: outfld
+  use cam_history       , only : outfld
   use spmd_utils        , only : masterproc, mpicom
   use srf_field_check   , only : set_active_Sl_ram1
   use srf_field_check   , only : set_active_Sl_fv
@@ -62,9 +62,12 @@ module atm_import_export
   integer                :: megan_nflds = -huge(1)  ! number of MEGAN voc fields from lnd-> atm
   integer                :: emis_nflds = -huge(1)   ! number of fire emission fields from lnd-> atm
   logical                :: atm_provides_lightning = .false. ! cld to grnd lightning flash freq (min-1)
+  logical, public        :: dms_from_ocn = .false.   ! dms is obtained from ocean as atm import data
   logical, public        :: brf_from_ocn = .false.   ! brf is obtained from ocean as atm import data
   logical, public        :: n2o_from_ocn = .false.   ! n2o is obtained from ocean as atm import data
   logical, public        :: nh3_from_ocn = .false.   ! nh3 is obtained from ocean as atm import data
+  logical, protected     :: compute_enthalpy_flux = .false.
+
   character(*),parameter :: F01 = "('(cam_import_export) ',a,i8,2x,i8,2x,d21.14)"
   character(*),parameter :: F02 = "('(cam_import_export) ',a,i8,2x,i8,2x,i8,2x,d21.14)"
   character(*),parameter :: u_FILE_u = __FILE__
@@ -98,11 +101,12 @@ contains
   !-----------------------------------------------------------
   ! advertise fields
   !-----------------------------------------------------------
-  subroutine advertise_fields(gcomp, flds_scalar_name, rc)
+  subroutine advertise_fields(gcomp, flds_scalar_name, compute_enthalpy_flux_in, rc)
 
     ! input/output variables
     type(ESMF_GridComp)            :: gcomp
     character(len=*) , intent(in)  :: flds_scalar_name
+    logical          , intent(in)  :: compute_enthalpy_flux_in
     integer          , intent(out) :: rc
 
     ! local variables
@@ -115,7 +119,6 @@ contains
     logical                :: flds_co2b      ! use case
     logical                :: flds_co2c      ! use case
     character(len=128)     :: fldname
-    logical                :: dms_from_ocn   ! dms is obtained from ocean as atm import data
     logical                :: ispresent
     logical                :: isset
     character(len=*), parameter :: subname='(atm_import_export:advertise_fields): '
@@ -129,6 +132,12 @@ contains
     !--------------------------------
     ! determine necessary toggles for below
     !--------------------------------
+
+    ! Set module variable
+    compute_enthalpy_flux = compute_enthalpy_flux_in
+    if (masterproc) then
+       write(iulog,'(2a,l)') trim(subname), 'compute_enthalpy_flux = ',compute_enthalpy_flux
+    end if
 
     call NUOPC_CompAttributeGet(gcomp, name='flds_co2a', value=cvalue, rc=rc)
     if (ChkErr(rc,__LINE__,u_FILE_u)) return
@@ -219,6 +228,10 @@ contains
     call fldlist_add(fldsFrAtm_num, fldsFrAtm, 'Faxa_rainl'    )
     call fldlist_add(fldsFrAtm_num, fldsFrAtm, 'Faxa_snowc'    )
     call fldlist_add(fldsFrAtm_num, fldsFrAtm, 'Faxa_snowl'    )
+    if (compute_enthalpy_flux) then
+       call fldlist_add(fldsFrAtm_num, fldsFrAtm, 'Faxa_hmat'     ) ! enthalpy flux computed by cam
+       call fldlist_add(fldsFrAtm_num, fldsFrAtm, 'Faxa_hlat'     ) ! var.lat.ht.part
+    end if
     call fldlist_add(fldsFrAtm_num, fldsFrAtm, 'Faxa_lwdn'     )
     call fldlist_add(fldsFrAtm_num, fldsFrAtm, 'Faxa_swndr'    )
     call fldlist_add(fldsFrAtm_num, fldsFrAtm, 'Faxa_swvdr'    )
@@ -301,6 +314,10 @@ contains
     call fldlist_add(fldsToAtm_num, fldsToAtm, 'Faxx_sen'  )
     call fldlist_add(fldsToAtm_num, fldsToAtm, 'Faxx_lwup' )
     call fldlist_add(fldsToAtm_num, fldsToAtm, 'Faxx_evap' )
+    if (compute_enthalpy_flux) then
+       call fldlist_add(fldsToAtm_num, fldsToAtm, 'Faox_evap' )
+       call fldlist_add(fldsToAtm_num, fldsToAtm, 'Faxx_hrof' )
+    end if
 
     ! dust fluxes from land (4 sizes)
     call fldlist_add(fldsToAtm_num, fldsToAtm, 'Fall_flxdst', ungridded_lbound=1, ungridded_ubound=4)
@@ -583,6 +600,8 @@ contains
     real(r8), pointer  :: fldptr_tauy(:)
     real(r8), pointer  :: fldptr_sen(:)
     real(r8), pointer  :: fldptr_evap(:)
+    real(r8), pointer  :: fldptr_evop(:)
+    real(r8), pointer  :: fldptr_hrof(:)
     logical, save      :: first_time = .true.
     character(len=*), parameter :: subname='(atm_import_export:import_fields)'
     !---------------------------------------------------------------------------
@@ -611,6 +630,31 @@ contains
        if (ChkErr(rc,__LINE__,u_FILE_u)) return
        call state_getfldptr(importState, 'Faxx_evap', fldptr=fldptr_evap, rc=rc)
        if (ChkErr(rc,__LINE__,u_FILE_u)) return
+
+       ! ***NOTE:*** if atm_compute_enthalpy_flux is .false. and if in
+       ! CMEPS med_computes_enthalpy_flux is .true., then the mediator
+       ! will compute it if the ocean requests it and add a correction
+       ! to the sensible heat sent to cam.
+       ! This is the case if CAM is coupled to MOM6.
+       ! However, it is not the case if CAM is coupled to BLOM.
+
+       if (compute_enthalpy_flux) then
+          ! ocean-point hevap
+          call state_getfldptr(importState, 'Faox_evap', fldptr=fldptr_evop, rc=rc)
+          if (ChkErr(rc,__LINE__,u_FILE_u)) return
+          ! enthalpy of runoff
+          call state_getfldptr(importState, 'Faxx_hrof', fldptr=fldptr_hrof, rc=rc)
+          if (ChkErr(rc,__LINE__,u_FILE_u)) return
+          g = 1
+          do c = begchunk,endchunk
+             do i = 1,get_ncols_p(c)
+                cam_in(c)%evap_ocn(i) = -fldptr_evop(g) * med2mod_areacor(g)
+                cam_in(c)%hrof(i)     = -fldptr_hrof(g) * med2mod_areacor(g)
+                g = g + 1
+             end do
+          end do
+       end if  ! end of compute_enthalpy_flux
+
        g = 1
        do c = begchunk,endchunk
           do i = 1,get_ncols_p(c)
@@ -1052,6 +1096,7 @@ contains
     real(r8), pointer :: fldptr_soll(:)    , fldptr_sols(:)
     real(r8), pointer :: fldptr_solld(:)   , fldptr_solsd(:)
     real(r8), pointer :: fldptr_snowc(:)   , fldptr_snowl(:)
+    real(r8), pointer :: fldptr_hmat (:)   , fldptr_hlat (:) ! enthalpy flux computed by cam
     real(r8), pointer :: fldptr_rainc(:)   , fldptr_rainl(:)
     real(r8), pointer :: fldptr_lwdn(:)    , fldptr_swnet(:)
     real(r8), pointer :: fldptr_topo(:)    , fldptr_zbot(:)
@@ -1150,6 +1195,20 @@ contains
     if (ChkErr(rc,__LINE__,u_FILE_u)) return
     call state_getfldptr(exportState, 'Faxa_swvdf', fldptr=fldptr_solsd, rc=rc)
     if (ChkErr(rc,__LINE__,u_FILE_u)) return
+    if (compute_enthalpy_flux) then
+       call state_getfldptr(exportState, 'Faxa_hmat' , fldptr=fldptr_hmat , rc=rc) ! enthalpy
+       if (ChkErr(rc,__LINE__,u_FILE_u)) return
+       call state_getfldptr(exportState, 'Faxa_hlat' , fldptr=fldptr_hlat , rc=rc) ! variable latent heat part
+       if (ChkErr(rc,__LINE__,u_FILE_u)) return
+       g = 1
+       do c = begchunk,endchunk
+          do i = 1,get_ncols_p(c)
+             fldptr_hmat (g) = cam_out(c)%hmat(i) * mod2med_areacor(g) ! enthalpy
+             fldptr_hlat (g) = cam_out(c)%hlat(i) * mod2med_areacor(g) ! variable latent heat part
+             g = g + 1
+          end do
+       end do
+    end if
     g = 1
     do c = begchunk,endchunk
        do i = 1,get_ncols_p(c)

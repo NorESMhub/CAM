@@ -2275,7 +2275,7 @@ Default: 0,-24,-24,-24,-24,-24,-24,-24,-24,-24
     group="cam_history_nl" valid_values="">
 If interpolate_output(k) = .true., then the k'th history file will be
 interpolated to a lat/lon grid before output.
-Default: .false.,.false.,.false.,.false.,.false.,.false.,.false.,.false.,.false.,.false.
+Default: .false.
 </entry>
 
 <entry id="interpolate_nlat" type="integer(10)" category="history"
@@ -5815,6 +5815,12 @@ summation fields.
 Default: .false.
 </entry>
 
+<entry id="history_enthalpy_flux" type="logical" category="diagnostics"
+       group="phys_ctl_nl" valid_values="" >
+Output enthalpy flux diagnostics if CAM computes enthalpy fluxes
+Default: .false.
+</entry>
+
 <entry id="offline_driver" type="logical" category="offline_unit_driver"
        group="phys_ctl_nl" valid_values="" >
 True when model is configured to use an offline driver.
@@ -8279,15 +8285,6 @@ Default: FALSE
 <entry id="apply_lunar_tides" type="logical" category="waccm_phys"
        group="lunar_tides_opts" valid_values="" >
 Switch to apply lunar tidal tendencies to neutral winds.
-Default: FALSE
-</entry>
-
-<!-- Enthalpy flux -->
-
-<entry id="compute_enthalpy_flux" type="logical"  category="physconst"
-       group="air_composition_nl" valid_values="" >
-Enthalpy flux terms explicitly computed and added in the atmosphere and
-passed to an active ocean component.
 Default: FALSE
 </entry>
 

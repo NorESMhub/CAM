@@ -127,6 +127,8 @@ module atm_comp_nuopc
   character(len=*) , parameter :: orb_variable_year    = 'variable_year'
   character(len=*) , parameter :: orb_fixed_parameters = 'fixed_parameters'
 
+  logical :: compute_enthalpy_flux ! If true, CAM computes enthalpy flux
+
   real(R8) , parameter         :: grid_tol = 1.e-2_r8 ! tolerance for calculated lat/lon vs read in
 
   type(ESMF_Mesh)  :: model_mesh     ! model_mesh
@@ -301,6 +303,29 @@ contains
        call shr_sys_abort(subname//'Need to set attribute ScalarFieldIdxNextSwCday')
     endif
 
+    call NUOPC_CompAttributeGet(gcomp, name='atm_computes_enthalpy_flux', value=cvalue, &
+         isPresent=isPresent, isSet=isSet, rc=rc)
+    if (ChkErr(rc,__LINE__,u_FILE_u)) return
+    compute_enthalpy_flux = .false.
+    if (isPresent .and. isSet) then
+       if (trim(cvalue) == 'atm') then
+          compute_enthalpy_flux = .true.
+       end if
+    end if
+
+    call NUOPC_CompAttributeGet(gcomp, name='component_computes_enthalpy_flux', value=cvalue, &
+         isPresent=isPresent, isSet=isSet, rc=rc)
+    if (ChkErr(rc,__LINE__,u_FILE_u)) return
+    if (isPresent .and. isSet) then
+       if (trim(cvalue) == 'atm') then
+          compute_enthalpy_flux = .true.
+       else
+          compute_enthalpy_flux = .false.
+       end if
+    else
+       compute_enthalpy_flux = .false.
+    end if
+
     ! read mediator fields namelists
     call read_surface_fields_namelists()
 
@@ -309,7 +334,7 @@ contains
     if (isPresent .and. isSet) then
        read (cvalue,*) mediator_present
        if (mediator_present) then
-          call advertise_fields(gcomp, flds_scalar_name, rc)
+          call advertise_fields(gcomp, flds_scalar_name, compute_enthalpy_flux, rc)
           if (ChkErr(rc,__LINE__,u_FILE_u)) return
        end if
     else
@@ -650,6 +675,7 @@ contains
          branch_run_in=branch_run, post_assim_in=dart_mode, &
          calendar=calendar, brnch_retain_casename=brnch_retain_casename, &
          aqua_planet=aqua_planet, dms_from_ocn=dms_from_ocn, &
+         compute_enthalpy_flux=compute_enthalpy_flux, &
          single_column=single_column, scmlat=scol_lat, scmlon=scol_lon, &
          eccen=eccen, obliqr=obliqr, lambm0=lambm0, mvelpp=mvelpp,  &
          perpetual_run=perpetual_run, perpetual_ymd=perpetual_ymd, &

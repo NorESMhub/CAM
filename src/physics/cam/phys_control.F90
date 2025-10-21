@@ -71,12 +71,15 @@ logical           :: history_cesm_forcing = .false.
 logical           :: history_dust         = .false.
 logical           :: history_scwaccm_forcing = .false.
 logical           :: history_chemspecies_srf = .false.
+
 logical, public, protected :: history_aerosol_base          = .true.
 logical, public, protected :: history_aerosol_decomposed    = .false.
 logical, public, protected :: history_gas                   = .false.
 logical, public, protected :: history_aerosol_forcing       = .false.
 logical, public, protected :: history_aerosol_radiation     = .false.
 logical, public, protected :: history_aerosol_debug_output  = .false.
+logical, public, protected :: history_enthalpy_flux         = .false.
+
 
 logical           :: do_clubb_sgs
 logical           :: do_hb_above_clubb       = .false. ! enable HB vertical mixing above clubb top
@@ -143,6 +146,7 @@ subroutine phys_ctl_readnl(nlfile)
       history_clubb, history_dust, &
       history_cesm_forcing, history_scwaccm_forcing, history_chemspecies_srf, history_aerosol_base, history_aerosol_debug_output, &
       history_aerosol_decomposed, history_gas, history_aerosol_forcing, history_aerosol_radiation, &
+      history_enthalpy_flux, &
       do_clubb_sgs, state_debug_checks, use_hetfrz_classnuc, use_gw_oro, use_gw_front, &
       use_gw_front_igw, use_gw_convect_dp, use_gw_convect_sh, use_gw_movmtn_pbl, cld_macmic_num_steps, &
       offline_driver, convproc_do_aer, cam_snapshot_before_num, cam_snapshot_after_num, &
@@ -200,6 +204,7 @@ subroutine phys_ctl_readnl(nlfile)
    call mpi_bcast(history_aerosol_debug_output,1,                     mpi_logical,   masterprocid, mpicom, ierr)
    call mpi_bcast(history_dust,                1,                     mpi_logical,   masterprocid, mpicom, ierr)
    call mpi_bcast(history_scwaccm_forcing,     1,                     mpi_logical,   masterprocid, mpicom, ierr)
+   call mpi_bcast(history_enthalpy_flux,       1,                     mpi_logical,   masterprocid, mpicom, ierr)
    call mpi_bcast(do_clubb_sgs,                1,                     mpi_logical,   masterprocid, mpicom, ierr)
    call mpi_bcast(state_debug_checks,          1,                     mpi_logical,   masterprocid, mpicom, ierr)
    call mpi_bcast(use_hetfrz_classnuc,         1,                     mpi_logical,   masterprocid, mpicom, ierr)

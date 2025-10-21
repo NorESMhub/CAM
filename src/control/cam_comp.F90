@@ -28,6 +28,7 @@ use offline_driver,    only: offline_driver_init, offline_driver_dorun, offline_
 use perf_mod
 use cam_logfile,       only: iulog
 use cam_abortutils,    only: endrun
+use air_composition,   only: air_composition_register
 
 implicit none
 private
@@ -56,7 +57,8 @@ contains
 subroutine cam_init(                                             &
    caseid, ctitle, model_doi_url,                                &
    initial_run_in, restart_run_in, branch_run_in, post_assim_in, &
-   calendar, brnch_retain_casename, aqua_planet, dms_from_ocn, &
+   calendar, brnch_retain_casename, aqua_planet, dms_from_ocn,   &
+   compute_enthalpy_flux,                                        &
    single_column, scmlat, scmlon,                                &
    eccen, obliqr, lambm0, mvelpp,                                &
    perpetual_run, perpetual_ymd,                                 &
@@ -103,6 +105,7 @@ subroutine cam_init(                                             &
 
    logical,           intent(in) :: single_column
    logical,           intent(in) :: dms_from_ocn
+   logical,           intent(in) :: compute_enthalpy_flux
    real(r8),          intent(in) :: scmlat
    real(r8),          intent(in) :: scmlon
 
@@ -168,14 +171,19 @@ subroutine cam_init(                                             &
    ! Register zonal average grid for phys TEM diagnostics
    call phys_grid_ctem_reg()
 
+   ! Need to call this before phys_register - sets module variable
+   ! compute_enthalpy_flux in air_composition_register
+   call air_composition_register(compute_enthalpy_flux)
+
    ! Register advected tracers and physics buffer fields
-   call phys_register ()
+   call phys_register()
 
    ! Initialize ghg surface values before default initial distributions
    ! are set in dyn_init
    call chem_surfvals_init()
 
    call air_composition_init()
+
    ! initialize ionosphere
    call ionosphere_init()
 

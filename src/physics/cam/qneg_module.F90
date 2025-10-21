@@ -309,7 +309,7 @@ contains
   end subroutine qneg3
 
   subroutine qneg4 (subnam, lchnk, ncol, ztodt,                            &
-       qbot, srfrpdel, shflx, lhflx, qflx)
+       qbot, srfrpdel, shflx, lhflx, qflx, seflx)
     !-----------------------------------------------------------------------
     !
     ! Purpose:
@@ -325,7 +325,7 @@ contains
     ! Author: J. Olson
     !
     !-----------------------------------------------------------------------
-    use physconst,    only: gravit, latvap
+    use physconst,    only: gravit, latvap, latice
     use constituents, only: qmin
     use cam_history,  only: outfld
 
@@ -343,9 +343,10 @@ contains
     !
     ! Input/Output arguments
     !
-    real(r8), intent(inout) :: shflx(ncol)   ! Surface sensible heat flux (J/m2/s)
-    real(r8), intent(inout) :: lhflx(ncol)   ! Surface latent   heat flux (J/m2/s)
-    real(r8), intent(inout) :: qflx (ncol,pcnst) ! surface water flux (kg/m^2/s)
+    real(r8), intent(inout) :: shflx(ncol)           ! Surface sensible heat flux (J/m2/s)
+    real(r8), intent(inout) :: lhflx(ncol)           ! Surface latent   heat flux (J/m2/s)
+    real(r8), intent(inout) :: qflx (ncol,pcnst)     ! surface water flux (kg/m^2/s)
+    real(r8), intent(inout), optional :: seflx(ncol) ! heat flux for energy checker (ice ref.state)
     !
     !---------------------------Local workspace-----------------------------
     !
@@ -390,11 +391,15 @@ contains
           qflx (i,1) = qflx (i,1) - excess(i)
           lhflx(i) = lhflx(i) - excess(i)*latvap
           shflx(i) = shflx(i) + excess(i)*latvap
+          if (present(seflx)) then
+             seflx(i) = seflx(i) + excess(i)*(latvap+latice)
+          end if
           if (index > 0) then
              qneg4_warn_num(index) = qneg4_warn_num(index) + 1
           end if
        end if
     end do
+
     ! Maybe output bad values
     if ((cnst_outfld((2*pcnst)+1)) .and. (worst < worst_reset)) then
        do i = 1, ncol

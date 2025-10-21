@@ -1,6 +1,7 @@
-! air_composition module defines major species of the atmosphere and manages
-! the physical properties that are dependent on the composition of air
 module air_composition
+
+   ! air_composition module defines major species of the atmosphere and manages
+   ! the physical properties that are dependent on the composition of air
 
    use shr_kind_mod,   only: r8 => shr_kind_r8
    use cam_abortutils, only: endrun
@@ -9,6 +10,7 @@ module air_composition
    private
    save
 
+   public  :: air_composition_register ! sets module variable compute_enthalpy_flux
    public  :: air_composition_readnl
    public  :: air_composition_init
    public  :: dry_air_composition_update
@@ -24,11 +26,20 @@ module air_composition
    public :: get_R
    ! get_mbarv: molecular weight of dry air
    public :: get_mbarv
+   !
+   ! enthalpy variables in physics buffer
+   !
+   integer, parameter, public :: num_enthalpy_vars = 4  ! index for enthalpy flux associated with liquid precipitation
+   integer, parameter, public :: hliq_idx = 1  ! index for enthalpy flux associated with liquid precipitation
+   integer, parameter, public :: hice_idx = 2  ! index for enthalpy flux associated with frozen precipiation
+   integer, parameter, public :: fliq_idx = 3  ! index for flux of liquid precipitation
+   integer, parameter, public :: fice_idx = 4  ! index for flux of frozen precipitation
 
    private :: air_species_info
 
    integer,  parameter :: unseti = -HUGE(1)
    real(r8), parameter :: unsetr = HUGE(1.0_r8)
+
 
    ! composition of air
    !
@@ -38,7 +49,6 @@ module air_composition
 
    integer, protected, public :: dry_air_species_num
    integer, protected, public :: water_species_in_air_num
-   logical, protected, public :: compute_enthalpy_flux
 
    ! Thermodynamic variables
    integer,               protected, public :: thermodynamic_active_species_num = unseti
@@ -68,8 +78,9 @@ module air_composition
    integer,  allocatable, protected, public :: thermodynamic_active_species_ice_idx(:)
    ! thermodynamic_active_species_ice_idx_dycore: index of ice water species
    integer,  allocatable,            public :: thermodynamic_active_species_ice_idx_dycore(:)
-   ! enthalpy_reference_state: choices: 'ice', 'liq', 'wv'
-   character(len=3), public, protected :: enthalpy_reference_state = 'xxx'
+   ! enthalpy_reference_state: choices: 'ice', 'liq', 'vap'
+   ! 'wv'->'vap' (stick to three characters, 'water' is presumably implicit in all of these...)
+   character(len=3), public, protected :: enthalpy_reference_state = 'ice'
 
    integer, protected, public :: wv_idx = -1 ! Water vapor index
 
@@ -82,6 +93,16 @@ module air_composition
    real(r8), public, protected :: o2_mwi = unsetr ! Inverse mol. weight of O2
    real(r8), public, protected :: n2_mwi = unsetr ! Inverse mol. weight of N2
    real(r8), public, protected :: mbar = unsetr   ! Mean mass at mid level
+
+   ! explicitly declare reference enthalpies and temperatures for atmosphere and ocean
+   ! only used if compute_enthalpy_flux is true
+   logical , public, protected :: compute_enthalpy_flux = .false. ! obtained from nuopc mediator
+   real(r8), public, protected :: t00o = unsetr     ! Water enthalpy reference temperature, ocean (K)
+   real(r8), public, protected :: t00a = unsetr     ! Water enthalpy reference temperature, atmosphere (K)
+   real(r8), public, protected :: h00o = unsetr     ! Material enthalpy zero, liquid reference state, ocean water (J/kg)
+   real(r8), public, protected :: h00a = unsetr     ! Material enthalpy zero, liquid reference state, atmos water (J/kg)
+   real(r8), public, protected :: h00a_vap = unsetr ! Material enthalpy zero, vapor reference state, atmos (J/kg)
+   real(r8), public, protected :: h00a_ice = unsetr ! Material enthalpy zero, vapor reference state, atmos (J/kg)
 
    ! coefficients in expressions for molecular diffusion coefficients
    ! kv1,..,kv3 are coefficients for kmvis calculation
@@ -109,6 +130,7 @@ module air_composition
    ! cp_or_cv_dycore:  enthalpy or internal energy scaling factor for
    !                   energy consistency
    real(r8), public, protected, allocatable :: cp_or_cv_dycore(:,:,:)
+   real(r8), public           , allocatable :: te_init(:,:,:)!xxx to be removed
    !
    ! Interfaces for public routines
    interface get_cp_dry
@@ -137,8 +159,29 @@ module air_composition
 
 CONTAINS
 
-   ! Read namelist variables.
+   subroutine air_composition_register(compute_enthalpy_flux_in)
+      use spmd_utils,  only: masterproc
+      use cam_logfile, only: iulog
+
+      logical, intent(in) :: compute_enthalpy_flux_in
+
+      ! Set module variable compute_enthalpy_flux
+      compute_enthalpy_flux = compute_enthalpy_flux_in
+      if (masterproc) then
+         if (compute_enthalpy_flux) then
+            write(iulog, *) ' '
+            write(iulog, *) 'CAM computes enthalpy flux and sends it to surface.'
+         else
+            write(iulog, *) 'CAM does not compute enthalpy flux. '
+         end if
+      end if
+
+   end subroutine air_composition_register
+
+   !===========================================================================
+
    subroutine air_composition_readnl(nlfile)
+      ! Read namelist variables.
       use namelist_utils, only: find_group_name
       use spmd_utils,     only: masterproc, mpicom, masterprocid
       use spmd_utils,     only: mpi_character, mpi_logical
@@ -156,7 +199,6 @@ CONTAINS
 
       ! Variable components of dry air and water species in air
       namelist /air_composition_nl/ dry_air_species, water_species_in_air
-      namelist /air_composition_nl/ compute_enthalpy_flux
       !-----------------------------------------------------------------------
 
       banner = repeat('*', lsize)
@@ -165,7 +207,6 @@ CONTAINS
       ! Read variable components of dry air and water species in air
       dry_air_species = (/ (' ', indx = 1, num_names_max) /)
       water_species_in_air = (/ (' ', indx = 1, num_names_max) /)
-      compute_enthalpy_flux = .false.
 
       if (masterproc) then
          open(newunit=unitn, file=trim(nlfile), status='old')
@@ -186,9 +227,6 @@ CONTAINS
            len(water_species_in_air)*num_names_max, mpi_character,            &
            masterprocid, mpicom, ierr)
       if (ierr /= 0) call endrun(subname//": FATAL: mpi_bcast: water_species_in_air")
-      call mpi_bcast(compute_enthalpy_flux, 1, mpi_logical,                   &
-           masterprocid, mpicom, ierr)
-      if (ierr /= 0) call endrun(subname//": FATAL: mpi_bcast: compute_enthalpy_flux")
 
       dry_air_species_num = 0
       water_species_in_air_num = 0
@@ -226,10 +264,6 @@ CONTAINS
          do indx = 1, water_species_in_air_num
             write(iulog, *) '   ', trim(water_species_in_air(indx))
          end do
-         if (compute_enthalpy_flux) then
-            write(iulog, *) ' '
-            write(iulog, *) 'CAM computes enthalpy flux and sends to surface.'
-         end if
          write(iulog, *) bline
          write(iulog, *) banner
       end if
@@ -239,22 +273,24 @@ CONTAINS
    !===========================================================================
 
    subroutine air_composition_init()
+
       use string_utils, only: int2str
       use spmd_utils,   only: masterproc
       use cam_logfile,  only: iulog
-      use physconst,    only: r_universal, cpair, rair, cpwv, rh2o, cpliq, cpice, mwdry
+      use physconst,    only: r_universal, cpair, rair, cpwv, rh2o, cpliq, cpice, mwdry, cpwv, latice, latvap, tmelt
       use constituents, only: cnst_get_ind, cnst_mw
       use ppgrid,       only: pcols, pver, begchunk, endchunk
+
+      ! Local variables
       integer  :: icnst, ix, isize, ierr, idx
       integer  :: liq_num, ice_num
       integer  :: liq_idx(water_species_in_air_num)
       integer  :: ice_idx(water_species_in_air_num)
       logical  :: has_liq, has_ice
       real(r8) :: mw
-
+      !
       character(len=*), parameter :: subname = 'composition_init'
       character(len=*), parameter :: errstr = subname//": failed to allocate "
-
       !
       ! define cp and R for species in species_name
       !
@@ -276,6 +312,7 @@ CONTAINS
       real(r8), parameter :: dof3 = 6._r8
       real(r8), parameter :: cv3 = 0.5_r8 * r_universal * dof3
       real(r8), parameter :: cp3 = 0.5_r8 * r_universal * (2._r8 + dof3)
+      !-----------------------------------------------------------------------
 
       liq_num = 0
       ice_num = 0
@@ -348,7 +385,7 @@ CONTAINS
       if (ierr /= 0) then
          call endrun(errstr//"cp_or_cv_dycore")
       end if
-
+      allocate(te_init(pcols,4,begchunk:endchunk), stat=ierr)!xxx to be removed
       thermodynamic_active_species_idx        = -HUGE(1)
       thermodynamic_active_species_idx_dycore = -HUGE(1)
       thermodynamic_active_species_cp         = 0.0_r8
@@ -629,11 +666,50 @@ CONTAINS
               (1 + liq_num + ice_num), " (1 + liq_num + ice_num)"
          call endrun(subname//': water_species_in_air_num /= 1+liq_num+ice_num')
       end if
-      enthalpy_reference_state = 'ice'
-      if (masterproc) then
-         write(iulog, *)   'Enthalpy reference state           : ',           &
-              TRIM(enthalpy_reference_state)
+
+      if (compute_enthalpy_flux) then
+
+         ! Initialising t00's and h00's
+         ! N.B. latent heats should be adjusted to t00a, but unless t00a=tmelt, this will break all physics
+         !  physics and SE dycore make different, mutually inconsistent,
+         !  hard-wired assumptions on t00 and h00:
+         !  physics      : t00=tmelt, h00(ice)=L(ice; liq, T=tmelt)
+         !  dynamics (SE): t00=0, h00=0
+         !  As a result, any water non-conservation in the dycore results in fixer
+         !  increments, proportional to h00a as set below.
+
+         ! ocean choice for enthalpy at T=0 (liquid reference phase)
+         t00o = tmelt
+         h00o = -cpliq*t00o
+
+         ! atmo choices for enthalpy at T=0 (liquid reference phase):
+         t00a  = tmelt
+         h00a  = -cpliq*t00a
+
+         ! hard-wiring here
+         enthalpy_reference_state = 'ice' ! TODO (mvertens): should this be a namelist variable?
+         if (enthalpy_reference_state == 'ice') then
+            h00a =  -cpliq*t00a  ! conserve single formula for global energy
+         else if (enthalpy_reference_state == 'vap') then
+            h00a =-((cpliq-cpwv )*t00a + latvap)
+         endif
+
+         ! the following ensure that the value of atmospheric enthalpy is independent of reference state
+         h00a_vap = h00a + ((cpliq-cpwv )*t00a + latvap)
+         h00a_ice = h00a + ((cpliq-cpice)*t00a - latice)
+
+         if (masterproc) then
+            write(iulog, *) '              ocean t00o: ', t00o
+            write(iulog, *) '              ocean h00o: ', h00o
+            write(iulog, *) 'atmos. enthalpy_reference_state: ', trim(enthalpy_reference_state)
+            write(iulog, *) '                    t00a: ', t00a
+            write(iulog, *) '                    h00a: ', h00a
+            write(iulog, *) '                h00a_ice: ', h00a_ice
+            write(iulog, *) '                h00a_vap: ', h00a_vap
+         endif
+
       end if
+
    end subroutine air_composition_init
 
    !===========================================================================

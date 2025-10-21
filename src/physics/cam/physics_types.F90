@@ -7,6 +7,7 @@ module physics_types
   use ppgrid,           only: pcols, pver
   use constituents,     only: pcnst, qmin, cnst_name, cnst_get_ind
   use geopotential,     only: geopotential_t
+  use physconst,        only: cpliq, cpwv
   use physconst,        only: zvir, gravit, cpair, rair
   use air_composition,  only: cpairv, rairv
   use phys_grid,        only: get_ncols_p, get_rlon_all_p, get_rlat_all_p, get_gcol_all_p
@@ -14,6 +15,7 @@ module physics_types
   use cam_abortutils,   only: endrun
   use phys_control,     only: waccmx_is
   use shr_const_mod,    only: shr_const_rwv
+  use spmd_utils,       only: masterproc
 
   implicit none
   private          ! Make default type private to the module
@@ -32,6 +34,7 @@ module physics_types
   public physics_ptend_init
   public physics_state_set_grid
   public physics_dme_adjust  ! adjust dry mass and energy for change in water
+  public physics_dme_adjust_camnor  ! adjust dry mass and energy for change in water
   public physics_state_copy  ! copy a physics_state object
   public physics_ptend_copy  ! copy a physics_ptend object
   public physics_ptend_sum   ! accumulate physics_ptend objects
@@ -53,7 +56,14 @@ module physics_types
   public physics_cnst_limit ! apply limiters to constituents (waccmx)
 !-------------------------------------------------------------------------------
   integer, parameter, public :: phys_te_idx = 1
-  integer ,parameter, public :: dyn_te_idx = 2
+  integer, parameter, public :: dyn_te_idx = 2
+
+  integer, parameter, public :: num_hflx = 4
+
+  integer, parameter, public :: ihrain = 1  ! index for enthalpy flux associated with liquid precipitation
+  integer, parameter, public :: ihsnow = 2  ! index for enthalpy flux associated with frozen precipiation
+  integer, parameter, public :: ifrain = 3  ! index for flux of liquid precipitation
+  integer, parameter, public :: ifsnow = 4  ! index for flux of frozen precipitation
 
   type physics_state
      integer                                     :: &
@@ -101,7 +111,7 @@ module physics_types
                            ! (dyn_te_idx) dycore total energy computed in physics
           te_ini,         &! vertically integrated total (kinetic + static) energy of initial state
           te_cur           ! vertically integrated total (kinetic + static) energy of current state
-     real(r8), dimension(:), allocatable           :: &
+     real(r8), dimension(:  ),allocatable          :: &
           tw_ini,         &! vertically integrated total water of initial state
           tw_cur           ! vertically integrated total water of new state
      real(r8), dimension(:,:),allocatable          :: &
@@ -123,9 +133,11 @@ module physics_types
      integer   ::   psetcols=0 ! max number of columns set- if subcols = pcols*psubcols, else = pcols
 
      real(r8), dimension(:,:),allocatable        :: dtdt, dudt, dvdt
+     real(r8), dimension(:,:),allocatable        :: s_dme, qt_dme
      real(r8), dimension(:),  allocatable        :: flx_net
      real(r8), dimension(:),  allocatable        :: &
           te_tnd,  &! cumulative boundary flux of total energy
+          te_sen,  &! cumulative sensible heat flux
           tw_tnd    ! cumulative boundary flux of total water
   end type physics_tend
 
@@ -169,6 +181,7 @@ module physics_types
 
   end type physics_ptend
 
+  logical  :: levels_are_moist=.true. ! TODO: put in namelist?
 
 !===============================================================================
 contains
@@ -204,14 +217,17 @@ contains
 
   end subroutine physics_type_alloc
 !===============================================================================
-  subroutine physics_update(state, ptend, dt, tend)
+  subroutine physics_update(state, ptend, dt, tend )
 !-----------------------------------------------------------------------
 ! Update the state and or tendency structure with the parameterization tendencies
 !-----------------------------------------------------------------------
     use scamMod,         only: scm_crm_mode, single_column
     use phys_control,    only: phys_getopts
-    use cam_thermo,      only: cam_thermo_dry_air_update ! Routine which updates physconst variables (WACCM-X)
-    use air_composition, only: dry_air_species_num, thermodynamic_active_species_num, thermodynamic_active_species_idx
+    use cam_thermo,      only: cam_thermo_dry_air_update  ! Routine which updates physconst variables (WACCM-X)
+    use cam_thermo,      only: get_conserved_energy, inv_conserved_energy
+    use air_composition, only: dry_air_species_num
+    use air_composition, only: thermodynamic_active_species_num, thermodynamic_active_species_idx
+    use air_composition, only: compute_enthalpy_flux
     use qneg_module   ,  only: qneg3
 
 !------------------------------Arguments--------------------------------
@@ -232,6 +248,8 @@ contains
     integer :: ncol                                ! number of columns
     integer :: ixh, ixh2    ! constituent indices for H, H2
     logical :: derive_new_geopotential             ! derive new geopotential fields?
+
+    real(r8) :: te(state%psetcols,pver),t_tmp(state%psetcols,pver),pdel(state%psetcols,pver)
 
     real(r8) :: zvirv(state%psetcols,pver)  ! Local zvir array pointer
 
@@ -411,16 +429,36 @@ contains
     !-------------------------------------------------------------------------------------------------------------
     ! Update temperature from dry static energy (moved from above for WACCM-X so updating after cpairv_loc update)
     !-------------------------------------------------------------------------------------------------------------
-
     if(ptend%ls) then
-       do k = ptend%top_level, ptend%bot_level
-          state%t(:ncol,k) = state%t(:ncol,k) + ptend%s(:ncol,k)*dt/cpairv_loc(:ncol,k)
-          if (present(tend)) &
-               tend%dtdt(:ncol,k) = tend%dtdt(:ncol,k) + ptend%s(:ncol,k)/cpairv_loc(:ncol,k)
-       end do
+
+       if(compute_enthalpy_flux) then
+          !use conserved energy (pe and te are output variables in get_conserved_energy call)
+          call get_conserved_energy(levels_are_moist, ptend%top_level, ptend%bot_level,  &
+               cpairv_loc(:ncol,:), state%T(:ncol,:), state%q(:ncol,:,:), state%pdel(:ncol,:), &
+               pdel(:ncol,:), te(:ncol,:))
+          te(:ncol,ptend%top_level:ptend%bot_level) = te(:ncol,ptend%top_level:ptend%bot_level) + &
+               ptend%s(:ncol,ptend%top_level:ptend%bot_level)*dt
+          call inv_conserved_energy(levels_are_moist, ptend%top_level, ptend%bot_level,  &
+                te(:ncol,:), cpairv_loc(:ncol,:), state%q(:ncol,:,:), state%pdel(:ncol,:), &
+                pdel(:ncol,:), t_tmp(:ncol,:))
+          if (present(tend)) then
+             tend%dtdt(:ncol,ptend%top_level:ptend%bot_level) = tend%dtdt(:ncol,ptend%top_level:ptend%bot_level) + &
+                  (T_tmp(:ncol,ptend%top_level:ptend%bot_level) - &
+                  state%t(:ncol,ptend%top_level:ptend%bot_level))/dt
+          end if
+          state%T(:ncol,ptend%top_level:ptend%bot_level) = T_tmp(:ncol,ptend%top_level:ptend%bot_level)
+       else
+          do k = ptend%top_level, ptend%bot_level
+             state%t(:ncol,k) = state%t(:ncol,k) + ptend%s(:ncol,k)*dt/cpairv_loc(:ncol,k)
+             if (present(tend)) then
+                tend%dtdt(:ncol,k) = tend%dtdt(:ncol,k) + ptend%s(:ncol,k)/cpairv_loc(:ncol,k)
+             end if
+          end do
+       endif
+
     end if
 
-    ! Derive new geopotential fields if heating or water species tendency not 0.
+    ! Derive new geopotential fields if heating or water tendency not 0.
     derive_new_geopotential = .false.
     if(ptend%ls) then
         ! Heating tendency not 0
@@ -552,9 +590,9 @@ contains
          varname="state%te_ini",    msg=msg)
     call shr_assert_in_domain(state%te_cur(:ncol,:),    is_nan=.false., &
          varname="state%te_cur",    msg=msg)
-    call shr_assert_in_domain(state%tw_ini(:ncol),      is_nan=.false., &
+    call shr_assert_in_domain(state%tw_ini(:ncol  ),    is_nan=.false., &
          varname="state%tw_ini",    msg=msg)
-    call shr_assert_in_domain(state%tw_cur(:ncol),      is_nan=.false., &
+    call shr_assert_in_domain(state%tw_cur(:ncol  ),    is_nan=.false., &
          varname="state%tw_cur",    msg=msg)
     call shr_assert_in_domain(state%temp_ini(:ncol,:),  is_nan=.false., &
          varname="state%temp_ini",  msg=msg)
@@ -630,9 +668,9 @@ contains
          varname="state%te_ini",    msg=msg)
     call shr_assert_in_domain(state%te_cur(:ncol,:),    lt=posinf_r8, gt=neginf_r8, &
          varname="state%te_cur",    msg=msg)
-    call shr_assert_in_domain(state%tw_ini(:ncol),      lt=posinf_r8, gt=neginf_r8, &
+    call shr_assert_in_domain(state%tw_ini(:ncol  ),    lt=posinf_r8, gt=neginf_r8, &
          varname="state%tw_ini",    msg=msg)
-    call shr_assert_in_domain(state%tw_cur(:ncol),      lt=posinf_r8, gt=neginf_r8, &
+    call shr_assert_in_domain(state%tw_cur(:ncol  ),    lt=posinf_r8, gt=neginf_r8, &
          varname="state%tw_cur",    msg=msg)
     call shr_assert_in_domain(state%temp_ini(:ncol,:),  lt=posinf_r8, gt=neginf_r8, &
          varname="state%temp_ini",  msg=msg)
@@ -1319,9 +1357,56 @@ end subroutine physics_ptend_copy
 
   end subroutine physics_dme_adjust
 
-!-----------------------------------------------------------------------
+!===============================================================================
+
+  subroutine physics_dme_adjust_camnor(state, tend, qini, liqini, iceini, dt, &
+       ntrnprd, ntsnprd, tevap, tprec, mflx, eflx, eflx_out, mflx_out, &
+       ent_tnd, pdel_rf)
+
+    ! Purpose: Diagnose boundary enthalpy flux and local heating rates associated to
+    ! atmospheric moisture change: Author: Thomas Toniazzo (17.07.21)
+
+    use dme_adjust_camnor, only: dme_adjust_camnor_run
+    !
+    ! Arguments
+    !
+    type(physics_state), intent(inout) :: state
+    type(physics_tend ), intent(inout) :: tend
+    real(r8),            intent(in)    :: qini(pcols,pver)     ! initial specific humidity
+    real(r8),            intent(in)    :: liqini(pcols,pver)   ! initial total liquid
+    real(r8),            intent(in)    :: iceini(pcols,pver)   ! initial total ice
+    real(r8),            intent(in)    :: dt
+    real(r8),            intent(in)    :: ntrnprd(pcols,pver)  ! net precip (liq+ice) production in layer
+    real(r8),            intent(in)    :: ntsnprd(pcols,pver)  ! net snow production in layer
+    real(r8),            intent(in)    :: tevap(pcols)         ! temperature of surface evaporation
+    real(r8),            intent(in)    :: tprec(pcols)         ! temperature of surface precipitation
+    real(r8),            intent(in)    :: mflx(pcols)          ! mass   flux for use in check_energy
+    real(r8),            intent(in)    :: eflx(pcols)          ! energy flux for use in check_energy
+    real(r8),            intent(out)   :: mflx_out(pcols)      ! column (surfce) enthalpy flux from bflx (sanity check)
+    real(r8),            intent(out)   :: eflx_out(pcols)      ! column (surfce) enthalpy flux from bflx (sanity check)
+    real(r8),            intent(out)   :: ent_tnd(pcols)       ! column-integrated enthalpy tendency
+    real(r8),            intent(out)   :: pdel_rf(pcols,pver)  ! ratio  old pdel / new pdel
+    !-----------------------------------------------------------------------
+
+    if (state%psetcols /= pcols) then
+       call endrun('physics_dme_adjust_camnor: cannot pass in a state which has sub-columns')
+    end if
+
+    call dme_adjust_camnor_run(state%lchnk, state%ncol, &
+         state%psetcols, state%pint, state%pmid, &
+         state%pdel, state%rpdel, state%pdeldry,  state%lnpint, state%lnpmid, &
+         state%ps, state%phis, state%zm, state%zi, &
+         state%t, state%u, state%v, state%q, state%s, &
+         tend%dudt, tend%dvdt, tend%dtdt, &
+         qini, liqini, iceini, dt, &
+         ntrnprd, ntsnprd, tevap, tprec, mflx, eflx, eflx_out, mflx_out, &
+         ent_tnd, pdel_rf)
+
+  end subroutine physics_dme_adjust_camnor
 
 !===============================================================================
+
+
   subroutine physics_state_copy(state_in, state_out)
 
     use ppgrid,       only: pver, pverp
@@ -1357,10 +1442,10 @@ end subroutine physics_ptend_copy
        state_out%ps(i)       = state_in%ps(i)
        state_out%phis(i)     = state_in%phis(i)
      end do
-     state_out%te_ini(:ncol,:) = state_in%te_ini(:ncol,:)
-     state_out%te_cur(:ncol,:) = state_in%te_cur(:ncol,:)
-     state_out%tw_ini(:ncol)   = state_in%tw_ini(:ncol)
-     state_out%tw_cur(:ncol)   = state_in%tw_cur(:ncol)
+     state_out%te_ini (:ncol,:)  = state_in%te_ini (:ncol,:)
+     state_out%te_cur (:ncol,:)  = state_in%te_cur (:ncol,:)
+     state_out%tw_ini (:ncol  )  = state_in%tw_ini (:ncol  )
+     state_out%tw_cur (:ncol  )  = state_in%tw_cur (:ncol  )
 
     do k = 1, pver
        do i = 1, ncol
@@ -1435,11 +1520,14 @@ end subroutine physics_ptend_copy
        call endrun('physics_tend_init: tend must be allocated before it can be initialized')
     end if
 
+    tend%s_dme   = 0._r8
+    tend%qt_dme  = 0._r8
     tend%dtdt    = 0._r8
     tend%dudt    = 0._r8
     tend%dvdt    = 0._r8
     tend%flx_net = 0._r8
     tend%te_tnd  = 0._r8
+    tend%te_sen  = 0._r8
     tend%tw_tnd  = 0._r8
 
 end subroutine physics_tend_init
@@ -1675,10 +1763,10 @@ subroutine physics_state_alloc(state,lchnk,psetcols)
   allocate(state%te_cur(psetcols,2), stat=ierr)
   if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%te_cur')
 
-  allocate(state%tw_ini(psetcols), stat=ierr)
+  allocate(state%tw_ini(psetcols  ), stat=ierr)
   if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%tw_ini')
 
-  allocate(state%tw_cur(psetcols), stat=ierr)
+  allocate(state%tw_cur(psetcols  ), stat=ierr)
   if ( ierr /= 0 ) call endrun('physics_state_alloc error: allocation error for state%tw_cur')
 
   allocate(state%temp_ini(psetcols,pver), stat=ierr)
@@ -1726,12 +1814,12 @@ subroutine physics_state_alloc(state,lchnk,psetcols)
   state%lnpintdry(:,:) = inf
   state%zi(:,:) = inf
 
-  state%te_ini(:,:) = inf
-  state%te_cur(:,:) = inf
-  state%tw_ini(:) = inf
-  state%tw_cur(:) = inf
+  state%te_ini  (:,:) = inf
+  state%te_cur  (:,:) = inf
+  state%tw_ini  (:  ) = inf
+  state%tw_cur  (:  ) = inf
   state%temp_ini(:,:) = inf
-  state%z_ini(:,:)  = inf
+  state%z_ini   (:,:)  = inf
 
 end subroutine physics_state_alloc
 
@@ -1872,6 +1960,11 @@ subroutine physics_tend_alloc(tend,psetcols)
 
   tend%psetcols = psetcols
 
+  allocate(tend%s_dme(psetcols,pver), stat=ierr)
+  if ( ierr /= 0 ) call endrun('physics_tend_alloc error: allocation error for tend%s_dme')
+  allocate(tend%qt_dme(psetcols,pver), stat=ierr)
+  if ( ierr /= 0 ) call endrun('physics_tend_alloc error: allocation error for tend%qt_dme')
+
   allocate(tend%dtdt(psetcols,pver), stat=ierr)
   if ( ierr /= 0 ) call endrun('physics_tend_alloc error: allocation error for tend%dtdt')
 
@@ -1887,14 +1980,24 @@ subroutine physics_tend_alloc(tend,psetcols)
   allocate(tend%te_tnd(psetcols), stat=ierr)
   if ( ierr /= 0 ) call endrun('physics_tend_alloc error: allocation error for tend%te_tnd')
 
+  allocate(tend%te_sen(psetcols), stat=ierr)
+  if ( ierr /= 0 ) call endrun('physics_tend_alloc error: allocation error for tend%te_sen')
+
+ !allocate(tend%te_lat(psetcols), stat=ierr)
+ !if ( ierr /= 0 ) call endrun('physics_tend_alloc error: allocation error for tend%te_lat')
+
   allocate(tend%tw_tnd(psetcols), stat=ierr)
   if ( ierr /= 0 ) call endrun('physics_tend_alloc error: allocation error for tend%tw_tnd')
 
+  tend%s_dme (:,:)= inf
+  tend%qt_dme(:,:)= inf
   tend%dtdt(:,:) = inf
   tend%dudt(:,:) = inf
   tend%dvdt(:,:) = inf
   tend%flx_net(:) = inf
   tend%te_tnd(:) = inf
+  tend%te_sen(:) = inf
+ !tend%te_lat(:) = inf
   tend%tw_tnd(:) = inf
 
 end subroutine physics_tend_alloc
@@ -1907,6 +2010,12 @@ subroutine physics_tend_dealloc(tend)
 
   type(physics_tend), intent(inout)  :: tend
   integer :: ierr = 0
+
+  deallocate(tend%s_dme, stat=ierr)
+  if ( ierr /= 0 ) call endrun('physics_tend_dealloc error: deallocation error for tend%s_dme')
+
+  deallocate(tend%qt_dme, stat=ierr)
+  if ( ierr /= 0 ) call endrun('physics_tend_dealloc error: deallocation error for tend%qt_dme')
 
   deallocate(tend%dtdt, stat=ierr)
   if ( ierr /= 0 ) call endrun('physics_tend_dealloc error: deallocation error for tend%dtdt')
@@ -1922,6 +2031,12 @@ subroutine physics_tend_dealloc(tend)
 
   deallocate(tend%te_tnd, stat=ierr)
   if ( ierr /= 0 ) call endrun('physics_tend_dealloc error: deallocation error for tend%te_tnd')
+
+  deallocate(tend%te_sen, stat=ierr)
+  if ( ierr /= 0 ) call endrun('physics_tend_dealloc error: deallocation error for tend%te_sen')
+
+ !deallocate(tend%te_lat, stat=ierr)
+ !if ( ierr /= 0 ) call endrun('physics_tend_dealloc error: deallocation error for tend%te_lat')
 
   deallocate(tend%tw_tnd, stat=ierr)
   if ( ierr /= 0 ) call endrun('physics_tend_dealloc error: deallocation error for tend%tw_tnd')

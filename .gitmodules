@@ -32,8 +32,8 @@
 
 [submodule "atmos_phys"]
     path = src/atmos_phys
-    url = https://github.com/NorESMhub/atmospheric_physics
-    fxtag = atmos_phys0_14_001_noresm_v0
+    url = https://github.com/mvertens/atmospheric_physics
+    fxtag = 339524f
     fxrequired = AlwaysRequired
     fxDONOTUSEurl = https://github.com/NorESMhub/atmospheric_physics
 
@@ -76,8 +76,8 @@
 
 [submodule "oslo_aero"]
     path = src/chemistry/oslo_aero
-    url = https://github.com/NorESMhub/OSLO_AERO
-    fxtag = oslo_aero_3_0a007
+    url = https://github.com/mvertens/OSLO_AERO
+    fxtag = 55cd786
     fxrequired = AlwaysRequired
     fxDONOTUSEurl = https://github.com/NorESMhub/OSLO_AERO.git
 

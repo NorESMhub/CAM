@@ -60,7 +60,9 @@ module zm_conv_intr
       dlfzm_idx,     &     ! detrained convective cloud water mixing ratio.
       prec_dp_idx,   &
       snow_dp_idx,   &
-      mconzm_idx           ! convective mass flux
+      mconzm_idx,    &  ! convective mass flux
+      dp_ntprp_idx,  &  ! needed in check_energy for new enthalpy
+      dp_ntsnp_idx      ! needed in check_energy for new enthalpy
 
    real(r8), parameter :: unset_r8 = huge(1.0_r8)
    real(r8) :: zmconv_c0_lnd = unset_r8
@@ -134,10 +136,14 @@ subroutine zm_conv_register
    ! map gathered points to chunk index
    call pbuf_add_field('ZM_IDEEP', 'physpkg', dtype_i4, (/pcols/), zm_ideep_idx)
 
-! Flux of precipitation from deep convection (kg/m2/s)
+   ! Flux of precipitation from deep convection (kg/m2/s)
    call pbuf_add_field('DP_FLXPRC','global',dtype_r8,(/pcols,pverp/),dp_flxprc_idx)
 
-! Flux of snow from deep convection (kg/m2/s)
+   ! Needed for check_energy for new enthalpy computations
+   call pbuf_add_field('dp_ntprp','physpkg',dtype_r8,(/pcols,pver /),dp_ntprp_idx)
+   call pbuf_add_field('dp_ntsnp','physpkg',dtype_r8,(/pcols,pver /),dp_ntsnp_idx)
+
+   ! Flux of snow from deep convection (kg/m2/s)
    call pbuf_add_field('DP_FLXSNW','global',dtype_r8,(/pcols,pverp/),dp_flxsnw_idx)
 
    call pbuf_add_field('ICWMRDP',    'physpkg',dtype_r8,(/pcols,pver/),icwmrdp_idx)
@@ -754,6 +760,9 @@ subroutine zm_conv_tend(pblh    ,mcon    ,cme     , &
 
     evapcdp(:ncol,:pver) = ptend_loc%q(:ncol,:pver,1)
 
+    ! Needed in check_energy for new enthalpy computations
+    call pbuf_set_field(pbuf, dp_ntprp_idx, ntprprd)
+    call pbuf_set_field(pbuf, dp_ntsnp_idx, ntsnprd)
 !
 ! Write out variables from zm_conv_evap_run
 !

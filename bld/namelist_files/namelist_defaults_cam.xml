@@ -2787,6 +2787,14 @@ See https://github.com/NorESMhub/noresm3_dev_simulations/discussions/78
 
 <zmconv_parcel_pbl                                                    > .false. </zmconv_parcel_pbl>
 <zmconv_parcel_hscale                                                 >  0.5    </zmconv_parcel_hscale>
+<!-- +tht zm parameters-->
+<zmconv_tiedke_lnd>    1.0  </zmconv_tiedke_lnd>
+<zmconv_tht_thermo> .false. </zmconv_tht_thermo>
+<zmconv_retrigger>  .false. </zmconv_retrigger>
+<zmconv_entrmn>       2e-4  </zmconv_entrmn>
+<zmconv_alfadet>       0.1  </zmconv_alfadet>
+<zmconv_plclmin>      6.e2  </zmconv_plclmin>
+<!-- -tht zm parameters-->
 
 <!-- CAMNOR thermo begin -->
 <zmconv_tiedke_lnd             > 1.0     </zmconv_tiedke_lnd>
@@ -2993,6 +3001,7 @@ See https://github.com/NorESMhub/noresm3_dev_simulations/discussions/78
 <history_aerosol_forcing>      .false.  </history_aerosol_forcing>
 <history_aerosol_radiation>    .false.  </history_aerosol_radiation>
 <history_aerosol_debug_output> .false.  </history_aerosol_debug_output>
+<history_enthalpy_flux>        .false.  </history_enthalpy_flux>
 
 <cam_snapshot_before_num>  -1 </cam_snapshot_before_num>
 <cam_snapshot_after_num>   -1 </cam_snapshot_after_num>
@@ -3011,9 +3020,6 @@ See https://github.com/NorESMhub/noresm3_dev_simulations/discussions/78
 <water_species_in_air microphys="mg1"                    >'Q','CLDLIQ','CLDICE'                           </water_species_in_air>
 <water_species_in_air microphys="mg2"                    >'Q','CLDLIQ','CLDICE','RAINQM','SNOWQM'         </water_species_in_air>
 <water_species_in_air microphys="mg3"                    >'Q','CLDLIQ','CLDICE','RAINQM','SNOWQM','GRAUQM'</water_species_in_air>
-
-<!-- Enthalpy flux -->
-<compute_enthalpy_flux> .false. </compute_enthalpy_flux>
 
 <!-- ================================================================== -->
 <!-- Defaults for FV3                                                   -->
