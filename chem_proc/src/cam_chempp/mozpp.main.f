@@ -71,7 +71,7 @@
       character(len=580) :: command, cpp_command
       character(len=256) :: errcom, filout, filin
       character(len=64)  :: oper_flpth
-      character(len=64)  :: cpp_dir, cpp_opts
+      character(len=256)  :: cpp_dir, cpp_opts
       character(len=64)  :: wrk_dir
       character(len=64)  :: tar_flnm
       character(len=64)  :: subfile
