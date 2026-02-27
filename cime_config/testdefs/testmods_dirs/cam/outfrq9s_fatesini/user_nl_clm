@@ -1,0 +1,5 @@
+hist_nhtfrq = 9
+hist_mfilt  = 1
+finidat='/cluster/work/users/mdeb/noresm/ne30ini/n1850.ne30pg3_tn14.noresm3_0_beta10-run8_yr121.20260131.clm2.r.0151-01-01-00000.nc'
+
+
