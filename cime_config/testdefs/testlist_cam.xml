@@ -60,6 +60,17 @@
     </options>
   </test>
 
+  <test compset="NF1850" grid="ne16pg3_ne16pg3_mtn14" name="ERP_D_Ln9" testmods="cam/outfrq9s_aerocom">
+  <machines>
+    <machine name="betzy"  compiler="intel" category="aux_cam_noresm"/>
+    <machine name="olivia" compiler="intel" category="aux_cam_noresm"/>
+  </machines>
+  <options>
+    <option name="wallclock">00:20:00</option>
+    <option name="comment">Test of aerocom diagnostics at 2 degree without DEBUG</option>
+  </options>
+  </test>
+
   <test compset="NF1850" grid="ne30pg3_ne30pg3_mtn14" name="ERP_Ln9" testmods="cam/outfrq9s">
     <machines>
       <machine name="betzy"  compiler="intel" category="aux_cam_noresm"/>
