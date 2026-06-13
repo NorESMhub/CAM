@@ -101,7 +101,7 @@
     </machines>
     <options>
       <option name="wallclock">00:45:00</option>
-      <option name="comment">Test of 2 degree FATES NOCOMP without DEBUG</option>
+      <option name="comment">Test of 1850 case at 2 degree in emissions mode without DEBUG</option>
     </options>
   </test>
 
@@ -112,7 +112,19 @@
     </machines>
     <options>
       <option name="wallclock">00:45:00</option>
-      <option name="comment">Test of 2 degree FATES NOCOMP without DEBUG</option>
+      <option name="comment">Test of 2 degree with GHG chemistry without DEBUG</option>
+    </options>
+  </test>
+
+  <test compset="NF1850esmGhg" grid="ne16pg3_ne16pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d">
+    <machines>
+      <machine name="betzy"  compiler="intel" category="aux_cam_noresm"/>
+      <machine name="olivia" compiler="intel" category="aux_cam_noresm"/>
+    </machines>
+    <options>
+      <option name="wallclock">00:45:00</option>
+      <option name="comment">Test of 2 degree with GHG chemistry in
+      emissions mode without DEBUG</option>
     </options>
   </test>
 
@@ -123,7 +135,7 @@
     </machines>
     <options>
       <option name="wallclock">00:30:00</option>
-      <option name="comment">Test of 1850 compset at 1 degree with MAM chemistry</option>
+      <option name="comment">Test of 1850 compset at 2 degrees with MAM chemistry</option>
     </options>
   </test>
 

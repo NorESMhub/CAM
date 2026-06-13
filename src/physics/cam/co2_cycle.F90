@@ -1,6 +1,6 @@
 module co2_cycle
 
-   !-------------------------------------------------------------------------------
+   !----------------------------------------------------------------------------
    !
    ! Purpose:
    ! Provides distributions of CO2_LND, CO2_OCN, CO2_FF, CO2
@@ -10,7 +10,7 @@ module co2_cycle
    ! Author: Jeff Lee, Keith Lindsay
    !         Mariana Vertenstein, Refactored for NUOPC Stream functionality
    !
-   !-------------------------------------------------------------------------------
+   !----------------------------------------------------------------------------
 
    use shr_kind_mod,  only: r8=>shr_kind_r8
 
@@ -18,13 +18,13 @@ module co2_cycle
    private
 
    ! Public interfaces
-   public co2_cycle_readnl              ! read the namelist
-   public co2_register                  ! register consituents
-   public co2_transport                 ! turn on co2 tracers transport
-   public co2_implements_cnst           ! returns true if consituent is implemented by this package
-   public co2_init_cnst                 ! initialize mixing ratios if not read from initial file
-   public co2_init                      ! initialize (history) variables
-   public co2_cycle_set_ptend           ! set tendency from aircraft emissions
+   public co2_cycle_readnl    ! read the namelist
+   public co2_register        ! register consituents
+   public co2_transport       ! turn on co2 tracers transport
+   public co2_implements_cnst ! returns true if consituent is implemented by this package
+   public co2_init_cnst       ! initialize mixing ratios if not read from initial file
+   public co2_init            ! initialize (history) variables
+   public co2_cycle_set_ptend ! set tendency from aircraft emissions
 
    ! Namelist variables
    logical                    :: co2_flag              = .false. ! true => turn on co2 code, namelist variable
@@ -44,10 +44,11 @@ module co2_cycle
    integer :: co2_fff_glo_ind = -1 ! global index of 'CO2_FFF'
    integer :: co2_glo_ind = -1     ! global index of 'CO2'
    integer :: idx_ac_CO2 = -1      ! pbuf index of aircraft CO2 field
+   logical :: local_co2 = .false.  ! .true. if CO2 const. added in this module
 
-!===============================================================================
+!==============================================================================
 contains
-!===============================================================================
+!==============================================================================
 
    subroutine co2_cycle_readnl(nlfile)
 
@@ -74,7 +75,7 @@ contains
            co2_flag,                &
            co2_readFlux_aircraft,   & ! if true, read aircraft data
            co2_readFlux_fuel          ! if true, read fuel data
-      !----------------------------------------------------------------------------
+      !-------------------------------------------------------------------------
 
       if (masterproc) then
          open( newunit=unitn, file=trim(nlfile), status='old' )
@@ -107,16 +108,16 @@ contains
 
    end subroutine co2_cycle_readnl
 
-   !===============================================================================
+   !============================================================================
 
    subroutine co2_register
 
-      !-------------------------------------------------------------------------------
+      !-------------------------------------------------------------------------
       ! Purpose: register advected constituents
-      !-------------------------------------------------------------------------------
+      !-------------------------------------------------------------------------
 
       use physconst,      only: mwco2, cpair
-      use constituents,   only: cnst_add
+      use constituents,   only: cnst_get_ind, cnst_add
 
       ! Local variables
       real(r8), dimension(ncnst) :: &
@@ -125,7 +126,7 @@ contains
            c_qmin    ! minimum mmr
 
       integer  :: icnst
-      !----------------------------------------------------------------------------
+      !-------------------------------------------------------------------------
 
       if (.not. co2_flag) return
 
@@ -133,12 +134,16 @@ contains
       c_cp   = (/     cpair,     cpair,     cpair,     cpair /)
       c_qmin = (/ 1.e-20_r8, 1.e-20_r8, 1.e-20_r8, 1.e-20_r8 /)
 
-      ! register CO2 constiuents as dry tracers, set indices
-
+      ! register any new CO2 constiuents as dry tracers, set indices
       do icnst = 1, ncnst
-         call cnst_add(c_names(icnst), c_mw(icnst), c_cp(icnst), c_qmin(icnst), c_i(icnst), &
-              longname=c_names(icnst), mixtype='dry')
-
+         call cnst_get_ind(c_names(icnst), c_i(icnst), abort=.false.)
+         if (c_i(icnst) < 0) then
+            call cnst_add(c_names(icnst), c_mw(icnst), c_cp(icnst), c_qmin(icnst), &
+                 c_i(icnst), longname=c_names(icnst), mixtype='dry')
+            local_co2 = .true.
+         else
+            local_co2 = .false.
+         end if
          select case (trim(c_names(icnst)))
          case ('CO2_FFF')
             co2_fff_glo_ind = c_i(icnst)
@@ -149,34 +154,35 @@ contains
 
    end subroutine co2_register
 
-   !===============================================================================
+   !============================================================================
 
    logical function co2_transport()
 
-      !-------------------------------------------------------------------------------
+      !-------------------------------------------------------------------------
       ! Purpose: return true if this package is active
-      !-------------------------------------------------------------------------------
+      !-------------------------------------------------------------------------
 
-      !----------------------------------------------------------------------------
+      !-------------------------------------------------------------------------
 
       co2_transport = co2_flag
 
    end function co2_transport
 
-   !===============================================================================
+   !============================================================================
 
    logical function co2_implements_cnst(name)
 
-      !-------------------------------------------------------------------------------
-      ! Purpose: return true if specified constituent is implemented by this package
-      !-------------------------------------------------------------------------------
+      !-------------------------------------------------------------------------
+      ! Purpose: return true if specified constituent is
+      !           implemented by this package
+      !-------------------------------------------------------------------------
 
       ! Arguments
       character(len=*), intent(in) :: name  ! constituent name
 
       ! Local variables
       integer :: mind
-      !----------------------------------------------------------------------------
+      !-------------------------------------------------------------------------
 
       co2_implements_cnst = .false.
 
@@ -184,23 +190,25 @@ contains
 
       do mind = 1, ncnst
          if (name == c_names(mind)) then
-            co2_implements_cnst = .true.
+            if ((trim(name) /= 'CO2') .or. local_co2) then
+               co2_implements_cnst = .true.
+            end if
             return
          end if
       end do
 
    end function co2_implements_cnst
 
-   !===============================================================================
+   !============================================================================
 
    subroutine co2_init_cnst(name, latvals, lonvals, mask, q)
 
-      !-------------------------------------------------------------------------------
+      !-------------------------------------------------------------------------
       ! Purpose:
       ! Set initial values of CO2_OCN, CO2_FFF, CO2_LND, CO2
       ! Need to be called from process_inidat in inidat.F90
       ! (or, initialize co2 in co2_timestep_init)
-      !-------------------------------------------------------------------------------
+      !-------------------------------------------------------------------------
 
       use chem_surfvals,  only: chem_surfvals_get
 
@@ -213,7 +221,7 @@ contains
 
       ! Local variables
       integer :: kindx
-      !----------------------------------------------------------------------------
+      !-------------------------------------------------------------------------
 
       if (.not. co2_flag) return
 
@@ -240,15 +248,15 @@ contains
 
    end subroutine co2_init_cnst
 
-   !===============================================================================
+   !============================================================================
 
    subroutine co2_init
 
-      !-------------------------------------------------------------------------------
+      !-------------------------------------------------------------------------
       ! Purpose: initialize co2,
       !          declare history variables,
       !          read co2 flux form fuel, as data_flux_fuel
-      !-------------------------------------------------------------------------------
+      !-------------------------------------------------------------------------
 
       use cam_history,    only: addfld, add_default, horiz_only
       use constituents,   only: cnst_name, cnst_longname, sflxnam
@@ -256,7 +264,7 @@ contains
 
       ! Local variables
       integer :: m, mm
-      !----------------------------------------------------------------------------
+      !-------------------------------------------------------------------------
 
       if (.not. co2_flag) return
 
@@ -265,8 +273,10 @@ contains
          mm = c_i(m)
 
          call addfld(trim(cnst_name(mm))//'_BOT', horiz_only,  'A', 'kg/kg',   trim(cnst_longname(mm))//', Bottom Layer')
-         call addfld(cnst_name(mm),               (/ 'lev' /), 'A', 'kg/kg',   cnst_longname(mm))
-         call addfld(sflxnam(mm),                 horiz_only,  'A', 'kg/m2/s', trim(cnst_name(mm))//' surface flux')
+         if (co2_implements_cnst(cnst_name(mm))) then
+            call addfld(cnst_name(mm),            (/ 'lev' /), 'A', 'kg/kg',   cnst_longname(mm))
+            call addfld(sflxnam(mm),              horiz_only,  'A', 'kg/m2/s', trim(cnst_name(mm))//' surface flux')
+         end if
 
          call add_default(cnst_name(mm), 1, ' ')
          call add_default(sflxnam(mm),   1, ' ')
@@ -282,13 +292,13 @@ contains
 
    end subroutine co2_init
 
-   !===============================================================================
+   !============================================================================
    subroutine co2_cycle_set_ptend(state, pbuf, ptend)
 
-      !-------------------------------------------------------------------------------
+      !-------------------------------------------------------------------------
       ! Purpose:
       ! Set ptend, using aircraft CO2 emissions in ac_CO2 from pbuf
-      !-------------------------------------------------------------------------------
+      !-------------------------------------------------------------------------
 
       use physics_types,  only: physics_state, physics_ptend, physics_ptend_init
       use physics_buffer, only: physics_buffer_desc, pbuf_get_field

@@ -958,7 +958,7 @@ contains
 
     do m = 1, pcnst
       if (cnst_cam_outfld(m)) then
-        call outfld(cnst_name(m), state%q(1,1,m), pcols, lchnk)
+        call outfld(cnst_name(m), state%q(:ncol,:,m), ncol, lchnk)
       end if
     end do
 
@@ -1006,6 +1006,7 @@ contains
     !
     ! Quadratic height fiels Z3*Z3
     !
+    ftem(ncol+1:,:) = 0.0_r8
     ftem(:ncol,:) = z3(:ncol,:)*z3(:ncol,:)
     call outfld('ZZ      ',ftem,pcols,lchnk)
 
@@ -1281,7 +1282,7 @@ contains
 
     if (co2_transport()) then
       do m = 1,4
-        call outfld(trim(cnst_name(c_i(m)))//'_BOT', state%q(1,pver,c_i(m)), pcols, lchnk)
+        call outfld(trim(cnst_name(c_i(m)))//'_BOT', state%q(:ncol,pver,c_i(m)), ncol, lchnk)
       end do
     end if
 
@@ -1351,7 +1352,7 @@ contains
           end do
           ftem(:ncol,:) = state%q(:ncol,:,ixq)/ftem(:ncol,:)*100._r8
        end if
-       call outfld ('RELHUM  ',ftem    ,pcols   ,lchnk     )
+       call outfld ('RELHUM  ',ftem(:ncol,:)    ,ncol   ,lchnk     )
     end if
 
     if (hist_fld_active('RHW') .or. hist_fld_active('RHI') .or. hist_fld_active('RHCFMIP') ) then
@@ -1361,7 +1362,7 @@ contains
          call qsat_water (state%t(1:ncol,k), state%pmid(1:ncol,k), esl(1:ncol,k), ftem(1:ncol,k), ncol)
       end do
       ftem(:ncol,:) = state%q(:ncol,:,ixq)/ftem(:ncol,:)*100._r8
-      call outfld ('RHW  ',ftem    ,pcols   ,lchnk     )
+      call outfld ('RHW  ',ftem(:ncol,:)    ,ncol   ,lchnk     )
 
       ! Convert to RHI (ice)
       do k=1,pver
@@ -1403,7 +1404,7 @@ contains
     !
     ! Output Q at bottom level
     !
-    call outfld ('QBOT    ', state%q(1,pver,ixq),  pcols, lchnk)
+    call outfld ('QBOT    ', state%q(:ncol,pver,ixq),  ncol, lchnk)
 
     ! Total energy of the atmospheric column for atmospheric heat storage calculations
 
@@ -1451,7 +1452,7 @@ contains
       call outfld ('LatHeatTr', ftem3(:ncol)  ,ncol   ,lchnk    )
     end if
 
-    !! potential energy transport g*z*v*dp/g 
+    !! potential energy transport g*z*v*dp/g
     if (hist_fld_active('PotEnerTr')) then
       ftem(:ncol,:) = z3(:ncol,:)*state%v(:ncol,:)*state%pdel(:ncol,:)
       !! vertically integrate
@@ -2204,16 +2205,16 @@ contains
     call cnst_get_ind('CLDICE', ixcldice, abort=.false.)
 
     if ( cnst_cam_outfld(       1) ) then
-      call outfld (apcnst(       1), state%q(1,1,       1), pcols, lchnk)
+      call outfld (apcnst(       1), state%q(:ncol,:,       1), ncol, lchnk)
     end if
     if (ixcldliq > 0) then
       if (cnst_cam_outfld(ixcldliq)) then
-        call outfld (apcnst(ixcldliq), state%q(1,1,ixcldliq), pcols, lchnk)
+        call outfld (apcnst(ixcldliq), state%q(:ncol,:,ixcldliq), ncol, lchnk)
       end if
     end if
     if (ixcldice > 0) then
       if ( cnst_cam_outfld(ixcldice) ) then
-        call outfld (apcnst(ixcldice), state%q(1,1,ixcldice), pcols, lchnk)
+        call outfld (apcnst(ixcldice), state%q(:ncol,:,ixcldice), ncol, lchnk)
       end if
     end if
 
@@ -2221,18 +2222,18 @@ contains
 
     if ( cnst_cam_outfld(       1) ) then
       ftem3(:ncol,:pver) = (state%q(:ncol,:pver,       1) - qini     (:ncol,:pver) )*rtdt
-      call outfld (ptendnam(       1), ftem3, pcols, lchnk)
+      call outfld (ptendnam(       1), ftem3(:ncol,:pver), ncol, lchnk)
     end if
     if (ixcldliq > 0) then
       if (cnst_cam_outfld(ixcldliq) ) then
         ftem3(:ncol,:pver) = (state%q(:ncol,:pver,ixcldliq) - cldliqini(:ncol,:pver) )*rtdt
-        call outfld (ptendnam(ixcldliq), ftem3, pcols, lchnk)
+        call outfld (ptendnam(ixcldliq), ftem3(:ncol,:pver), ncol, lchnk)
       end if
     end if
     if (ixcldice > 0) then
       if ( cnst_cam_outfld(ixcldice) ) then
         ftem3(:ncol,:pver) = (state%q(:ncol,:pver,ixcldice) - cldiceini(:ncol,:pver) )*rtdt
-        call outfld (ptendnam(ixcldice), ftem3, pcols, lchnk)
+        call outfld (ptendnam(ixcldice), ftem3(:ncol,:pver), ncol, lchnk)
       end if
     end if
 
@@ -2314,25 +2315,27 @@ contains
     !
     integer :: ixcldice, ixcldliq ! constituent indices for cloud liquid and ice water.
     integer :: lchnk              ! chunk index
+    integer :: ncol               ! number of columns in chunk
     !
     !-----------------------------------------------------------------------
     !
     lchnk = state%lchnk
+    ncol  = state%ncol
 
     call cnst_get_ind('CLDLIQ', ixcldliq, abort=.false.)
     call cnst_get_ind('CLDICE', ixcldice, abort=.false.)
 
     if ( cnst_cam_outfld(       1) ) then
-      call outfld (bpcnst(       1), state%q(1,1,       1), pcols, lchnk)
+      call outfld (bpcnst(       1), state%q(:ncol,:,       1), ncol, lchnk)
     end if
     if (ixcldliq > 0) then
       if (cnst_cam_outfld(ixcldliq)) then
-        call outfld (bpcnst(ixcldliq), state%q(1,1,ixcldliq), pcols, lchnk)
+        call outfld (bpcnst(ixcldliq), state%q(:ncol,:,ixcldliq), ncol, lchnk)
       end if
     end if
     if (ixcldice > 0) then
       if (cnst_cam_outfld(ixcldice)) then
-        call outfld (bpcnst(ixcldice), state%q(1,1,ixcldice), pcols, lchnk)
+        call outfld (bpcnst(ixcldice), state%q(:ncol,:,ixcldice), ncol, lchnk)
       end if
     end if
 

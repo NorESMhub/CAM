@@ -60,6 +60,11 @@
     <lname>1850_CAM70%LT%NORESM%GHGCAMoslo_CLM60%FATES-NCFB%NORESM_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV_SESP</lname>
   </compset>
 
+  <compset>
+    <alias>NF1850esmGhg</alias>
+    <lname>1850_CAM70%LT%NORESM%GHGCAMoslo_CLM60%FATES-NCFB%NORESM_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV_SESP_BGC%BPRP</lname>
+  </compset>
+
   <!-- CAM7 HIST -->
 
   <compset>
@@ -77,6 +82,11 @@
     <lname>HIST_CAM70%LT%NORESM%GHGCAMoslo_CLM60%FATES-NCFB%NORESM_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV_SESP</lname>
   </compset>
 
+  <compset>
+    <alias>NFHISTesmGhg</alias>
+    <lname>HIST_CAM70%LT%NORESM%GHGCAMoslo_CLM60%FATES-NCFB%NORESM_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV_SESP_BGC%BPRP</lname>
+  </compset>
+
   <!-- CAM7 2000 -->
 
   <compset>
@@ -92,6 +102,11 @@
   <compset>
     <alias>NF2000ghg</alias>
     <lname>2000_CAM70%LT%NORESM%GHGCAMoslo_CLM60%FATES-NCFB%NORESM_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV_SESP</lname>
+  </compset>
+
+  <compset>
+    <alias>NF2000esmGhg</alias>
+    <lname>2000_CAM70%LT%NORESM%GHGCAMoslo_CLM60%FATES-NCFB%NORESM_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV_SESP_BGC%BPRP</lname>
   </compset>
 
   <!-- CAM7 AMIP-style experiments -->
