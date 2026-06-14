@@ -118,6 +118,7 @@ contains
 
       use physconst,      only: mwco2, cpair
       use constituents,   only: cnst_get_ind, cnst_add
+      use cam_abortutils, only: endrun
 
       ! Local variables
       real(r8), dimension(ncnst) :: &
@@ -135,14 +136,17 @@ contains
       c_qmin = (/ 1.e-20_r8, 1.e-20_r8, 1.e-20_r8, 1.e-20_r8 /)
 
       ! register any new CO2 constiuents as dry tracers, set indices
+      local_co2 = .false.
       do icnst = 1, ncnst
          call cnst_get_ind(c_names(icnst), c_i(icnst), abort=.false.)
          if (c_i(icnst) < 0) then
             call cnst_add(c_names(icnst), c_mw(icnst), c_cp(icnst), c_qmin(icnst), &
                  c_i(icnst), longname=c_names(icnst), mixtype='dry')
-            local_co2 = .true.
-         else
-            local_co2 = .false.
+            if (trim(c_names(icnst)) == 'CO2') then
+               local_co2 = .true.
+            end if
+         else if (trim(c_names(icnst)) /= 'CO2') then
+            call endrun('co2_register: '//trim(c_names(icnst))//' already defined')
          end if
          select case (trim(c_names(icnst)))
          case ('CO2_FFF')

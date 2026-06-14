@@ -401,7 +401,7 @@
       <value compset="_CAM60%WCTS%1PCT"> nlte_limit_co2=.true.</value>
       <!-- These values are set here since it is part of the compset
            definition -->
-      <value compset="_BGC%BDRP"> co2_cycle_rad_passive=.false. </value>
+      <value compset="_BGC%BPRP"> co2_cycle_rad_passive=.false. </value>
       <value compset="_BGC%BDRD"> co2_cycle_rad_passive=.true. </value>
       <!-- hemco (harmonized emissions component) option -->
       <value compset="_CAM.*%HEMCO"> use_hemco=.true. </value>
