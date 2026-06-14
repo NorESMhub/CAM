@@ -1006,7 +1006,7 @@ contains
     !
     ! Quadratic height fiels Z3*Z3
     !
-    ftem(ncol+1:,:) = 0.0_r8
+    ftem(ncol+1:,:) = 0.0_r8 ! Ensure ftem fully initialized
     ftem(:ncol,:) = z3(:ncol,:)*z3(:ncol,:)
     call outfld('ZZ      ',ftem,pcols,lchnk)
 

@@ -136,6 +136,12 @@ contains
       c_qmin = (/ 1.e-20_r8, 1.e-20_r8, 1.e-20_r8, 1.e-20_r8 /)
 
       ! register any new CO2 constiuents as dry tracers, set indices
+      ! This logic prevents duplicate CO2 tracers from being created.
+      ! If a CO2 tracer already exists do not attempt register one and local_co2
+      !   is set to .false. so that other code below (addfld calls,
+      !   co2_implements_cnst) does not do anything with that consitituent.
+      ! local_co2 = .true. means that the CO2 constituent was created by
+      !   and is manged by this module.
       local_co2 = .false.
       do icnst = 1, ncnst
          call cnst_get_ind(c_names(icnst), c_i(icnst), abort=.false.)
