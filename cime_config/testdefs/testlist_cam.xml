@@ -5,7 +5,7 @@
 <!--              CAM-Nor test-supported COMPSETS             -->
 <!--              @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@             -->
 
-  <test compset="NFHIST" grid="ne16pg3_ne16pg3_mtn14" name="ERP_D_Ld3" testmods="cam/outfrq1d">
+  <test compset="NFHIST" grid="ne16pg3_ne16pg3_mtn14" name="ERP_D_Ld3" testmods="cam/outfrq1d_fulloutput">
     <machines>
       <machine name="betzy"  compiler="intel" category="aux_cam_noresm"/>
       <machine name="olivia" compiler="intel" category="aux_cam_noresm"/>

@@ -21,32 +21,20 @@ variables, e.g., `nhtfrq`.
 
 To run the script, first download a current version of the [CMIP7 data
 request
-spreadsheet](https://docs.google.com/spreadsheets/d/1XUdCTl1zKsWi_yTvMZqsMtBnnUPIhIeTPVSLHgL0Hdo)
+spreadsheet](https://docs.google.com/spreadsheets/d/1XUdCTl1zKsWi_yTvMZqsMtBnnUPIhIeTPVSLHgL0Hdo) and the separate [CAM field request spreadsheet](https://docs.google.com/spreadsheets/d/1-ohp9nwJ5BUKQ7qxubg_PD1bVMWMMz00bS-MQ-z30p8/edit?gid=0#gid=0)
 (File `==>` Download `==>` .csv). The script is then run as:
 
 ```
-./cmip_diagnostic_namelists.py <path-to-downloaded-spreadsheet-file>
+./cmip_diagnostic_namelists.py <cmip7-filename> < cam-filename> [ options ]
 ```
 
-The full interface is:
+For the full interface (with options), see the help menu:
 ```
-usage: cmip_diagnostic_namelists.py [-h] [--namelist-file NAMELIST_FILE]
-                                    [--overwrite] [--include-cosp]
-                                    <path to CMIP7 data request file>
-
-Script to read version of the CMIP7 data request spreadsheet, check for
-any field requests which are not availble from the CAM CMIP7 model
-configurations, and produce the requested diagnostic sections of CAM's
-runtime namelist.
-Note that the data request spreadsheet must be in CSV format
-
-positional arguments:
-  <path to CMIP7 data request file>
-
-options:
-  -h, --help            show this help message and exit
-  --namelist-file NAMELIST_FILE
-                        Path to write namelist file entries (Default: stdout)
-  --overwrite           Overwrite namelist file if it exists
-  --include-cosp        Include COSP diagnostic fields in output
+usage: cmip_diagnostic_namelists.py [--help]
 ```
+
+To use this script, the following workflow is recommended:
+1. Use `git rm` to remove existing usermods files (or use `--overwrite` and only remove files no longer in use).
+2. Run script to generate new usermods files
+3. Use `git add` to add any new usermods files
+4. Use `git commit -a` to commit all the new usermods files. Note that git will only show untracked directory names if none of the files in that directory are currently in the repository.

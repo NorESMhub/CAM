@@ -1,4 +1,4 @@
-! CAM HighFrequency diagnostic namelist entries
+! CAM aerocom diagnostic namelist entries
 
 ! Aerocom fields will be output for this run
 use_aerocom = .true.
@@ -46,36 +46,3 @@ fincl2 = 'BC_A:A', 'BC_AC:A', 'BC_AI:A', 'BC_AX:A', 'BC_N:A', 'BC_NI:A',
  'SS_A3:A', 'T700:A', 'T850:A', 'T:A', 'TAUX:A', 'TAUY:A', 'TGCLDIWP:A',
  'TREFHT:A', 'TREFHTMN:A', 'TREFHTMX:A', 'TS:A', 'U010:A', 'U10:A', 'U:A',
  'V:A', 'Z1000:A', 'Z3:A', 'Z500:A'
-
-! 6-hourly output
-nhtfrq(3) = -6
-mfilt(3) = 30
-fincl3 = 'BS550AER:A', 'DAYFOC:A', 'EC550AER:A', 'PRECT:A', 'PS:A', 'PSL:A',
- 'Q:A', 'RHREFHT:A', 'T:A', 'TREFHT:A', 'TS:A', 'U10:A', 'U200:A', 'U:A',
- 'V200:A', 'V:A', 'Z1000:A', 'Z3:A', 'Z500:A', 'Z700:A'
-
-! 3-hourly output
-nhtfrq(4) = -3
-mfilt(4) = 30
-fincl4 = 'CLDTOT:A', 'FLDS:A', 'FLDSC:A', 'FLNS:A', 'FLNT:A', 'FLNTC:A',
- 'FSDS:A', 'FSDSC:A', 'FSNS:A', 'FSNT:A', 'FSNTC:A', 'FSNTOA:A', 'FSNTOAC:A',
- 'FSUTOA:A', 'LHFLX:A', 'PMID:A', 'PRECSC:A', 'PRECSL:A', 'PRECT:A', 'PS:A',
- 'Q:A', 'QREFHT:A', 'RHREFHT:A', 'SHFLX:A', 'SOLIN:A', 'T:A', 'TGCLDIWP:A',
- 'TREFHT:A', 'TS:A', 'U10:A'
-
-! 1-hourly output
-nhtfrq(5) = -1
-mfilt(5) = 30
-fincl5 = 'FLNT:A', 'FLNTC:A', 'FSNT:A', 'FSNTC:A', 'FSNTOA:A', 'FSNTOAC:A',
- 'FSUTOA:A', 'PRECT:A', 'PS:A', 'PSL:A', 'SOLIN:A', 'TREFHT:A'
-
-! timestep output
-nhtfrq(6) = 1
-mfilt(6) = 30
-fincl6 = 'CLDICE:I', 'CLDLIQ:I', 'CLDTOT:I', 'CLOUD:I', 'FDL:I', 'FDLC:I',
- 'FDSC:I', 'FLDS:I', 'FLDSC:I', 'FLNS:I', 'FLNT:I', 'FLNTC:I', 'FSDS:I',
- 'FSDSC:I', 'FSNS:I', 'FSNSC:I', 'FSNT:I', 'FSNTC:I', 'FSNTOA:I', 'FSNTOAC:I',
- 'FSUTOA:I', 'LHFLX:I', 'OMEGA:I', 'PRECC:I', 'PRECSC:I', 'PRECSL:I',
- 'PRECT:I', 'PS:I', 'PSL:I', 'Q:I', 'QFLX:I', 'QREFHT:I', 'RELHUM:I',
- 'RHREFHT:I', 'SHFLX:I', 'SOLIN:I', 'T:I', 'TAUX:I', 'TAUY:I', 'TGCLDIWP:I',
- 'TREFHT:I', 'TS:I', 'U10:I', 'U:I', 'V:I', 'Z3:I'

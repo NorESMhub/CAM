@@ -1,4 +1,4 @@
-! CAM HighFrequency diagnostic namelist entries
+! CAM max diagnostic namelist entries
 
 ! Aerocom fields will be output for this run
 use_aerocom = .true.

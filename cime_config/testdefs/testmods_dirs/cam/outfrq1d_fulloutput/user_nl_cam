@@ -1,0 +1,2 @@
+write_nstep0 = .true.
+inithist = 'ENDOFRUN'

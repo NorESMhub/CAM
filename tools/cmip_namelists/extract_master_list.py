@@ -67,8 +67,8 @@ def parse_diagnostic_fieldnames(logfile, save_names=False):
         num_fields = len(all_fieldnames)
         while fieldnum < num_fields:
             line = ""
-            for index in range(num_on_line):
-                fieldname = all_fieldnames[fieldnum + index]
+            for index in range(fieldnum, min(fieldnum + num_on_line, num_fields)):
+                fieldname = all_fieldnames[index]
                 pad = " "*(maxlen + 2 - len(fieldname))
                 line += f"{fieldname}{pad}"
             # end for
