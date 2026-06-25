@@ -92,7 +92,7 @@
 [submodule "pumas"]
     path = src/physics/pumas
     url = https://github.com/NorESMhub/PUMAS
-    fxtag = noresm3_0_005_pumas_v1_38
+    fxtag = noresm3_0_006_pumas_v1_38
     fxrequired = AlwaysRequired
     fxDONOTUSEurl = https://github.com/NorESMhub/PUMAS
 

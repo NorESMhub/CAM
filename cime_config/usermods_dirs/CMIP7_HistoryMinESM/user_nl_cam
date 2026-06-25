@@ -1,0 +1,23 @@
+! CAM reduced_esm diagnostic namelist entries
+
+! Only output fields listed in this file
+empty_htapes = .true.
+
+! monthly output
+nhtfrq(1) = 0
+mfilt(1) = 1
+fincl1 = 'AODVVOLC:A', 'AQSO4_H2O2:A', 'AQSO4_O3:A', 'CCN5:A', 'CCN7:A',
+ 'CCN_B:A', 'CLDHGH:A', 'CLDICE:A', 'CLDLIQ:A', 'CLDLOW:A', 'CLDMED:A',
+ 'CLDTOT:A', 'CO2:A', 'CONCLD:A', 'DAYFOC:A', 'DF_SO2:A', 'FCTL_B:A', 'FDL:A',
+ 'FDLC:A', 'FDS:A', 'FLDS:A', 'FLDSC:A', 'FLNS:A', 'FLNT:A', 'FSDSC:A',
+ 'FSNS:A', 'FSNSC:A', 'FSNT:A', 'FSUTOA:A', 'FUL:A', 'FULC:A', 'GS_H2SO4:A',
+ 'HO2_aft:A', 'IntHeatTr:A', 'KinEnerTr:A', 'LWCF:A', 'LatHeatTr:A',
+ 'OH_aft:A', 'PBLH:A', 'PRECC:A', 'PRECSC:A', 'PRECSL:A', 'PRECT:A', 'PS:A',
+ 'PotEnerTr:A', 'Q:A', 'QREFHT:A', 'QRL:A', 'RELHUM:A', 'RHW:A', 'SO2:A',
+ 'SO4_A1:A', 'SO4_A2:A', 'SO4_AC:A', 'SO4_NA:A', 'SO4_PR:A', 'SST:A', 'SWCF:A',
+ 'T:A', 'TAUX:A', 'TGCLDIWP:A', 'TREFMNAV:A', 'TROP_P:A', 'TROP_T:A',
+ 'TROP_Z:A', 'TS:A', 'TotEnerTr:A', 'U10:A', 'U:A', 'WD_A_SO2:A', 'Z3:A',
+ 'dry_DUST:A', 'dry_SALT:A', 'dry_SULFATE:A', 'emis_BC:A', 'emis_OM:A',
+ 'emis_SALT:A', 'emis_SO2:A', 'emis_SULFATE:A', 'emis_isoprene:A',
+ 'emis_monoterp:A', 'isoprene:A', 'mmr_BC:A', 'mmr_OM:A', 'mmr_SALT:A',
+ 'ozone:A', 'wet_BC:A', 'wet_DUST:A', 'wet_SALT:A', 'wet_SULFATE:A'
