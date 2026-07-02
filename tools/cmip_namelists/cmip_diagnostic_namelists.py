@@ -127,31 +127,51 @@ def command_line(args):
     """Read the command line arguments (args) to retrieve the paths to the
     CMIP7 and CAM data request spreadsheets, the config file, and options.
     Return all argument values."""
-    parser = argparse.ArgumentParser(description=__doc__,
-                                     formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(description=__doc__)
 
     parser.add_argument("CMIP_file", type=str,
                         metavar='<path to CMIP7 data request file>')
     parser.add_argument("CAM_file", type=str,
                         metavar='<path to CAM data request file>')
+    umod_def = os.path.join(__CAMDIR, "cime_config", "usermods_dirs")
+    umod_help = ("Path to write namelist file entries. "
+                 f"default: {umod_def}")
     parser.add_argument("--usermods-dir", dest='usermods', type=str,
-                        default=os.path.join(__CAMDIR, "cime_config", "usermods_dirs"),
-                        help="Path to write namelist file entries")
+                        metavar='<USERMODS FILEPATH>', default=umod_def,
+                        help=umod_help)
     parser.add_argument("--overwrite", action='store_true', default=False,
                         help="Overwrite namelist file(s) if they exist")
+    umod_def = os.path.join(__MYDIR, "usermods_sets.cfg")
+    umod_help = ("Path to configuration file for usermods sets. "
+                 f"default: {umod_def}")
     parser.add_argument("--usermods-config", dest='cfgfile', type=str,
-                        default=os.path.join(__MYDIR, "usermods_sets.cfg"),
-                        help="Path to configuration file for usermods sets")
-    parser.add_argument("--error-on-missing", action='store_true',
-                        default=False,
-                        help="""Stop processing if any missing fields found.
-                        Default is to produce fieldlist files by ignoring any
-                        missing fields.""")
-    parser.add_argument("--max-line", type=int, default=80,
-                        help="Maximum line length for namelist files")
+                        metavar='<USERMODS CONFIG FILEPATH>',
+                        default=umod_def, help=umod_help)
+    umod_help = ("Stop processing if any missing fields found. "
+                 "Default is to produce fieldlist files by ignoring any "
+                 "missing fields.")
+    parser.add_argument("--error-on-missing", action='store_true', default=False,
+                        help=umod_help)
+    umod_def = 80
+    umod_help = f"Maximum line length for namelist files. default: {umod_def}"
+    parser.add_argument("--max-line", type=int, default=umod_def, help=umod_help)
+    umod_help = ("Produce more output on missing fields. "
+                 "By default, a field is only declared missing if it is "
+                 "not available in any configuration.")
+    parser.add_argument("--verbose", action='store_true', default=False,
+                        help=umod_help)
+    umod_help=("Only process (update) the usermods sets specified."
+               "By default, all configured usermods sets are processed "
+               "and updated. On the command line, these section-names "
+               "(the string in square brackets in the usermods-config "
+               "file) is specified after the required arguments but "
+               "before any options.")
+    parser.add_argument("usermod_sets", nargs="*", default=[],
+                        help=umod_help)
     pargs = parser.parse_args(args)
     return (pargs.CMIP_file, pargs.CAM_file, pargs.usermods, pargs.cfgfile,
-            pargs.overwrite, pargs.error_on_missing, pargs.max_line)
+            pargs.overwrite, pargs.error_on_missing, pargs.max_line,
+            pargs.verbose, pargs.usermod_sets)
 
 def read_config_file(filename, usermods_dir, overwrite):
     """Read a fincl group configuration (ini-style) file.
@@ -392,13 +412,17 @@ def check_for_missing_fieldnames(fixedset, data_request):
     return missing
 
 def generate_namelist_entries(data_request, usermod_config, fixed_fieldnames,
-                              cosp_fieldnames, aerocom_fieldnames, maxline):
+                              cosp_fieldnames, aerocom_fieldnames,
+                              usermods_sets, maxline):
     """Write the sets of namelist entries represented by <data_request> to
     the usermods files defined in <usermod_config>.
     Return a dictionary of field names not found in the CAM fixed list. The missing
     names are found and reported from each config set """
     missing_fields = {}
     for usermod in usermod_config.values():
+        if usermods_sets and (usermod.name not in usermods_sets):
+            continue
+        # end if
         lbreak = ''
         if not os.path.exists(usermod.dirname):
             os.makedirs(usermod.dirname)
@@ -472,7 +496,7 @@ def generate_namelist_entries(data_request, usermod_config, fixed_fieldnames,
 
 if __name__ == "__main__":
     arglist = command_line(sys.argv[1:])
-    cmipfile, camfile, usermods, configfile, overwrite, error, maxline = arglist
+    cmipfile, camfile, usermods, configfile, overwrite, error, maxline, verbose, usets = arglist
     # read configuration
     usermod_dict = read_config_file(configfile, usermods, overwrite)
     errmsg = "not producing any namelist usermods files"
@@ -486,9 +510,28 @@ if __name__ == "__main__":
     elif usermod_dict:
         data_request = combine_data_requests(cmip7_request, cam_request)
         missing = generate_namelist_entries(data_request, usermod_dict, fixed_fieldnames,
-                                            cosp_fieldnames, aerocom_fieldnames, maxline)
+                                            cosp_fieldnames, aerocom_fieldnames,
+                                            usets, maxline)
+        num_sections = len(usermod_dict)
+        if not verbose:
+            # Remove missing fields that are defined in at least one usermod
+            to_remove = []
+            for field in missing:
+                if len(missing[field]) < num_sections:
+                    to_remove.append(field)
+                # end if
+            # end for
+            for field in to_remove:
+                del missing[field]
+            # end for
+        # end if
         if missing:
-            print(f"The following {len(missing)} fields are not output from CAM:")
+            if verbose:
+                print(f"The following {len(missing)} fields are not output in some "
+                      "usermod configurations")
+            else:
+                print(f"The following {len(missing)} fields are not output from CAM:")
+            # end if
         # end if
         jstr = ', '
         for data_request, label in [(cmip7_request, "CMIP7"), (cam_request, "CAM")]:
@@ -500,7 +543,11 @@ if __name__ == "__main__":
                         print(f"The following fields are from the {label} data request spreadsheet:")
                         message_shown = True
                     # end if
-                    print(f"  {field}: {jstr.join(missing[field])}")
+                    if verbose:
+                        print(f"  {field}: {jstr.join(missing[field])}")
+                    else:
+                        print(f"  {field}")
+                    # end if
                 # end if
             # end for
         # end for
