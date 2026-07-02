@@ -453,6 +453,12 @@ def generate_namelist_entries(data_request, usermod_config, fixed_fieldnames,
                 outfile.write("! Aerocom fields will be output for this run\n")
                 outfile.write("use_aerocom = .true.\n\n")
             # end if
+            if usermod.include_cosp:
+                outfile.write("! COSP fields will be output for this run\n")
+                outfile.write("! Note: This requires building the model with "
+                              "the -cosp flag in CAM_CONFIG_OPTS\n")
+                outfile.write("docosp = .true.\n\n")
+            # end if
             outfile.write(f"! Only output fields listed in this file\n")
             outfile.write(f"empty_htapes = .true.\n\n")
             for freq in sorted(usermod.frequencies,

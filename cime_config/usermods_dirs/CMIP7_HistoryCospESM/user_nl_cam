@@ -3,6 +3,10 @@
 ! Aerocom fields will be output for this run
 use_aerocom = .true.
 
+! COSP fields will be output for this run
+! Note: This requires building the model with the -cosp flag in CAM_CONFIG_OPTS
+docosp = .true.
+
 ! Only output fields listed in this file
 empty_htapes = .true.
 
