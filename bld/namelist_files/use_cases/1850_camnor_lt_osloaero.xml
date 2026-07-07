@@ -96,8 +96,6 @@
         'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20260209/ne30pg3/emissions_cmip7_noresm3_S_anthrosurfALL_surface_1850_ne30pg3_CEDS-CMIP-2025-04-18_version20260209.nc'
 </srf_emis_specifier>
 
-<rad_climate>'A:Q:H2O','N:O2:O2','N:CO2:CO2','N:ozone:O3','N:N2O:N2O','N:CH4:CH4','N:CFC11:CFC11','N:CFC12:CFC12'</rad_climate>
-
 <!--Options for megan -->
 <megan_specifier>'isoprene = isoprene','monoterp = myrcene + sabinene + limonene+ carene_3 + ocimene_t_b + pinene_b + pinene_a'</megan_specifier>
 

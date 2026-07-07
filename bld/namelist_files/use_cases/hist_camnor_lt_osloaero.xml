@@ -91,8 +91,6 @@
 
 <csw_time_type>SERIAL</csw_time_type>
 
-<rad_climate>'A:Q:H2O','N:O2:O2','N:CO2:CO2','N:ozone:O3','N:N2O:N2O','N:CH4:CH4','N:CFC11:CFC11','N:CFC12:CFC12'</rad_climate>
-
 <!--Options for megan -->
 <megan_specifier>'isoprene = isoprene','monoterp = myrcene + sabinene + limonene+ carene_3 + ocimene_t_b + pinene_b + pinene_a'</megan_specifier>
 
@@ -100,6 +98,6 @@
 <prescribed_volcaero_file>UOEXETER-CMIP-2-2-1_175001-202312_intpwghtavg_v20260105.nc</prescribed_volcaero_file>
 
 <!-- for prescribed deposition and emission fluxes -->
-<sim_year>1850-2015</sim_year>
+<sim_year>1850-2022</sim_year>
 
 </namelist_defaults>
