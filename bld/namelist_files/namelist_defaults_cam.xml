@@ -922,8 +922,6 @@
 
 <!-- Airplane emissions -->
 <airpl_emis_file>atm/cam/chem/trop_mozart/emis/emissions.aircraft.T42LR.nc</airpl_emis_file>
-<no2_aircraft_emis_file>atm/cam/chem/1850-2000_emis/IPCC_emissions_aircraft_NO2_1850-2000_1.9x2.5_c090729.nc</no2_aircraft_emis_file>
-<bc_aircraft_emis_file>atm/cam/chem/1850-2000_emis/IPCC_emissions_aircraft_BC_1850-2000_1.9x2.5.c090729.nc</bc_aircraft_emis_file>
 
 <co_aircraft_emis  >atm/cam/chem/trop_mozart/emis/extfrc.CO.1.9x2.5_c101206.nc</co_aircraft_emis>
 <no_aircraft_emis  >atm/cam/chem/trop_mozart/emis/extfrc.NO.1.9x2.5_c101206.nc</no_aircraft_emis>
