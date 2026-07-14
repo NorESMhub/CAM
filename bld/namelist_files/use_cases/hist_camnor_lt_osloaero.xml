@@ -15,17 +15,17 @@
 <ubc_file_input_type>'SERIAL'</ubc_file_input_type>
 
 <!-- ozone data -->
-<prescribed_ozone_datapath>   'atm/cam/ozone_strataero'                                                         </prescribed_ozone_datapath>
-<prescribed_ozone_file    >   'ozone_strataero_WACCM_L70_zm5day_18500101-21010201_CMIP6histEnsAvg_SSP245_c190403.nc'       </prescribed_ozone_file>
-<prescribed_ozone_name    >   'O3'                                                                              </prescribed_ozone_name>
-<prescribed_ozone_type    >   SERIAL                                                                            </prescribed_ozone_type>
+<prescribed_ozone_datapath> 'atm/cam/ozone_strataero'                                                                                             </prescribed_ozone_datapath>
+<prescribed_ozone_file    > 'ozone_strataero_b.e30_alpha08o.BHISTC_MTt4s.ne30_t232_wgx3.330_branch_1850_1850_2021_transient_zm_5day_c20260625.nc' </prescribed_ozone_file>
+<prescribed_ozone_name    > 'O3'                                                                                                                  </prescribed_ozone_name>
+<prescribed_ozone_type    > SERIAL                                                                                                                </prescribed_ozone_type>
 
 <!-- Prescribed oxidants for aerosol chemistry -->
-<tracer_cnst_datapath >   'atm/cam/tracer_cnst'                                         </tracer_cnst_datapath>
-<tracer_cnst_file     >   'tracer_cnst_halons_3D_L70_1849-2101_CMIP6ensAvg_SSP2-4.5_c190403.nc'  </tracer_cnst_file>
-<tracer_cnst_specifier>   'O3','OH','NO3','HO2'                                         </tracer_cnst_specifier>
-<tracer_cnst_type     >   INTERP_MISSING_MONTHS                                         </tracer_cnst_type>
-<tracer_cnst_filelist >   ''                                                            </tracer_cnst_filelist>
+<tracer_cnst_datapath >   'atm/cam/tracer_cnst'                                                 </tracer_cnst_datapath>
+<tracer_cnst_file     >   'tracer_cnst_halons_3D_L70_1849-2101_CMIP6ensAvg_SSP2-4.5_c190403.nc' </tracer_cnst_file>
+<tracer_cnst_specifier>   'O3','OH','NO3','HO2'                                                 </tracer_cnst_specifier>
+<tracer_cnst_type     >   INTERP_MISSING_MONTHS                                                 </tracer_cnst_type>
+<tracer_cnst_filelist >   ''                                                                    </tracer_cnst_filelist>
 
 <!-- External forcing -->
 <ext_frc_type>INTERP_MISSING_MONTHS</ext_frc_type>

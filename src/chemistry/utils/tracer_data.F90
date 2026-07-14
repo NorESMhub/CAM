@@ -84,7 +84,6 @@ module tracer_data
      integer :: interp_recs
      real(r8), pointer, dimension(:) :: curr_data_times => null()
      real(r8), pointer, dimension(:) :: next_data_times => null()
-     logical :: remove_trc_file = .false.  ! delete file when finished with it
      real(r8) :: offset_time
      integer :: cyc_ndx_beg
      integer :: cyc_ndx_end
@@ -176,7 +175,7 @@ contains
     character(len=*),    intent(in)    :: datapath
     type(trfld), dimension(:), pointer :: flds
     type(trfile),        intent(inout) :: file
-    logical,             intent(in)    :: rmv_file
+    logical,             intent(in)    :: rmv_file ! Note, no longer used
     integer,             intent(in)    :: data_cycle_yr
     integer,             intent(in)    :: data_fixed_ymd
     integer,             intent(in)    :: data_fixed_tod
@@ -214,7 +213,6 @@ contains
 
     if (mxnflds < 1) return
 
-    file%remove_trc_file = rmv_file
     file%pathname = trim(datapath)
     file%filenames_list = trim(filelist)
 
@@ -2705,18 +2703,6 @@ contains
     !   close current file ...
     !-----------------------------------------------------------------------
     call pio_closefile( file%curr_fileid )
-
-    !-----------------------------------------------------------------------
-    !   remove if requested
-    !-----------------------------------------------------------------------
-    if( file%remove_trc_file ) then
-       call getfil( file%curr_filename, loc_fname, 0 )
-       write(iulog,'(2a)') 'advance_file: removing file = ',trim(loc_fname)
-       ctmp = 'rm -f ' // trim(loc_fname)
-       write(iulog,'(a)') 'advance_file: fsystem issuing command - '
-       write(iulog,'(a)') trim(ctmp)
-       call shr_sys_system( ctmp, istat )
-    end if
 
     !-----------------------------------------------------------------------
     !   Advance the filename and file id

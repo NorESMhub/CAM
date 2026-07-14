@@ -656,8 +656,8 @@
 <co2_flag co2_cycle="1">.true.</co2_flag>
 
 <!-- Time-variant CO2 fossil fuel emissions -->
-<co2flux_fuel_datafile>atm/cam/ggas/emissions-cmip6_CO2_anthro_surface_175001-201512_fv_0.9x1.25_c20181011.nc</co2flux_fuel_datafile>
-<co2flux_fuel_meshfile>share/meshes/fv0.9x1.25_141008_polemod_ESMFmesh.nc</co2flux_fuel_meshfile>
+<co2flux_fuel_datafile>atm/cam/ggas/emissions-cmip7_CO2_anthro_surface_CMIP_CEDS-CMIP-2025-04-18_185001-202312_0.5x0.5_c20250119.nc</co2flux_fuel_datafile>
+<co2flux_fuel_meshfile>share/meshes/0.5x0.5_ESMFmesh_c20260714.nc</co2flux_fuel_meshfile>
 <co2flux_fuel_tintalgo>nearest</co2flux_fuel_tintalgo>
 <co2flux_fuel_year_first sim_year="2000">2000</co2flux_fuel_year_first>
 <co2flux_fuel_year_last  sim_year="2000">2000</co2flux_fuel_year_last>
@@ -665,13 +665,13 @@
 <co2flux_fuel_year_first sim_year="1850">1850</co2flux_fuel_year_first>
 <co2flux_fuel_year_last  sim_year="1850">1850</co2flux_fuel_year_last>
 <co2flux_fuel_year_align sim_year="1850">1</co2flux_fuel_year_align>
-<co2flux_fuel_year_first sim_year="1850-2015">1850</co2flux_fuel_year_first>
-<co2flux_fuel_year_last  sim_year="1850-2015">2015</co2flux_fuel_year_last>
-<co2flux_fuel_year_align sim_year="1850-2015">1850</co2flux_fuel_year_align>
+<co2flux_fuel_year_first sim_year="1850-2022">1850</co2flux_fuel_year_first>
+<co2flux_fuel_year_last  sim_year="1850-2022">2023</co2flux_fuel_year_last>
+<co2flux_fuel_year_align sim_year="1850-2022">1850</co2flux_fuel_year_align>
 
 <!-- Time-variant CO2 aircraft emissions -->
-<aircraft_co2_datafile>atm/cam/ggas/emissions-cmip6_CO2_anthro_ac_175001-201512_fv_0.9x1.25_c20181011.nc</aircraft_co2_datafile>
-<aircraft_co2_meshfile>share/meshes/fv0.9x1.25_141008_polemod_ESMFmesh.nc</aircraft_co2_meshfile>
+<aircraft_co2_datafile>atm/cam/ggas/emissions-cmip7_CO2_anthro_ac_CMIP_CEDS-CMIP-2025-04-18_185001-202312_0.5x0.5_c20250119.nc</aircraft_co2_datafile>
+<aircraft_co2_meshfile>share/meshes/0.5x0.5_ESMFmesh_c20260714.nc</aircraft_co2_meshfile>
 <aircraft_co2_tintalgo>nearest</aircraft_co2_tintalgo>
 <aircraft_co2_year_first  sim_year="2000">2000</aircraft_co2_year_first>
 <aircraft_co2_year_last   sim_year="2000">2000</aircraft_co2_year_last>
@@ -679,9 +679,9 @@
 <aircraft_co2_year_first  sim_year="1850">1850</aircraft_co2_year_first>
 <aircraft_co2_year_last   sim_year="1850">1850</aircraft_co2_year_last>
 <aircraft_co2_year_align  sim_year="1850">1</aircraft_co2_year_align>
-<aircraft_co2_year_first  sim_year="1850-2015">1850</aircraft_co2_year_first>
-<aircraft_co2_year_last   sim_year="1850-2015">2015</aircraft_co2_year_last>
-<aircraft_co2_year_align  sim_year="1850-2015">1850</aircraft_co2_year_align>
+<aircraft_co2_year_first  sim_year="1850-2022">1850</aircraft_co2_year_first>
+<aircraft_co2_year_last   sim_year="1850-2022">2023</aircraft_co2_year_last>
+<aircraft_co2_year_align  sim_year="1850-2022">1850</aircraft_co2_year_align>
 
 <!-- Greenhouse gas production/loss rates -->
 <bndtvg>atm/cam/ggas/noaamisc.r8.nc</bndtvg>
@@ -922,10 +922,6 @@
 
 <!-- Airplane emissions -->
 <airpl_emis_file>atm/cam/chem/trop_mozart/emis/emissions.aircraft.T42LR.nc</airpl_emis_file>
-
-<co_aircraft_emis  >atm/cam/chem/trop_mozart/emis/extfrc.CO.1.9x2.5_c101206.nc</co_aircraft_emis>
-<no_aircraft_emis  >atm/cam/chem/trop_mozart/emis/extfrc.NO.1.9x2.5_c101206.nc</no_aircraft_emis>
-<so2_aircraft_emis >atm/cam/chem/trop_mozart/emis/extfrc.SO2.1.9x2.5_c101206.nc</so2_aircraft_emis>
 
 <!-- Trop chem emissions (default emis files) -->
 <bigalk_emis_file      >atm/cam/chem/emis/1992-2010/emissions.BIGALK.surface.1.9x2.5_c110426.nc</bigalk_emis_file>
@@ -2028,12 +2024,12 @@
 
 <stream_ndep_year_first >2000</stream_ndep_year_first>
 <stream_ndep_year_first sim_year="1850">1850</stream_ndep_year_first>
-<stream_ndep_year_first sim_year="1850-2015">1850</stream_ndep_year_first>
+<stream_ndep_year_first sim_year="1850-2022">1850</stream_ndep_year_first>
 <stream_ndep_year_first sim_year="2010">2010</stream_ndep_year_first>
 
 <stream_ndep_year_last >2000</stream_ndep_year_last>
 <stream_ndep_year_last sim_year="1850">1850</stream_ndep_year_last>
-<stream_ndep_year_last sim_year="1850-2015">2015</stream_ndep_year_last>
+<stream_ndep_year_last sim_year="1850-2022">2022</stream_ndep_year_last>
 <stream_ndep_year_last sim_year="2010">2010</stream_ndep_year_last>
 
 <stream_ndep_year_align >1</stream_ndep_year_align>
