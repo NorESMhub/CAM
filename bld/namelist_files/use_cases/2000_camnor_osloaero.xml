@@ -85,6 +85,9 @@
 <cldfrc_iceopt    hgrid="1.9x2.5">4</cldfrc_iceopt>         <!--cldfrc_nl-->
 <do_circulation_diags>.true.</do_circulation_diags>         <!-- only used in fv -->
 
+<rad_climate              >'A:Q:H2O','N:O2:O2','N:CO2:CO2','N:ozone:O3','N:N2O:N2O','N:CH4:CH4','N:CFC11:CFC11','N:CFC12:CFC12'</rad_climate>
+<rad_climate co2_cycle="1">'A:Q:H2O','N:O2:O2','A:CO2:CO2','N:ozone:O3','N:N2O:N2O','N:CH4:CH4','N:CFC11:CFC11','N:CFC12:CFC12'</rad_climate>
+
 <!-- for prescribed deposition and emission fluxes -->
 <sim_year>2000</sim_year>
 

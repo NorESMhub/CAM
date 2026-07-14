@@ -358,7 +358,7 @@
       <value compset="HIST_CAM70%LT%NORESM%CAMoslo"  >hist_camnor_lt_osloaero</value>
       <value compset="2000_CAM70%LT%NORESM%TROPMAM4" >2000_camnor_tropmam4</value>
       <value compset="2000_CAM70%LT%NORESM%CAMoslo"  >2000_camnor_osloaero</value>
-      <value compset="AMIP_CAM70%LT%NORESM%CAMoslo"  >1979-2021_camnor_lt_osloaero</value>
+      <value compset="AMIP_CAM70%LT%NORESM%CAMoslo"  >1979-2022_camnor_lt_osloaero</value>
 
       <!-- SCAM defaults to ARM97, all other IOPs are in usermods_dirs -->
       <!--       <value compset="CAM[456]0%SCAM"    >scam_arm97</value> -->

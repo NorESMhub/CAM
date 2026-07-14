@@ -91,6 +91,9 @@
 
 <csw_time_type>SERIAL</csw_time_type>
 
+<rad_climate              >'A:Q:H2O','N:O2:O2','N:CO2:CO2','N:ozone:O3','N:N2O:N2O','N:CH4:CH4','N:CFC11:CFC11','N:CFC12:CFC12'</rad_climate>
+<rad_climate co2_cycle="1">'A:Q:H2O','N:O2:O2','A:CO2:CO2','N:ozone:O3','N:N2O:N2O','N:CH4:CH4','N:CFC11:CFC11','N:CFC12:CFC12'</rad_climate>
+
 <!--Options for megan -->
 <megan_specifier>'isoprene = isoprene','monoterp = myrcene + sabinene + limonene+ carene_3 + ocimene_t_b + pinene_b + pinene_a'</megan_specifier>
 
