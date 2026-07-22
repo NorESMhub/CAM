@@ -16,7 +16,10 @@
 
 <!-- ozone data -->
 <prescribed_ozone_datapath> 'atm/cam/ozone_strataero'                                                                                             </prescribed_ozone_datapath>
+<!-- starts at 6. January instead of 1. January
 <prescribed_ozone_file    > 'ozone_strataero_b.e30_alpha08o.BHISTC_MTt4s.ne30_t232_wgx3.330_branch_1850_1850_2021_transient_zm_5day_c20260625.nc' </prescribed_ozone_file>
+    -->
+<prescribed_ozone_file    > 'ozone_strataero_b.e30_alpha08o.BHISTC_MTt4s.ne30_t232_wgx3.330_branch_1850_1850_2021_transient_zm_5day_c20260722.nc' </prescribed_ozone_file>
 <prescribed_ozone_name    > 'O3'                                                                                                                  </prescribed_ozone_name>
 <prescribed_ozone_type    > SERIAL                                                                                                                </prescribed_ozone_type>
 

@@ -29,11 +29,11 @@
     ALL data models must have a %phys option that corresponds to the data  model mode
 
     Each compset node is associated with the following elements
-      - lname
-      - alias
-      - support  (optional description of the support level for this compset)
+    - lname
+    - alias
+    - support  (optional description of the support level for this compset)
     Each compset node can also have the following attributes
-      - grid  (optional regular expression match for grid to work with the compset)
+    - grid  (optional regular expression match for grid to work with the compset)
   </help>
 
   <!-- NOTE: the NorESM physics does not work with cam60 - so must use
@@ -189,7 +189,7 @@
   </compset>
 
   <compset>
-      <alias>FSCAMCGILSS12</alias>
+    <alias>FSCAMCGILSS12</alias>
     <lname>2000_CAM60%SCAMCGILSS12_CLM50%SP_CICE%PRES_DOCN%DOM_SROF_SGLC_SWAV</lname>
   </compset>
 
@@ -384,30 +384,11 @@
   <entries>
     <entry id="RUN_STARTDATE">
       <values match="last">
-	<value  compset="HIST(C_|E_|_)CAM">1979-01-01</value>
-	<value  compset="HIST_CAM60%WCTS_CLM50%BGC-CROP">1950-01-01</value>
-        <value  compset="HIST_CAM40%WX">2000-01-01</value>
-	<value  compset="HIST_CAM60%WCMD">2005-01-01</value>
-	<value  compset="HIST_CAM60%WCMD%SDYN" grid="a%1.9x2.5">1980-01-01</value>
-	<value  compset="HIST_CAM60%WCSC">1850-01-01</value>
-	<value  compset="HIST_CAM60%CT[12]S">2010-01-01</value>
-	<value  compset="HIST_CAM60%GEOSCHEM">2015-01-01</value>
-	<value  compset="HIST_CAM60%CT[12]S" grid="a%ne0np4CONUS">2013-01-01</value>
-	<value  compset="HIST_CAM60%CVBSX">1995-01-01</value>
-	<value  compset="HIST_CAM60%CFIRE">1995-01-01</value>
-	<value  compset="RCP[2468]_CAM\d+">2005-01-01</value>
- 	<value  compset="_CAM.*%NUDG"                   >2010-01-01</value>
- 	<value  compset="CAM60%CARMA.*%NUDG"            >1990-01-01</value>
- 	<value  compset="_CAM.*%SDYN"                   >2005-01-01</value>
- 	<value  compset="_CAM.*%SDYN" grid="a%0.47x0.63">2010-01-01</value>
-	<value  compset="_CAM60%(CARMA|WCCM|WCTS|WXIE).*%SDYN">1980-01-01</value>
-	<value  compset="_CAM60%(WCCM|WCTS|WXIE).*%SDYN">1980-01-01</value>
- 	<value  compset="_CAM40%WX.*%SDYN">2000-01-01</value>
-        <value  compset="2000_CAM60%GEOSCHEM">2000-01-01</value>
-        <value  compset="2010_CAM60%GEOSCHEM">2010-01-01</value>
+        <value  compset="HIST_CAM">1850-01-01</value>
+        <value  compset="AMIP_CAM">1979-01-01</value>
+        <value  compset="1850_CAM">0001-01-01</value>
+        <value  compset="2000_CAM">0001-01-01</value>
 
-	<value  compset="C2R4_CAM">2004-01-01</value>
-	<value  compset="C2R[68]_CAM">1950-01-01</value>
         <value  compset="CAM.*%SCAMARM95">1995-07-18</value>
         <value  compset="CAM.*%SCAMARM97">1997-06-18</value>
         <value  compset="CAM.*%SCAMATEX">1969-02-15</value>
@@ -481,10 +462,10 @@
 	<value  compset="%SDYN">GREGORIAN</value>
 	<value  compset="%NUDG">GREGORIAN</value>
  	<value  compset="HIST_CAM\d0%WX">GREGORIAN</value>
-     </values>
+      </values>
     </entry>
 
-  <!-- single column compset must have pts_mode set to true -->
+    <!-- single column compset must have pts_mode set to true -->
 
     <entry id="PTS_MODE">
       <values match="first">
