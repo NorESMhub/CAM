@@ -333,7 +333,6 @@ subroutine chem_surfvals_init()
    if (masterproc) then
       write(iulog,*) ' '
       write(iulog,*) 'chem_surfvals_init: Initial ghg surface values:'
-      write(iulog,*) '  co2 volume mixing ratio = ', chem_surfvals_co2_rad(vmr_in=.true.)
       write(iulog,*) '  ch4 volume mixing ratio = ', ch4vmr
       write(iulog,*) '  n2o volume mixing ratio = ', n2ovmr
       write(iulog,*) '  f11 volume mixing ratio = ', f11vmr
@@ -532,7 +531,7 @@ end function chem_surfvals_get_chunk
 
 !=============================================================================
 
-function chem_surfvals_co2_rad(vmr_in)
+function chem_surfvals_co2_rad(lchnk, ncol, vmr_in)
 
    ! Return the value of CO2 (as mmr) that is radiatively active.
 
@@ -549,10 +548,12 @@ function chem_surfvals_co2_rad(vmr_in)
    use physconst,    only: mwdry, mwco2
 
    ! Arguments
+   integer, intent(in) :: lchnk
+   integer, intent(in) :: ncol
    logical, intent(in), optional :: vmr_in  ! return CO2 as vmr
 
    ! Return value
-   real(r8) :: chem_surfvals_co2_rad
+   real(r8) :: chem_surfvals_co2_rad(ncol)
 
    ! Local variables
    real(r8) :: convert_vmr      ! convert vmr to desired output
@@ -561,14 +562,15 @@ function chem_surfvals_co2_rad(vmr_in)
    ! by default convert vmr to mmr
    convert_vmr = mwco2/mwdry    ! ratio of molecular weights of co2 to dry air
    if (present(vmr_in)) then
-      ! if request return vmr
+      ! Return vmr if requested
       if (vmr_in) convert_vmr = 1.0_r8
    end if
 
    if (co2vmr_rad > 0._r8) then
       chem_surfvals_co2_rad = convert_vmr * co2vmr_rad
    else
-      chem_surfvals_co2_rad = convert_vmr * co2vmr
+      chem_surfvals_co2_rad = convert_vmr * chem_surfvals_get('CO2VMR', lchnk, ncol)
+
    end if
 
 end function chem_surfvals_co2_rad

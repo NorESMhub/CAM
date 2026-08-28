@@ -145,13 +145,12 @@ subroutine trcmix(name, lchnk, ncol, clat, pmid, q)
    end do
 
    if (name == 'O2') then
-
       q(:ncol,:) = chem_surfvals_get('O2MMR')
-
    else if (name == 'CO2') then
-
-      q = chem_surfvals_co2_rad()
-
+      q(:ncol,1) = chem_surfvals_co2_rad(ncol, lchnk)
+      do k = 2, pver
+         q(:ncol, k) = q(:ncol, 1)
+      end do
    else if (name == 'CH4') then
 
       ! set tropospheric mass mixing ratios
