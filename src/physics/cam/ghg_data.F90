@@ -147,7 +147,7 @@ subroutine trcmix(name, lchnk, ncol, clat, pmid, q)
    if (name == 'O2') then
       q(:ncol,:) = chem_surfvals_get('O2MMR')
    else if (name == 'CO2') then
-      q(:ncol,1) = chem_surfvals_co2_rad(ncol, lchnk)
+      q(:ncol,1) = chem_surfvals_co2_rad(lchnk, ncol)
       do k = 2, pver
          q(:ncol, k) = q(:ncol, 1)
       end do

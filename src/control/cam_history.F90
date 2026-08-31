@@ -5552,14 +5552,13 @@ end subroutine print_active_fldlst
     !
     !
     !-----------------------------------------------------------------------
-    use time_manager,  only: get_nstep, get_curr_date, get_curr_time, get_step_size
-    use time_manager,  only: set_date_from_time_float
-    use chem_surfvals, only: chem_surfvals_get, chem_surfvals_co2_rad
+    use time_manager,     only: get_nstep, get_curr_date, get_curr_time, get_step_size
+    use time_manager,     only: set_date_from_time_float
     use solar_irrad_data, only: sol_tsi
-    use sat_hist,      only: sat_hist_write
-    use interp_mod,    only: set_interp_hfile
-    use datetime_mod,  only: datetime
-    use cam_pio_utils, only: cam_pio_closefile
+    use sat_hist,         only: sat_hist_write
+    use interp_mod,       only: set_interp_hfile
+    use datetime_mod,     only: datetime
+    use cam_pio_utils,    only: cam_pio_closefile
 
     logical, intent(in), optional :: rgnht_in(ptapes)
     !

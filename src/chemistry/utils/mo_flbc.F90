@@ -20,7 +20,7 @@ module mo_flbc
 
    type, public :: flbc
       integer            :: spc_ndx = -1
-      real(r8), pointer  :: vmr(:,:,:)
+      real(r8), pointer  :: vmr(:,:,:) => NULL()
       character(len=16)  :: species = ' '
       logical            :: has_mean
       real(r8), pointer  :: vmr_mean(:)
@@ -664,7 +664,7 @@ contains
       !--------------------------------------------------------
       !	... local variables
       !--------------------------------------------------------
-      integer  :: mind, ncnst
+      integer  :: mind
       integer  :: last, next
       real(r8) :: dels
 
@@ -679,9 +679,10 @@ contains
       call get_dels(dels, last, next)
 
       do mind = 1, flbc_cnt
-         if (flbcs(mind)%species == trim(specie_name)) then
-            vmr(:ncol) = flbcs(mind)%vmr(:ncol,lchnk,last)        &
-                 + dels * (flbcs(mind)%vmr(:ncol,lchnk,next) -         &
+         if ((flbcs(mind)%species == trim(specie_name)) .and.  &
+              associated(flbcs(mind)%vmr)) then
+            vmr(:ncol) = flbcs(mind)%vmr(:ncol,lchnk,last)     &
+                 + dels * (flbcs(mind)%vmr(:ncol,lchnk,next) - &
                  flbcs(mind)%vmr(:ncol,lchnk,last))
             if (present(vmr_set)) then
                vmr_set = .true.

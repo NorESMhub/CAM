@@ -35,7 +35,7 @@ module chem_surfvals
    end interface chem_surfvals_get
 
    ! Public data
-   public, protected :: flbc_list
+   public :: flbc_list
 
 ! Private module data
 
@@ -77,9 +77,9 @@ module chem_surfvals
 
    ! fixed lower boundary
 
-   character(len=256) :: flbc_file = 'NONE'
-   character(len=16)  :: flbc_list(pcnst) = ''
-   type(time_ramp)    :: flbc_timing     != time_ramp( "CYCLICAL",  19970101, 0 )
+   character(len=256)           :: flbc_file = 'NONE'
+   character(len=16), protected :: flbc_list(pcnst) = ''
+   type(time_ramp)              :: flbc_timing
 
 !=============================================================================
 contains
@@ -265,7 +265,7 @@ subroutine chem_surfvals_init()
    use infnan,       only: posinf, assignment(=)
    use mo_flbc,      only: flbc_inti
    use phys_control, only: use_simple_phys
-   use cam_history,  only: addfld
+   use cam_history,  only: addfld, horiz_only
 
    !---------------------------Local variables-----------------------------
    integer :: yr, mon, day, ncsec
@@ -562,8 +562,8 @@ function chem_surfvals_co2_rad(lchnk, ncol, vmr_in)
    ! dataset.
 
    ! This method is also used by cam_history to write the radiatively active
-   ! CO2 to the history file.  The optional argument allows returning the
-   ! value as vmr.
+   ! CO2 to the history file (see chem_surfvals_diag_writeout below).
+   ! The optional argument allows returning the value as vmr.
 
    use physconst,    only: mwdry, mwco2
 
@@ -809,7 +809,7 @@ subroutine chem_surfvals_diag_writeout(lchnk, ncol)
    integer, intent(in) :: ncol
 
    ! Local variable
-   real(r8), tmpfld(ncol)
+   real(r8) :: tmpfld(ncol)
 
    ! Output diagnostics for FLBC fields
    tmpfld(:) = chem_surfvals_get('CH4VMR', lchnk, ncol)
