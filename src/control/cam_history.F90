@@ -4041,14 +4041,9 @@ end subroutine print_active_fldlst
          ierr=pio_inq_varid (tape(t)%Files(f),'bdate   ',tape(t)%bdateid)
 #endif
          if (.not. is_initfile(file_index=t) .and. f == instantaneous_file_index) then
-           ! Don't write the GHG/Solar forcing data to the IC file.  It is never
+           ! Don't write the Solar forcing data to the IC file.  It is never
            ! read from that file so it's confusing to have it there.
-           ! Only write the GHG/Solar forcing data to the instantaneous file
-           ierr=pio_inq_varid (tape(t)%Files(f),'co2vmr  ',    tape(t)%co2vmrid)
-           ierr=pio_inq_varid (tape(t)%Files(f),'ch4vmr  ',    tape(t)%ch4vmrid)
-           ierr=pio_inq_varid (tape(t)%Files(f),'n2ovmr  ',    tape(t)%n2ovmrid)
-           ierr=pio_inq_varid (tape(t)%Files(f),'f11vmr  ',    tape(t)%f11vmrid)
-           ierr=pio_inq_varid (tape(t)%Files(f),'f12vmr  ',    tape(t)%f12vmrid)
+           ! Only write the Solar forcing data to the instantaneous file
            ierr=pio_inq_varid (tape(t)%Files(f),'sol_tsi ',    tape(t)%sol_tsiid)
            if (solar_parms_on) then
              ierr=pio_inq_varid (tape(t)%Files(f),'f107    ',    tape(t)%f107id)
@@ -4560,28 +4555,8 @@ end subroutine print_active_fldlst
          end if
 
          if (.not. is_initfile(file_index=t) .and. f == instantaneous_file_index) then
-           ! Don't write the GHG/Solar forcing data to the IC file.
-           ! Only write the GHG/Solar forcing data to the instantaneous file
-           ierr=pio_def_var (tape(t)%Files(f),'co2vmr  ',pio_double,(/timdim/),tape(t)%co2vmrid)
-           str = 'co2 volume mixing ratio'
-           ierr=pio_put_att (tape(t)%Files(f), tape(t)%co2vmrid, 'long_name', trim(str))
-
-           ierr=pio_def_var (tape(t)%Files(f),'ch4vmr  ',pio_double,(/timdim/),tape(t)%ch4vmrid)
-           str = 'ch4 volume mixing ratio'
-           ierr=pio_put_att (tape(t)%Files(f), tape(t)%ch4vmrid, 'long_name', trim(str))
-
-           ierr=pio_def_var (tape(t)%Files(f),'n2ovmr  ',pio_double,(/timdim/),tape(t)%n2ovmrid)
-           str = 'n2o volume mixing ratio'
-           ierr=pio_put_att (tape(t)%Files(f), tape(t)%n2ovmrid, 'long_name', trim(str))
-
-           ierr=pio_def_var (tape(t)%Files(f),'f11vmr  ',pio_double,(/timdim/),tape(t)%f11vmrid)
-           str = 'f11 volume mixing ratio'
-           ierr=pio_put_att (tape(t)%Files(f), tape(t)%f11vmrid, 'long_name', trim(str))
-
-           ierr=pio_def_var (tape(t)%Files(f),'f12vmr  ',pio_double,(/timdim/),tape(t)%f12vmrid)
-           str = 'f12 volume mixing ratio'
-           ierr=pio_put_att (tape(t)%Files(f), tape(t)%f12vmrid, 'long_name', trim(str))
-
+           ! Don't write the Solar forcing data to the IC file.
+           ! Only write the Solar forcing data to the instantaneous file
            ierr=pio_def_var (tape(t)%Files(f),'sol_tsi ',pio_double,(/timdim/),tape(t)%sol_tsiid)
            str = 'total solar irradiance'
            ierr=pio_put_att (tape(t)%Files(f), tape(t)%sol_tsiid, 'long_name', trim(str))
@@ -5810,13 +5785,8 @@ end subroutine print_active_fldlst
 
           do f = 1, maxsplitfiles
             if (.not. is_initfile(file_index=t) .and. f == instantaneous_file_index) then
-              ! Don't write the GHG/Solar forcing data to the IC file.
-              ! Only write GHG/Solar forcing data to the instantaneous file
-              ierr=pio_put_var (tape(t)%Files(f), tape(t)%co2vmrid,(/start/), (/count1/),(/chem_surfvals_co2_rad(vmr_in=.true.)/))
-              ierr=pio_put_var (tape(t)%Files(f), tape(t)%ch4vmrid,(/start/), (/count1/),(/chem_surfvals_get('CH4VMR')/))
-              ierr=pio_put_var (tape(t)%Files(f), tape(t)%n2ovmrid,(/start/), (/count1/),(/chem_surfvals_get('N2OVMR')/))
-              ierr=pio_put_var (tape(t)%Files(f), tape(t)%f11vmrid,(/start/), (/count1/),(/chem_surfvals_get('F11VMR')/))
-              ierr=pio_put_var (tape(t)%Files(f), tape(t)%f12vmrid,(/start/), (/count1/),(/chem_surfvals_get('F12VMR')/))
+              ! Don't write the Solar forcing data to the IC file.
+              ! Only write Solar forcing data to the instantaneous file
               ierr=pio_put_var (tape(t)%Files(f), tape(t)%sol_tsiid,(/start/), (/count1/),(/sol_tsi/))
 
               if (solar_parms_on) then

@@ -1619,6 +1619,7 @@ contains
 !===============================================================================
 
   subroutine diag_phys_writeout(state, pbuf)
+     use chem_surfvals, only: chem_surfvals_diag_writeout
 
     !-----------------------------------------------------------------------
     !
@@ -1635,6 +1636,8 @@ contains
     if (moist_physics) then
       call diag_phys_writeout_moist(state, pbuf, p_surf_t)
     end if
+
+    call chem_surfvals_diag_writeout(state%lchnk, state%ncol)
 
   end subroutine diag_phys_writeout
 

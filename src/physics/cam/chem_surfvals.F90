@@ -21,19 +21,21 @@ module chem_surfvals
    implicit none
    private                   ! Make default access private
 
+   ! Public interfaces
    public :: chem_surfvals_readnl  ! read namelist input
    public :: chem_surfvals_init    ! initialize options that depend on namelist input
-   public :: chem_surfvals_set     ! set ghg surface values when scenario_ghg is 'RAMPED' or 'CHEM_LBC_FILE'
-   public :: chem_surfvals_get     ! return surface values for: CO2VMR, CO2MMR, CH4VMR
-                                   ! N2OVMR, F11VMR, and F12VMR
+   public :: chem_surfvals_set     ! set GHG surface values when scenario_ghg is 'RAMPED' or 'CHEM_LBC_FILE'
+   public :: chem_surfvals_get     ! return GHG surface values
    public :: chem_surfvals_co2_rad ! return CO2 for radiation
-
-   public :: flbc_list
+   public :: chem_surfvals_diag_writeout ! Output diagnostic values
 
    interface chem_surfvals_get
       module procedure chem_surfvals_get_scalar
       module procedure chem_surfvals_get_chunk
    end interface chem_surfvals_get
+
+   ! Public data
+   public, protected :: flbc_list
 
 ! Private module data
 
@@ -263,6 +265,7 @@ subroutine chem_surfvals_init()
    use infnan,       only: posinf, assignment(=)
    use mo_flbc,      only: flbc_inti
    use phys_control, only: use_simple_phys
+   use cam_history,  only: addfld
 
    !---------------------------Local variables-----------------------------
    integer :: yr, mon, day, ncsec
@@ -339,6 +342,23 @@ subroutine chem_surfvals_init()
       write(iulog,*) '  f12 volume mixing ratio = ', f12vmr
       write(iulog,*) ' '
    end if
+
+   ! Define diagnostics for FLBC fields (here because that is where CAM gets
+   ! the values)
+   call addfld ('ch4vmr',    horiz_only, 'A', 'mol mol-1', &
+        'Mole fraction of CH4 set at model LBC')
+   call addfld ('f11vmr',    horiz_only, 'A', 'mol mol-1', &
+        'Mole fraction of CFC11 set at model LBC')
+   call addfld ('f12vmr',    horiz_only, 'A', 'mol mol-1', &
+        'Mole fraction of CFC12 set at model LBC')
+   call addfld ('n2ovmr',    horiz_only, 'A', 'mol mol-1', &
+        'Mole fraction of N2O set at model LBC')
+   call addfld ('co2vmr',    horiz_only, 'A', 'mol mol-1', &
+        'Mole fraction of CO2 set at model LBC (only valid in concentration-driven runs)')
+   call addfld ('co2mmr',    horiz_only, 'A', 'kg kg-1',   &
+        'Mass mixing ratio of CO2 set at model LBC (only valid in concentration-driven runs)')
+   call addfld ('co2vmrrad', horiz_only, 'A', 'mol mol-1', &
+        'Mole fraction of CO2 as seen by the radiation')
 
 end subroutine chem_surfvals_init
 
@@ -781,6 +801,32 @@ subroutine chem_surfvals_set_co2()
 
 end subroutine chem_surfvals_set_co2
 
+subroutine chem_surfvals_diag_writeout(lchnk, ncol)
+   use cam_history, only: outfld
+
+   ! Dummy arguments
+   integer, intent(in) :: lchnk
+   integer, intent(in) :: ncol
+
+   ! Local variable
+   real(r8), tmpfld(ncol)
+
+   ! Output diagnostics for FLBC fields
+   tmpfld(:) = chem_surfvals_get('CH4VMR', lchnk, ncol)
+   call outfld ('ch4vmr', tmpfld, ncol, lchnk)
+   tmpfld(:) = chem_surfvals_get('F11VMR', lchnk, ncol)
+   call outfld ('f11vmr', tmpfld, ncol, lchnk)
+   tmpfld(:) = chem_surfvals_get('F12VMR', lchnk, ncol)
+   call outfld ('f12vmr', tmpfld, ncol, lchnk)
+   tmpfld(:) = chem_surfvals_get('N2OVMR', lchnk, ncol)
+   call outfld ('n2ovmr', tmpfld, ncol, lchnk)
+   tmpfld(:) = chem_surfvals_get('CO2VMR', lchnk, ncol)
+   call outfld ('co2vmr', tmpfld, ncol, lchnk)
+   tmpfld(:) = chem_surfvals_get('CO2MMR', lchnk, ncol)
+   call outfld ('co2mmr', tmpfld, ncol, lchnk)
+   tmpfld(:) = chem_surfvals_co2_rad(lchnk, ncol, vmr_in=.true.)
+   call outfld ('co2vmrrad', tmpfld, ncol, lchnk)
+end subroutine chem_surfvals_diag_writeout
 
 !=============================================================================
 
