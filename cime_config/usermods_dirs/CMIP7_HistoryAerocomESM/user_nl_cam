@@ -35,12 +35,13 @@ fincl1 = 'A550_BC:A', 'A550_DU:A', 'A550_POM:A', 'A550_SO4:A', 'A550_SS:A',
  'TREFMNAV:A', 'TREFMXAV:A', 'TROP_P:A', 'TROP_T:A', 'TROP_Z:A', 'TS:A',
  'TotEnerTr:A', 'U10:A', 'U10WITHGUSTS:X', 'U:A', 'V:A', 'WD_A_SO2:A', 'Z3:A',
  'cb_BC:A', 'cb_DUST:A', 'cb_OM:A', 'cb_SALT:A', 'cb_SULFATE:A',
- 'cb_ozone_c:A', 'dry_BC:A', 'dry_DUST:A', 'dry_OM:A', 'dry_SALT:A',
- 'dry_SULFATE:A', 'emipomocean:A', 'emis_BC:A', 'emis_DMS:A', 'emis_DUST:A',
- 'emis_OM:A', 'emis_SALT:A', 'emis_SO2:A', 'emis_SULFATE:A', 'emis_isoprene:A',
- 'emis_monoterp:A', 'isoprene:A', 'mmr_BC:A', 'mmr_DUST:A', 'mmr_OM:A',
- 'mmr_SALT:A', 'mmr_SULFATE:A', 'ozone:A', 'uIVT:A', 'vIVT:A', 'wet_BC:A',
- 'wet_DUST:A', 'wet_OM:A', 'wet_SALT:A', 'wet_SULFATE:A'
+ 'cb_ozone_c:A', 'ch4vmr:A', 'co2vmr:A', 'dry_BC:A', 'dry_DUST:A', 'dry_OM:A',
+ 'dry_SALT:A', 'dry_SULFATE:A', 'emipomocean:A', 'emis_BC:A', 'emis_DMS:A',
+ 'emis_DUST:A', 'emis_OM:A', 'emis_SALT:A', 'emis_SO2:A', 'emis_SULFATE:A',
+ 'emis_isoprene:A', 'emis_monoterp:A', 'f11vmr:A', 'f12vmr:A', 'isoprene:A',
+ 'mmr_BC:A', 'mmr_DUST:A', 'mmr_OM:A', 'mmr_SALT:A', 'mmr_SULFATE:A',
+ 'n2ovmr:A', 'ozone:A', 'uIVT:A', 'vIVT:A', 'wet_BC:A', 'wet_DUST:A',
+ 'wet_OM:A', 'wet_SALT:A', 'wet_SULFATE:A'
 
 ! daily output
 nhtfrq(2) = -24

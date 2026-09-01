@@ -52,8 +52,7 @@ _HIST_TITLES =  {'mon':'! monthly output', 'day':'! daily output',
                  'subhr':'! timestep output'}
 
 # Special CAM diagnostics hardcoded in cam_history.F90 but not in fixed list
-_CAM_FIXED_FIELDS = {'co2vmr', 'ch4vmr', 'n2ovmr', 'f11vmr', 'f12vmr',
-                     'sol_tsi', 'ndcur', 'nscur', 'nsteph', 'area'}
+_CAM_FIXED_FIELDS = {'sol_tsi', 'ndcur', 'nscur', 'nsteph', 'area'}
 
 # Relative paths
 __MYDIR = os.path.abspath(os.path.dirname(__file__))
@@ -387,18 +386,18 @@ def split_fields_by_tape(freq, fields):
     title_entry = _HIST_TITLES[freq]
     if not isinstance(tape_entry, dict):
         return [(tape_entry, title_entry, fields)] if fields else []
-    
+
     groups = {group_key: set() for group_key in tape_entry}
     for entry in fields:
         flag = entry.split(':')[-1]
         group_key = 'I' if (flag == 'I') and ('I' in tape_entry) else 'default'
         groups[group_key].add(entry)
     tape_list = []
-    
+
     for group_key, index in sorted(tape_entry.items(), key=lambda kv: kv[1]):
         if groups[group_key]:
             tape_list.append((index, title_entry[group_key], groups[group_key]))
-    
+
     return tape_list
 
 def combine_data_requests(dict1, dict2):

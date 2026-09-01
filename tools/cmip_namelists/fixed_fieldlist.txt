@@ -822,3 +822,4 @@ ZMMTV                    ZMMU                     ZMNTPRPD
 ZMNTSNPD                 ZMUPGD                   ZMUPGU
 ZMVPGD                   ZMVPGU                   ZT_CLUBB
 ZZ
+ch4vmr co2vmr f11vmr f12vmr n2ovmr
