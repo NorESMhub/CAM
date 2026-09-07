@@ -115,6 +115,20 @@
        The name of the specific experiment (e.g., amip, piClim-X (or
        AerChemMIP)) should appear in the compset alias (shortname).
   -->
+  <compset>
+    <alias>NFAmip</alias>
+    <lname>AMIP_CAM70%LT%NORESM%GHGCAMoslo_CLM60%FATES-NCFB%NORESM_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV_SESP</lname>
+  </compset>
+
+  <!-- 1pctCO2 and 4XCO2 -->
+  <compset>
+    <alias>NF1850_anth</alias>
+    <lname>1850_CAM70%LT%NORESM%GHGCAMoslo%anth_CLM60%FATES-NCFB%NORESM_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV_SESP</lname>
+  </compset>
+  <compset>
+    <alias>NF1850_4xCO2</alias>
+    <lname>1850_CAM70%LT%NORESM%GHGCAMoslo%4XCO2_CLM60%FATES-NCFB%NORESM_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV_SESP</lname>
+  </compset>
 
   <!-- ********************************* -->
   <!-- Hybrid NorESM / CAM-chem compsets -->
