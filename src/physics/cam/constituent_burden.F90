@@ -8,7 +8,8 @@ module constituent_burden
 ! 2005-12-21  K. Lindsay       Original version
 !-----------------------------------------------------------------------------------------
 
-  use constituents, only: pcnst
+  use constituents,         only: pcnst
+  use cam_history_support,  only: fieldname_len
 
   implicit none
 
@@ -19,7 +20,8 @@ module constituent_burden
 
   private
 
-  character(len=18) :: burdennam(pcnst)     ! name of burden history variables
+  character(len=fieldname_len) :: burdennam(pcnst)     ! name of burden history variables
+  character(len=fieldname_len) :: burdennam_inst(pcnst) ! name of instantaneous burden history variables
 
   save
 
@@ -37,9 +39,13 @@ subroutine constituent_burden_init
   integer :: m
 
   do m = 2, pcnst
-    burdennam(m) = 'TM'//cnst_name(m)
+    burdennam(m) = 'TM'//trim(cnst_name(m))
+    burdennam_inst(m) = 'TM'//trim(cnst_name(m))//'_INST'
+    
     call addfld (burdennam(m), horiz_only, 'A', 'kg/m2', &
                  trim(cnst_name(m)) // ' column burden')
+    call addfld (burdennam_inst(m), horiz_only, 'I', 'kg/m2', &
+                  trim(cnst_name(m)) // ' column burden (instantaneous)')
   end do
 
 end subroutine constituent_burden_init
@@ -71,13 +77,15 @@ subroutine constituent_burden_comp(state)
   ncol  = state%ncol
 
   do m = 2, pcnst
-     if (.not. hist_fld_active(burdennam(m))) cycle
+     if (.not. hist_fld_active(burdennam(m)) .and. &
+         .not. hist_fld_active(burdennam_inst(m))) cycle
      if (cnst_type(m) .eq. 'dry') then
         ftem(:ncol) = sum(state%q(:ncol,:,m) * state%pdeldry(:ncol,:), dim=2) * rga
      else
         ftem(:ncol) = sum(state%q(:ncol,:,m) * state%pdel(:ncol,:), dim=2) * rga
      endif
-     call outfld (burdennam(m), ftem, pcols, lchnk)
+     if (hist_fld_active(burdennam(m))) call outfld (burdennam(m), ftem, pcols, lchnk)
+     if (hist_fld_active(burdennam_inst(m))) call outfld (burdennam_inst(m), ftem, pcols, lchnk)
   end do
 
 end subroutine constituent_burden_comp
