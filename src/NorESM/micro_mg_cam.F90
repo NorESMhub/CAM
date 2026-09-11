@@ -87,6 +87,7 @@ use cldfrc2m,       only: rhmini=>rhmini_const
 
 use cam_history,    only: addfld, add_default, outfld, horiz_only
 
+
 use cam_logfile,    only: iulog
 use cam_abortutils, only: endrun
 use scamMod,        only: single_column
@@ -258,7 +259,7 @@ subroutine micro_mg_cam_readnl(nlfile)
   use units,                 only: getunit, freeunit
   use spmd_utils,            only: mpicom, mstrid=>masterprocid, mpi_integer, &
                                    mpi_real8, mpi_logical, mpi_character
-  use module_random_forests, only: sec_ice_readnl
+  use module_random_forests, only: sec_ice_readnl, wbf_readnl
 
   character(len=*), intent(in) :: nlfile  ! filepath for file containing namelist input
 
@@ -389,6 +390,8 @@ subroutine micro_mg_cam_readnl(nlfile)
 
   call sec_ice_readnl(nlfile)
 
+  call wbf_readnl(nlfile, micro_mg_version)
+
 contains
 
   subroutine bad_version_endrun
@@ -407,7 +410,6 @@ subroutine micro_mg_cam_register
 
    ! Register microphysics constituents and fields in the physics buffer.
    !-----------------------------------------------------------------------
-
    logical :: prog_modal_aero
    logical :: use_subcol_microp  ! If true, then are using subcolumns in microphysics
 
@@ -643,7 +645,7 @@ subroutine micro_mg_cam_init(pbuf2d)
    use micro_mg_utils, only: micro_mg_utils_init
    use micro_mg1_0, only: micro_mg_init1_0 => micro_mg_init
    use micro_mg2_0, only: micro_mg_init2_0 => micro_mg_init
-
+   use module_random_forests, only: rafwbf_on
    !-----------------------------------------------------------------------
    !
    ! Initialization for MG microphysics
@@ -965,6 +967,9 @@ subroutine micro_mg_cam_init(pbuf2d)
    if (micro_mg_version > 1) then
       call addfld('UMR', (/ 'lev' /), 'A',   'm/s', 'Mass-weighted rain  fallspeed'              )
       call addfld('UMS', (/ 'lev' /), 'A',   'm/s', 'Mass-weighted snow fallspeed'               )
+      if (rafwbf_on) then
+          call addfld ('BERGF',      (/ 'lev' /), 'A', 'unitless', 'RaFWBF factor for bergeron'  )
+      end if 
    end if
 
    ! qc limiter (only output in versions 1.5 and later)
@@ -1057,6 +1062,9 @@ subroutine micro_mg_cam_init(pbuf2d)
       call add_default ('CMEIOUT  ', budget_histfile, ' ')
       call add_default ('BERGSO   ', budget_histfile, ' ')
       call add_default ('BERGO    ', budget_histfile, ' ')
+      if (rafwbf_on) then
+        call add_default ('BERGF  ', budget_histfile, ' ')
+      end if
 !AL
       call add_default ('NNUCCCO  ', budget_histfile, ' ')
       call add_default ('NNUCCTO  ', budget_histfile, ' ')
@@ -1115,6 +1123,7 @@ subroutine micro_mg_cam_init(pbuf2d)
          call add_default(bpcnst   (ixrain), budget_histfile, ' ')
          call add_default(bpcnst   (ixsnow), budget_histfile, ' ')
       end if
+
 
    end if
 
@@ -1193,14 +1202,16 @@ end subroutine micro_mg_cam_init
 
 !===============================================================================
 
-subroutine micro_mg_cam_tend(state, ptend, dtime, pbuf)
+subroutine micro_mg_cam_tend(state, ptend, dtime, tskin, pbuf)
 
    use micro_mg1_0, only: micro_mg_get_cols1_0 => micro_mg_get_cols
    use micro_mg2_0, only: micro_mg_get_cols2_0 => micro_mg_get_cols
+   use module_random_forests, only: rafwbf_on
 
    type(physics_state),         intent(in)    :: state
    type(physics_ptend),         intent(out)   :: ptend
    real(r8),                    intent(in)    :: dtime
+   real(r8),                    intent(in)    :: tskin(:)
    type(physics_buffer_desc),   pointer       :: pbuf(:)
 
    ! Local variables
@@ -1221,11 +1232,11 @@ subroutine micro_mg_cam_tend(state, ptend, dtime, pbuf)
            mgncol, mgcols)
    end select
 
-   call micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nlev)
+   call micro_mg_cam_tend_pack(state, ptend, dtime, tskin, pbuf, mgncol, mgcols, nlev)
 
 end subroutine micro_mg_cam_tend
 
-subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nlev)
+subroutine micro_mg_cam_tend_pack(state, ptend, dtime,tskin, pbuf, mgncol, mgcols, nlev)
 
    use micro_mg_utils, only: size_dist_param_basic, size_dist_param_liq, &
         mg_liq_props, mg_ice_props, avg_diameter, rhoi, rhosn, rhow, rhows, &
@@ -1240,10 +1251,12 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
    use subcol,          only: subcol_field_avg
    use tropopause,      only: tropopause_find, TROP_ALG_CPP, TROP_ALG_NONE, NOTFOUND
    use wv_saturation,   only: qsat
+   use module_random_forests, only: rafwbf_on
 
    type(physics_state),         intent(in)    :: state
    type(physics_ptend),         intent(out)   :: ptend
    real(r8),                    intent(in)    :: dtime
+   real(r8),                    intent(in)    :: tskin(pcols)
    type(physics_buffer_desc),   pointer       :: pbuf(:)
 
    integer, intent(in) :: nlev
@@ -1285,6 +1298,7 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
    real(r8), pointer :: mu(:,:)           ! Size distribution shape parameter for radiation
    real(r8), pointer :: lambdac(:,:)      ! Size distribution slope parameter for radiation
    real(r8), pointer :: des(:,:)          ! Snow effective diameter (m)
+   real(r8), pointer :: pblh(:)           ! Planetary boundary layer height (m) for RaFWBF
 
    real(r8) :: rho(state%psetcols,pver)
    real(r8) :: cldmax(state%psetcols,pver)
@@ -1336,6 +1350,7 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
    real(r8), target :: psacwso(state%psetcols,pver)
    real(r8), target :: bergso(state%psetcols,pver)
    real(r8), target :: bergo(state%psetcols,pver)
+   real(r8), target :: bergf(state%psetcols,pver)
    real(r8), target :: melto(state%psetcols,pver)
    real(r8), target :: homoo(state%psetcols,pver)
    real(r8), target :: qcreso(state%psetcols,pver)
@@ -1434,6 +1449,8 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
 
    real(r8), allocatable :: packed_rndst(:,:,:)
    real(r8), allocatable :: packed_nacon(:,:,:)
+   real(r8) :: packed_tsk(mgncol)
+   real(r8) :: packed_pblh(mgncol)
 
    ! Optional outputs.
    real(r8) :: packed_tnd_qsnow(mgncol,nlev)
@@ -1495,6 +1512,7 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
    real(r8), target :: packed_psacws(mgncol,nlev)
    real(r8), target :: packed_bergs(mgncol,nlev)
    real(r8), target :: packed_berg(mgncol,nlev)
+   real(r8), target :: packed_bergf(mgncol,nlev)
    real(r8), target :: packed_melt(mgncol,nlev)
    real(r8), target :: packed_homo(mgncol,nlev)
    real(r8), target :: packed_qcres(mgncol,nlev)
@@ -1751,6 +1769,7 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
    real(r8) :: mnuccco_grid(pcols,pver)
    real(r8) :: mnuccto_grid(pcols,pver)
    real(r8) :: bergo_grid(pcols,pver)
+   real(r8) :: bergf_grid(pcols,pver)
    real(r8) :: homoo_grid(pcols,pver)
    real(r8) :: msacwio_grid(pcols,pver)
    real(r8) :: psacwso_grid(pcols,pver)
@@ -1816,6 +1835,7 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
 
    logical :: use_subcol_microp
    integer :: col_type ! Flag to store whether accessing grid or sub-columns in pbuf_get_field
+   integer :: lpblh_idx ! local version of pblh index
 
    character(128) :: errstring   ! return status (non-blank for error return)
 
@@ -1853,6 +1873,8 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
    call pbuf_get_field(pbuf, relvar_idx,      relvar,      col_type=col_type, copy_if_needed=use_subcol_microp)
    call pbuf_get_field(pbuf, accre_enhan_idx, accre_enhan, col_type=col_type, copy_if_needed=use_subcol_microp)
    call pbuf_get_field(pbuf, cmeliq_idx,      cmeliq,      col_type=col_type, copy_if_needed=use_subcol_microp)
+   lpblh_idx = pbuf_get_index('pblh')
+   call pbuf_get_field(pbuf, lpblh_idx,       pblh,        col_type=col_type, copy_if_needed=use_subcol_microp)
 
    call pbuf_get_field(pbuf, cld_idx,         cld,     start=(/1,1,itim_old/), kount=(/psetcols,pver,1/), &
         col_type=col_type, copy_if_needed=use_subcol_microp)
@@ -2126,6 +2148,9 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
    call post_proc%add_field(p(psacwso), p(packed_psacws))
    call post_proc%add_field(p(bergso), p(packed_bergs))
    call post_proc%add_field(p(bergo), p(packed_berg))
+   if (rafwbf_on) then
+      call post_proc%add_field(p(bergf), p(packed_bergf), fillvalue=1.0_r8)
+   endif
    call post_proc%add_field(p(melto), p(packed_melt))
    call post_proc%add_field(p(homoo), p(packed_homo))
    call post_proc%add_field(p(qcreso), p(packed_qcres))
@@ -2257,6 +2282,11 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
       packed_frzdep = packer%pack(frzdep)
    end if
 
+   if (micro_mg_version > 1) then
+      packed_tsk = packer%pack(tskin)
+      packed_pblh = packer%pack(pblh)
+   end if
+
    do it = 1, num_steps
 
       ! Pack input variables that are updated during substeps.
@@ -2266,6 +2296,7 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
       packed_nc = packer%pack(state_loc%q(:,:,ixnumliq))
       packed_qi = packer%pack(state_loc%q(:,:,ixcldice))
       packed_ni = packer%pack(state_loc%q(:,:,ixnumice))
+
       if (micro_mg_version > 1) then
          packed_qr = packer%pack(state_loc%q(:,:,ixrain))
          packed_nr = packer%pack(state_loc%q(:,:,ixnumrain))
@@ -2321,6 +2352,7 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
             call micro_mg_tend2_0( &
                  mgncol,         nlev,           dtime/num_steps,&
                  packed_t,               packed_q,               &
+                 packed_tsk,             packed_pblh,            &
                  packed_qc,              packed_qi,              &
                  packed_nc,              packed_ni,              &
                  packed_qr,              packed_qs,              &
@@ -2356,7 +2388,7 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
                  packed_pra,             packed_prc,             &
                  packed_mnuccc,  packed_mnucct,  packed_msacwi,  &
                  packed_psacws,  packed_bergs,   packed_berg,    &
-                 packed_melt,            packed_homo,            &
+                 packed_bergf, packed_melt,            packed_homo,            &
                  packed_qcres,   packed_prci,    packed_prai,    &
                  packed_qires,   packed_mnuccr,  packed_pracs,   &
                  packed_meltsdt, packed_frzrdt,  packed_mnuccd,  &
@@ -2616,6 +2648,9 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
       call subcol_field_avg(mnuccco,   ngrdcol, lchnk, mnuccco_grid)
       call subcol_field_avg(mnuccto,   ngrdcol, lchnk, mnuccto_grid)
       call subcol_field_avg(bergo,     ngrdcol, lchnk, bergo_grid)
+      if (rafwbf_on) then
+         call subcol_field_avg(bergf,  ngrdcol, lchnk, bergf_grid)
+      end if
       call subcol_field_avg(homoo,     ngrdcol, lchnk, homoo_grid)
       call subcol_field_avg(msacwio,   ngrdcol, lchnk, msacwio_grid)
       call subcol_field_avg(psacwso,   ngrdcol, lchnk, psacwso_grid)
@@ -2682,6 +2717,9 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
       mnuccco_grid    = mnuccco
       mnuccto_grid    = mnuccto
       bergo_grid      = bergo
+      if (rafwbf_on) then
+        bergf_grid      = bergf
+      end if
       homoo_grid      = homoo
       msacwio_grid    = msacwio
       psacwso_grid    = psacwso
@@ -3331,6 +3369,9 @@ subroutine micro_mg_cam_tend_pack(state, ptend, dtime, pbuf, mgncol, mgcols, nle
    call outfld('PSACWSO',     psacwso_grid,     pcols, lchnk)
    call outfld('BERGSO',      bergso_grid,      pcols, lchnk)
    call outfld('BERGO',       bergo_grid,       pcols, lchnk)
+   if (rafwbf_on) then
+      call outfld('BERGF',    bergf_grid,       pcols, lchnk)
+   end if
    call outfld('MELTO',       melto_grid,       pcols, lchnk)
    call outfld('HOMOO',       homoo_grid,       pcols, lchnk)
    call outfld('PRCIO',       prcio_grid,       pcols, lchnk)

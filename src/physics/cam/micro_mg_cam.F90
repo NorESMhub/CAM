@@ -1085,7 +1085,7 @@ end subroutine micro_mg_cam_init
 
 !===============================================================================
 
-subroutine micro_mg_cam_tend(state, ptend, dtime, pbuf)
+subroutine micro_mg_cam_tend(state, ptend, dtime, tskin, pbuf)
 
    use micro_mg1_0, only: micro_mg_get_cols1_0 => micro_mg_get_cols
    use micro_mg2_0, only: micro_mg_get_cols2_0 => micro_mg_get_cols
@@ -1093,6 +1093,8 @@ subroutine micro_mg_cam_tend(state, ptend, dtime, pbuf)
    type(physics_state),         intent(in)    :: state
    type(physics_ptend),         intent(out)   :: ptend
    real(r8),                    intent(in)    :: dtime
+   real(r8),                    intent(in)    :: tskin(:) ! dummy here, only used in NorESM
+
    type(physics_buffer_desc),   pointer       :: pbuf(:)
 
    ! Local variables
