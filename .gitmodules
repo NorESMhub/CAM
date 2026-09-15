@@ -178,14 +178,14 @@
 [submodule "ccs_config"]
     path = ccs_config
     url = https://github.com/NorESMhub/ccs_config_noresm.git
-    fxtag = ccs_config_noresm0.0.72
+    fxtag = ccs_config_noresm0.0.75
     fxrequired = ToplevelRequired
     fxDONOTUSEurl = https://github.com/NorESMhub/ccs_config_noresm.git
 
 [submodule "cime"]
     path = cime
     url = https://github.com/NorESMhub/cime.git
-    fxtag = cime6.1.173_noresm_v0
+    fxtag = cime6.5.12_noresm_v1
     fxrequired = ToplevelRequired
     fxDONOTUSEurl = https://github.com/NorESMhub/cime.git
 
@@ -228,7 +228,7 @@
 [submodule "cmeps"]
     path = components/cmeps
     url = https://github.com/NorESMhub/CMEPS.git
-    fxtag = cmeps1.1.57_noresm_v0
+    fxtag = cmeps1.1.57_noresm_v5
     fxrequired = ToplevelRequired
     fxDONOTUSEurl = https://github.com/NorESMhub/CMEPS.git
 
