@@ -333,6 +333,8 @@ def parse_spreadsheet(csvfile, model_names=["atmos", "aerosol", "atmosChem"]):
     <model_names> is an optional list of modelling (modeling) realms. The
     default is the list of CAM realms."""
     cmip_dict = {}
+    errors = ""
+    sep = ""
     with open(csvfile, mode='r', newline="") as infile:
         reader = csv.reader(infile)
         headers = next(reader)
@@ -377,8 +379,6 @@ def parse_spreadsheet(csvfile, model_names=["atmos", "aerosol", "atmosChem"]):
                 if row[freq_col] not in cmip_dict:
                     cmip_dict[row[freq_col]] = set()
                 # end if
-#                names = [x.strip() for x in re.split(r'[+/,*()-]', row[name_col])
-#                         if x.strip() and (not is_number(x.strip()))]
                 try:
                     if row[name_col]:
                         names = get_root_terms(row[name_col])
@@ -386,7 +386,8 @@ def parse_spreadsheet(csvfile, model_names=["atmos", "aerosol", "atmosChem"]):
                         names = []
                     # end if
                 except SyntaxError as sexp:
-                    raise ValueError(f"SyntaxError on row {rownum}: '{row[name_col]}'")
+                    errors += f"{sep}SyntaxError on row {rownum}: '{row[name_col]}'"
+                    sep = "\n"
                 # end try
                 # What history processing flag should we add?
                 hist_flag = get_hist_proc_flag(row, avg_col, row[freq_col], rownum)
@@ -399,6 +400,9 @@ def parse_spreadsheet(csvfile, model_names=["atmos", "aerosol", "atmosChem"]):
             # end if
         # end for
     # end with
+    if errors:
+        print(f"The following syntax errors were found in {csvfile}\n{errors}")
+    # end if
     return cmip_dict
 
 def split_fields_by_tape(freq, fields):
@@ -470,6 +474,19 @@ def check_for_missing_fieldnames(fixedset, data_request):
     # This is because they do not have an associated addfld/outfld in CAM.
     missing -= _CAM_FIXED_FIELDS
     return missing
+
+def generate_shell_commands(usermod_dir, do_cosp=False):
+    """Generate a shell_commands file in <usermod_dir> if at least one of the
+    optional inputs is True."""
+    if os.path.isdir(usermod_dir) and do_cosp:
+        with open(os.path.join(usermod_dir, "shell_commands"), 'w') as sc_file:
+            if (do_cosp):
+                sc_file.write('if [[ $CAM_CONFIG_OPTS != *"-cosp"* ]]; then')
+                sc_file.write('    ./xmlchange -append CAM_CONFIG_OPTS="-cosp"')
+                sc_file.write("fi")
+            # end if
+        # end with
+    # end if
 
 def generate_namelist_entries(data_request, usermod_config, fixed_fieldnames,
                               cosp_fieldnames, aerocom_fieldnames,

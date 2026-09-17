@@ -13,7 +13,7 @@ use physics_buffer,  only: physics_buffer_desc, pbuf_add_field, dtype_r8
 use physics_buffer,  only: dyn_time_lvls, pbuf_get_field, pbuf_get_index, pbuf_old_tim_idx
 
 use cam_history,     only: outfld, write_inithist, hist_fld_active, inithist_all, write_camiop
-use cam_history_support, only: max_fieldname_len
+use cam_history_support, only: max_fieldname_len, fillvalue
 use constituents,    only: pcnst, cnst_name, cnst_longname, cnst_cam_outfld
 use constituents,    only: ptendnam, apcnst, bpcnst, cnst_get_ind
 use dycore,          only: dycore_is
@@ -119,6 +119,7 @@ integer  ::      snow_pcw_idx = 0
 integer :: tpert_idx=-1, qpert_idx=-1, pblh_idx=-1
 
 integer :: trefmxav_idx = -1, trefmnav_idx = -1
+integer :: precipday_idx = -1
 
 contains
 
@@ -173,6 +174,8 @@ contains
     ! Request physics buffer space for fields that persist across timesteps.
     call pbuf_add_field('TREFMXAV', 'global', dtype_r8, (/pcols/), trefmxav_idx)
     call pbuf_add_field('TREFMNAV', 'global', dtype_r8, (/pcols/), trefmnav_idx)
+    ! Total precip measured each day
+    call pbuf_add_field('PRECIPDAY', 'global', dtype_r8, (/pcols/), precipday_idx)
   end subroutine diag_register_moist
 
   subroutine diag_register()
@@ -582,6 +585,13 @@ contains
     call addfld('a2x_NOYDEP',  horiz_only, 'A',  'kgN/m2/s', 'NOy Deposition Flux')
     call addfld('a2x_NHXDEP',  horiz_only, 'A',  'kgN/m2/s', 'NHx Deposition Flux')
 
+    ! Diagnostics for downscaling
+    call addfld('WETDAY_FREQUENCY', horiz_only, 'A', '1',                     &
+         'Fraction of wet days per month (> 1 mm / day)')
+    call addfld('WETDAY_MEAN_PRECIP', horiz_only, 'A', 'mm/m2',               &
+         'Monthly average of total precipitation only counting wet days',     &
+         flag_xyfill=.true., fill_value=fillvalue)
+
     ! defaults
     if (history_amwg) then
       call add_default (cnst_name(1), 1, ' ')
@@ -731,6 +741,7 @@ contains
     if (is_first_step()) then
       call pbuf_set_field(pbuf2d, trefmxav_idx, -1.0e36_r8)
       call pbuf_set_field(pbuf2d, trefmnav_idx,  1.0e36_r8)
+      call pbuf_set_field(pbuf2d, precipday_idx, 0.0_r8)
     end if
 
   end subroutine diag_init_moist
@@ -1696,6 +1707,7 @@ contains
     ! Output diagnostics associated with all convective processes.
     !
     !-----------------------------------------------------------------------
+    use time_manager,  only: is_end_curr_day
     use tidal_diag,    only: get_tidal_coeffs
 
     ! Arguments:
@@ -1713,6 +1725,7 @@ contains
     real(r8), pointer :: snow_sed(:)                ! snow from ZM   convection
     real(r8), pointer :: prec_pcw(:)                ! total precipitation   from Hack convection
     real(r8), pointer :: snow_pcw(:)                ! snow from Hack   convection
+    real(r8), pointer :: daily_precip(:)            ! Total precip in 1 day
 
     ! Local variables:
 
@@ -1720,12 +1733,13 @@ contains
 
     real(r8) :: rtdt
 
-    real(r8):: precc(pcols)                ! convective precip rate
-    real(r8):: precl(pcols)                ! stratiform precip rate
-    real(r8):: snowc(pcols)                ! convective snow rate
-    real(r8):: snowl(pcols)                ! stratiform snow rate
-    real(r8):: prect(pcols)                ! total (conv+large scale) precip rate
-    real(r8) :: dcoef(6)                   ! for tidal component of T tend
+    real(r8) :: precc(pcols)  ! convective precip rate
+    real(r8) :: precl(pcols)  ! stratiform precip rate
+    real(r8) :: snowc(pcols)  ! convective snow rate
+    real(r8) :: snowl(pcols)  ! stratiform snow rate
+    real(r8) :: prect(pcols)  ! total (conv+large scale) precip rate
+    real(r8) :: wetday(pcols) ! Total precip > 1mm?
+    real(r8) :: dcoef(6)      ! for tidal component of T tend
 
     lchnk = state%lchnk
     ncol  = state%ncol
@@ -1828,6 +1842,31 @@ contains
 
       call outfld('PRECLav ', precl, pcols, lchnk )
       call outfld('PRECCav ', precc, pcols, lchnk )
+      !
+      ! Wet days calculations
+      !
+      if (precipday_idx > 0) then
+         call pbuf_get_field(pbuf, precipday_idx, daily_precip)
+      else
+         nullify(daily_precip)
+      end if
+      if (associated(daily_precip)) then
+         ! Convert to mm
+         daily_precip(:ncol) = daily_precip(:ncol) + prect(:ncol)*ztodt*1.0e3_r8
+         if (is_end_curr_day()) then
+            do i = 1, ncol
+               if (daily_precip(i) > 1.0_r8) then
+                  wetday(i) = 1.0_r8
+               else
+                  wetday(i) = 0.0_r8
+                  daily_precip(i) = fillvalue
+               end if
+            end do
+            call outfld('WETDAY_FREQUENCY', wetday(:ncol), ncol, lchnk)
+            call outfld('WETDAY_MEAN_PRECIP', daily_precip(:ncol), ncol, lchnk)
+            daily_precip(:) = 0.0_r8
+         end if
+      end if
 
       if (write_camiop) call outfld('Prec   ' , prect, pcols, lchnk )
 
@@ -1956,7 +1995,7 @@ contains
         call outfld('TREFMNAV', trefmnav,pcols,   lchnk     )
         trefmxav(:ncol) = -1.0e36_r8
         trefmnav(:ncol) =  1.0e36_r8
-      endif
+      end if
 
       call outfld('TBOT',     cam_out%tbot,     pcols, lchnk)
       call outfld('TS',       cam_in%ts,        pcols, lchnk)
