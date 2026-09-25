@@ -3633,7 +3633,7 @@ end subroutine print_active_fldlst
     !
     integer               :: t, fld        ! tape, field indices
 
-    character*1           :: avgflag       ! averaging flag
+    character(len=1)      :: avgflag       ! averaging flag
 
     type (active_entry), pointer :: otape(:) ! Local history_tape pointer
     real(r8),pointer      :: hbuf(:,:)     ! history buffer
@@ -6880,7 +6880,7 @@ end subroutine print_active_fldlst
     !
     ! Local variables
     !
-    character*(max_fieldname_len) :: fname_loc  ! max-char equivalent of fname
+    character(len=max_fieldname_len) :: fname_loc  ! max-char equivalent of fname
     integer :: ff                  ! masterlist index pointer
     !-----------------------------------------------------------------------
 

@@ -40,7 +40,7 @@ subroutine constituent_burden_init
    character(len=fieldname_len) :: burdennam_inst
 
    do mind = 2, pcnst
-      burdennam = 'TM'//trim(cnst_name(mind))
+      burdennam(mind) = 'TM'//trim(cnst_name(mind))
       call addfld(burdennam(mind), horiz_only, 'A', 'kg/m2', &
            trim(cnst_name(mind)) // ' column burden')
    end do
