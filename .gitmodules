@@ -85,7 +85,7 @@
 [submodule "oslo_aero"]
     path = src/chemistry/oslo_aero
     url = https://github.com/NorESMhub/OSLO_AERO
-    fxtag = oslo_aero_3_0a018
+    fxtag = oslo_aero_3_0a020
     fxrequired = AlwaysRequired
     fxDONOTUSEurl = https://github.com/NorESMhub/OSLO_AERO.git
 
