@@ -20,7 +20,7 @@
 
 <!-- ozone data :  -->
 <prescribed_ozone_datapath>   'atm/cam/ozone_strataero'  </prescribed_ozone_datapath>
-<prescribed_ozone_file    >   'ozone_strataero_b.e30_alpha08o.B1850C_MTt4s.ne30_t232_wgx3.330_branch_1850climo_zm_5day_c260415.nc'         </prescribed_ozone_file>
+<prescribed_ozone_file    >   'ozone_vmro3_CMIP_FZJ-CMIP-ozone-1-2_1850-clim_1.9x2.5_version20260722.nc'         </prescribed_ozone_file>
 <prescribed_ozone_name    >   'O3'  </prescribed_ozone_name>
 <prescribed_ozone_type    >   CYCLICAL   </prescribed_ozone_type>
 <prescribed_ozone_cycle_yr>   1850    </prescribed_ozone_cycle_yr>
@@ -28,7 +28,7 @@
 <!-- Prescribed oxidants for aerosol chemistry : -->
 <tracer_cnst_cycle_yr >   1850    </tracer_cnst_cycle_yr>
 <tracer_cnst_datapath >   'atm/cam/tracer_cnst'   </tracer_cnst_datapath>
-<tracer_cnst_file     >   'tracer_cnst_MTt4s_halons_3Dmonthly_1850climo330_c20260415.nc' </tracer_cnst_file>
+<tracer_cnst_file     >   'oxidants_1850_1.9x2.5_version20260912.nc' </tracer_cnst_file>
 <tracer_cnst_specifier>   'O3','OH','NO3','HO2','HALONS' </tracer_cnst_specifier>
 <tracer_cnst_type     >   'CYCLICAL'  </tracer_cnst_type>
 <tracer_cnst_filelist >   ''   </tracer_cnst_filelist>
