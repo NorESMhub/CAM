@@ -1,4 +1,4 @@
-! CAM base_esm_ghg diagnostic namelist entries
+! CAM base GHG ESM diagnostic namelist entries
 
 ! Only output fields listed in this file
 empty_htapes = .true.

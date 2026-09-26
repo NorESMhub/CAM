@@ -1,4 +1,4 @@
-! CAM aerocom_esm diagnostic namelist entries
+! CAM aerocom ESM diagnostic namelist entries
 
 ! Aerocom fields will be output for this run
 use_aerocom = .true.

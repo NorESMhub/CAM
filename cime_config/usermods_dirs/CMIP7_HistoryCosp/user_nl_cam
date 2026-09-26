@@ -74,8 +74,8 @@ fincl2 = 'CLDHGH_CAL:A', 'CLDICE:A', 'CLDLIQ:A', 'CLDLOW_CAL:A',
 ! 6-hourly average, max, or min output
 nhtfrq(3) = -6
 mfilt(3) = 20
-fincl3 = 'FLDS:A', 'PRECT:A', 'PS:A', 'PSDRY:A', 'PSL:A', 'RHREFHT:A',
- 'TREFHT:A', 'TS:A', 'U10:A', 'Z1000:A'
+fincl3 = 'FLDS:A', 'PRECT:A', 'PS:A', 'PSDRY:A', 'PSL:A', 'QREFHT:A',
+ 'RHREFHT:A', 'TREFHT:A', 'TS:A', 'U10:A', 'Z1000:A'
 
 ! 6-hourly instantaneous output
 nhtfrq(4) = -6

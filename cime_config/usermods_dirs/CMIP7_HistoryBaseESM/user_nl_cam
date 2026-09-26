@@ -1,4 +1,4 @@
-! CAM base_esm diagnostic namelist entries
+! CAM base ESM diagnostic namelist entries
 
 ! Only output fields listed in this file
 empty_htapes = .true.

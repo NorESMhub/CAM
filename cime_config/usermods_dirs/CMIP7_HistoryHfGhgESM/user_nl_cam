@@ -1,4 +1,4 @@
-! CAM HighFrequency ESM diagnostic namelist entries
+! CAM HighFrequency GHG ESM diagnostic namelist entries
 
 ! Aerocom fields will be output for this run
 use_aerocom = .true.
