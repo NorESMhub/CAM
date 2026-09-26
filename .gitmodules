@@ -185,7 +185,7 @@
 [submodule "cime"]
     path = cime
     url = https://github.com/NorESMhub/cime.git
-    fxtag = cime6.5.12_noresm_v1
+    fxtag = cime6.5.12_noresm_v2
     fxrequired = ToplevelRequired
     fxDONOTUSEurl = https://github.com/NorESMhub/cime.git
 
@@ -221,7 +221,7 @@
 [submodule "clm"]
     path = components/clm
     url = https://github.com/NorESMhub/CTSM
-    fxtag = ctsm5.4.042_noresm_v7
+    fxtag = ctsm5.4.042_noresm_v9
     fxrequired = ToplevelRequired
     fxDONOTUSEurl = https://github.com/NorESMhub/CTSM
 
