@@ -65,7 +65,7 @@ class Usermod():
     def __init__(self, name, dirname, frequencies, usermods_dir, chemistry,
                  include_cosp=False, include_aerocom=False, emission_driven=False):
         """Initialize a history usermod section"""
-        self.__name = name
+        self.__name = name.replace("_", " ")
         self.__dirname = os.path.normpath(os.path.join(usermods_dir, dirname))
         self.__chemistry = chemistry
         self.__freqset = set([x.strip() for x in frequencies.split(',')])
@@ -333,6 +333,8 @@ def parse_spreadsheet(csvfile, model_names=["atmos", "aerosol", "atmosChem"]):
     <model_names> is an optional list of modelling (modeling) realms. The
     default is the list of CAM realms."""
     cmip_dict = {}
+    errors = ""
+    sep = ""
     with open(csvfile, mode='r', newline="") as infile:
         reader = csv.reader(infile)
         headers = next(reader)
@@ -377,8 +379,6 @@ def parse_spreadsheet(csvfile, model_names=["atmos", "aerosol", "atmosChem"]):
                 if row[freq_col] not in cmip_dict:
                     cmip_dict[row[freq_col]] = set()
                 # end if
-#                names = [x.strip() for x in re.split(r'[+/,*()-]', row[name_col])
-#                         if x.strip() and (not is_number(x.strip()))]
                 try:
                     if row[name_col]:
                         names = get_root_terms(row[name_col])
@@ -386,7 +386,8 @@ def parse_spreadsheet(csvfile, model_names=["atmos", "aerosol", "atmosChem"]):
                         names = []
                     # end if
                 except SyntaxError as sexp:
-                    raise ValueError(f"SyntaxError on row {rownum}: '{row[name_col]}'")
+                    errors += f"{sep}SyntaxError on row {rownum}: '{row[name_col]}'"
+                    sep = "\n"
                 # end try
                 # What history processing flag should we add?
                 hist_flag = get_hist_proc_flag(row, avg_col, row[freq_col], rownum)
@@ -399,6 +400,9 @@ def parse_spreadsheet(csvfile, model_names=["atmos", "aerosol", "atmosChem"]):
             # end if
         # end for
     # end with
+    if errors:
+        print(f"The following syntax errors were found in {csvfile}\n{errors}")
+    # end if
     return cmip_dict
 
 def split_fields_by_tape(freq, fields):
@@ -471,14 +475,29 @@ def check_for_missing_fieldnames(fixedset, data_request):
     missing -= _CAM_FIXED_FIELDS
     return missing
 
+def generate_shell_commands(usermod_dir, do_cosp=False):
+    """Generate a shell_commands file in <usermod_dir> if at least one of the
+    optional inputs is True."""
+    if os.path.isdir(usermod_dir) and do_cosp:
+        with open(os.path.join(usermod_dir, "shell_commands"), 'w') as sc_file:
+            if (do_cosp):
+                sc_file.write('if [[ $CAM_CONFIG_OPTS != *"-cosp"* ]]; then')
+                sc_file.write('    ./xmlchange -append CAM_CONFIG_OPTS="-cosp"')
+                sc_file.write("fi")
+            # end if
+        # end with
+    # end if
+
 def generate_namelist_entries(data_request, usermod_config, fixed_fieldnames,
                               cosp_fieldnames, aerocom_fieldnames,
-                              usermods_sets, maxline):
+                              usermods_sets, usermods_dir, maxline):
     """Write the sets of namelist entries represented by <data_request> to
     the usermods files defined in <usermod_config>.
     Return a dictionary of field names not found in the CAM fixed list. The missing
     names are found and reported from each config set """
     missing_fields = {}
+    readme="Guide to CAM CMIP7 usermods output sets"
+    readme_file = os.path.join(usermods_dir, "README_CMIP7.md")
     for usermod in usermod_config.values():
         if usermods_sets and (usermod.name not in usermods_sets):
             continue
@@ -507,6 +526,8 @@ def generate_namelist_entries(data_request, usermod_config, fixed_fieldnames,
             # end if
             missing_fields[field].append(usermod.name)
         # end for
+        rpath = os.path.basename(os.path.split(usermod.namelist_file())[0])
+        readme+=f"\n- {rpath}: {usermod.name}"
         with open(usermod.namelist_file(), mode="w") as outfile:
             outfile.write(f"! CAM {usermod.name} diagnostic namelist entries\n\n")
             if usermod.include_aerocom:
@@ -554,6 +575,12 @@ def generate_namelist_entries(data_request, usermod_config, fixed_fieldnames,
             # end for
         # end with (open file)
     # end for (sections)
+    if readme and readme_file:
+        with open(readme_file, mode="w") as outfile:
+            outfile.write(f"{readme}\n")
+        # end with
+    # end if
+
     return missing_fields
 
 ###############################################################################
@@ -575,7 +602,7 @@ if __name__ == "__main__":
         data_request = combine_data_requests(cmip7_request, cam_request)
         missing = generate_namelist_entries(data_request, usermod_dict, fixed_fieldnames,
                                             cosp_fieldnames, aerocom_fieldnames,
-                                            usets, maxline)
+                                            usets, usermods, maxline)
         num_sections = len(usermod_dict)
         if not verbose:
             # Remove missing fields that are defined in at least one usermod

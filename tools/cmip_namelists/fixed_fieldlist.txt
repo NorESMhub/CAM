@@ -822,4 +822,7 @@ ZMMTV                    ZMMU                     ZMNTPRPD
 ZMNTSNPD                 ZMUPGD                   ZMUPGU
 ZMVPGD                   ZMVPGU                   ZT_CLUBB
 ZZ
-ch4vmr co2vmr f11vmr f12vmr n2ovmr
+ch4vmr                   co2vmr                   f11vmr
+f12vmr                   n2ovmr
+WETDAY_FREQUENCY         WETDAY_MEAN_PRECIP       TMCO2
+TMCO2_INST

@@ -1,4 +1,4 @@
-! CAM aerocom diagnostic namelist entries
+! CAM HighFrequency diagnostic namelist entries
 
 ! Aerocom fields will be output for this run
 use_aerocom = .true.
@@ -59,3 +59,17 @@ fincl2 = 'CLDICE:A', 'CLDLIQ:A', 'CLDTOT:A', 'CLOUD:A', 'CMFMC:A', 'DAYFOC:A',
  'Z010:A', 'Z1000:A', 'Z3:A', 'Z500:A', 'cb_BC:A', 'cb_DUST:A', 'cb_OM:A',
  'cb_SALT:A', 'cb_SULFATE:A', 'cb_ozone_c:A', 'mmr_BC:A', 'mmr_DUST:A',
  'mmr_OM:A', 'mmr_SALT:A', 'mmr_SULFATE:A', 'uIVT:A', 'vIVT:A'
+
+! 6-hourly average, max, or min output
+nhtfrq(3) = -6
+mfilt(3) = 20
+fincl3 = 'FLDS:A', 'PRECT:A', 'PS:A', 'PSDRY:A', 'PSL:A', 'QREFHT:A',
+ 'RHREFHT:A', 'TREFHT:A', 'TS:A', 'U10:A', 'Z1000:A'
+
+! 6-hourly instantaneous output
+nhtfrq(4) = -6
+mfilt(4) = 20
+fincl4 = 'BS550AER:I', 'DAYFOC:I', 'EC550AER:I', 'PRECT:I', 'PS:I', 'PSDRY:I',
+ 'PSL:I', 'Q:I', 'RELHUM100:I', 'RELHUM500:I', 'RELHUM850:I', 'T:I', 'TMQ:I',
+ 'TS:I', 'U200:I', 'U:I', 'V200:I', 'V:I', 'Z3:I', 'Z500:I', 'Z700:I',
+ 'uIVT:I', 'vIVT:I'

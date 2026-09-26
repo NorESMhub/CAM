@@ -44,7 +44,8 @@ __CHEM_DIAG_PRE_POST = [('GS_', ''),        ('AQ_', ''),       ('AQ_', '_OCW'),
 __ESM_FIXED_FIELDS = {'CO2_OCN', 'CO2_FFF', 'CO2_LND', 'CO2'}
 __ESM_DIAG_PRE_POST = [('', '_BOT'),       ('', '_fvm'),  ('', '_qneg3'),
                        ('', '_qneg3_col'), ('F', '_fvm'), ('SF', ''),
-                       ('TA', ''),         ('TM', ''),    ('VD', '')]
+                       ('TA', ''),         ('TM', ''),    ('VD', ''),
+                       ('TM', '_INST')]
 
 ## Find chem species in mo_sim_dat.F90
 __SOLSYM_RE = re.compile(r"solsym[(][: 0-9]+[)] = [(]/(.*)$")
@@ -150,6 +151,9 @@ def all_chem_names(chem_name=None):
         all_species = read_fieldname_file(all_chem_file)
     # end if
     diag_names = all_diags_set(all_species, __CHEM_DIAG_PRE_POST)
+    # Special case for CO2
+    diag_names.add('TMCO2')
+    diag_names.add('TMCO2_INST')
     return diag_names
 
 def all_emission_names():

@@ -94,7 +94,7 @@
     </options>
   </test>
 
-  <test compset="NF1850esm" grid="ne16pg3_ne16pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d">
+  <test compset="NF1850esm" grid="ne16pg3_ne16pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d_esm">
     <machines>
       <machine name="betzy"  compiler="intel" category="aux_cam_noresm"/>
       <machine name="olivia" compiler="intel" category="aux_cam_noresm"/>
@@ -105,7 +105,7 @@
     </options>
   </test>
 
-  <test compset="NF1850ghg" grid="ne16pg3_ne16pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d">
+  <test compset="NF1850ghg" grid="ne16pg3_ne16pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d_ghg">
     <machines>
       <machine name="betzy"  compiler="intel" category="aux_cam_noresm"/>
       <machine name="olivia" compiler="intel" category="aux_cam_noresm"/>
@@ -116,7 +116,7 @@
     </options>
   </test>
 
-  <test compset="NF1850esmGhg" grid="ne16pg3_ne16pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d">
+  <test compset="NF1850esmGhg" grid="ne16pg3_ne16pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d_esm_ghg">
     <machines>
       <machine name="betzy"  compiler="intel" category="aux_cam_noresm"/>
       <machine name="olivia" compiler="intel" category="aux_cam_noresm"/>
