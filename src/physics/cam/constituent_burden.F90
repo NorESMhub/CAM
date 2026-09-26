@@ -1,16 +1,16 @@
 
 module constituent_burden
 
-!-----------------------------------------------------------------------------------------
+!-----------------------------------------------------------------------------
 ! Purpose: subroutines to generate constituent burden history variables
 !
 ! Revision history:
 ! 2005-12-21  K. Lindsay       Original version
-!-----------------------------------------------------------------------------------------
+!-----------------------------------------------------------------------------
 
-  use constituents, only: pcnst
-  use cam_history_support,  only: fieldname_len
-  use co2_cycle, only: c_i, co2_transport
+  use constituents,        only: pcnst
+  use cam_history_support, only: fieldname_len
+  use co2_cycle,           only: c_i, co2_transport
 
   implicit none
 
@@ -23,12 +23,12 @@ module constituent_burden
 
   character(len=fieldname_len) :: burdennam(pcnst)  ! name of burden history variables
   integer                      :: co2_cnst_ind = -1 ! >0 if CO2 is a constituent
+  logical, allocatable         :: hist_active(:,:)
+  logical                      :: TMCO2_active = .false. ! Special case for no CO2 tracer
 
-!=========================================================================================
-
+!=============================================================================
 contains
-
-!=========================================================================================
+!=============================================================================
 
 subroutine constituent_burden_init
 
@@ -67,13 +67,15 @@ end subroutine constituent_burden_init
 
 subroutine constituent_burden_comp(state)
 
-  use physics_types, only: physics_state
-  use shr_kind_mod,  only: r8 => shr_kind_r8
-  use constituents,  only: cnst_type
-  use ppgrid,        only: pcols
-  use physconst,     only: rga
-  use cam_history,   only: outfld, hist_fld_active
-  use chem_surfvals, only: chem_surfvals_get
+  use physics_types,  only: physics_state
+  use shr_kind_mod,   only: r8 => shr_kind_r8
+  use constituents,   only: cnst_type, cnst_name
+  use ppgrid,         only: pcols
+  use physconst,      only: rga
+  use cam_history,    only: outfld, hist_fld_active
+  use chem_surfvals,  only: chem_surfvals_get
+  use cam_abortutils, only: endrun
+  use string_utils,   only: int2str
 
 !-----------------------------------------------------------------------
 !
@@ -86,50 +88,54 @@ subroutine constituent_burden_comp(state)
   real(r8) :: ftem(pcols)      ! temporary workspace
 
   integer                      :: mind, lchnk, ncol
-  integer                      :: cind, ncnst
+  integer                      :: istat, ncnst
   character(len=fieldname_len) :: burdennam_inst
+  character(len=*), parameter  :: subname = 'CONSTITUENT_BURDEN_COMP: '
 
   lchnk = state%lchnk
   ncol  = state%ncol
 
+  if (.not. allocated(hist_active)) then
+     ! Do this once on first call
+     allocate(hist_active(pcnst,2), stat=istat)
+     if (istat /= 0) then
+        call endrun(subname//'failed to allocate hist_active, stat = '//int2str(istat))
+     end if
+     hist_active(:,:) = .false.
+     do mind = 2, pcnst
+        ! Safe because hist_fld_active returns .false. for non-existent field
+        hist_active(mind,1) = hist_fld_active(burdennam(mind))
+     end do
+     ! Special case for no CO2 tracer
+     TMCO2_active = hist_fld_active('TMCO2') .or. hist_fld_active('TMCO2_INST')
+     ! Special _INST fields for emissions fields (emission driven runs)
+     if (co2_transport()) then
+        ncnst = size(c_i)
+        do mind = 1, ncnst
+           burdennam_inst = 'TM'//trim(cnst_name(c_i(mind)))//'_INST'
+           hist_active(c_i(mind),2) = hist_fld_active(burdennam_inst)
+        end do
+     end if
+  end if
+
   do mind = 2, pcnst
-     if (.not. hist_fld_active(burdennam(mind))) cycle
+     if (.not. (hist_active(mind,1) .or. hist_active(mind,2))) cycle
      if (cnst_type(mind) .eq. 'dry') then
         ftem(:ncol) = sum(state%q(:ncol,:,mind) * state%pdeldry(:ncol,:), dim=2) * rga
      else
         ftem(:ncol) = sum(state%q(:ncol,:,mind) * state%pdel(:ncol,:), dim=2) * rga
      end if
-     call outfld (burdennam(mind), ftem, pcols, lchnk)
+     if (hist_active(mind, 1)) then
+        call outfld(burdennam(mind), ftem(:ncol), ncol, lchnk)
+     end if
+     if (hist_active(mind, 2)) then
+        call outfld(trim(burdennam(mind))//'_INST', ftem(:ncol), ncol, lchnk)
+     end if
   end do
-  ! Compute special instantaneous values
-  if (co2_transport()) then
-     ncnst = size(c_i)
-     do mind = 1, ncnst
-        burdennam_inst = burdennam(c_i(mind))//'_INST'
-        if (.not. hist_fld_active(burdennam_inst)) cycle
-        cind = c_i(mind)
-        if (cnst_type(cind) .eq. 'dry') then
-           ftem(:ncol) = sum(state%q(:ncol,:,cind) * state%pdeldry(:ncol,:), dim=2) * rga
-        else
-           ftem(:ncol) = sum(state%q(:ncol,:,cind) * state%pdel(:ncol,:), dim=2) * rga
-        end if
-        call outfld(burdennam_inst, ftem(:ncol), ncol, lchnk)
-     end do
-  else if (hist_fld_active('TMCO2') .or. hist_fld_active('TMCO2_INST')) then
-     if (co2_cnst_ind > 0) then
-        if (cnst_type(co2_cnst_ind) .eq. 'dry') then
-           ftem(:ncol) = sum(state%q(:ncol,:,co2_cnst_ind) * state%pdeldry(:ncol,:), dim=2) * rga
-        else
-           ftem(:ncol) = sum(state%q(:ncol,:,co2_cnst_ind) * state%pdel(:ncol,:), dim=2) * rga
-        end if
-     else
-        ! There is no CO2 tracer, compute from co2mmr
-        ftem(:ncol) = chem_surfvals_get('CO2MMR', lchnk, ncol) * sum(state%pdeldry(:ncol,:), dim=2) * rga
-     end if
-     if (co2_cnst_ind < 0) then
-        ! Only output TMCO2 if it was not output in the burdennam loop above
-        call outfld('TMCO2', ftem(:ncol), ncol, lchnk)
-     end if
+  if ((co2_cnst_ind < 0) .and. TMCO2_active) then
+     ! There is no CO2 tracer, compute from co2mmr
+     ftem(:ncol) = chem_surfvals_get('CO2MMR', lchnk, ncol) * sum(state%pdeldry(:ncol,:), dim=2) * rga
+     call outfld('TMCO2', ftem(:ncol), ncol, lchnk)
      call outfld('TMCO2_INST', ftem(:ncol), ncol, lchnk)
   end if
 
