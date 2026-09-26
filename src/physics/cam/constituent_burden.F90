@@ -105,6 +105,9 @@ subroutine constituent_burden_comp(state)
      do mind = 2, pcnst
         ! Safe because hist_fld_active returns .false. for non-existent field
         hist_active(mind,1) = hist_fld_active(burdennam(mind))
+        if (mind == co2_cnst_ind) then
+           hist_active(mind,2) = hist_fld_active('TMCO2_INST')
+        end if
      end do
      ! Special case for no CO2 tracer
      TMCO2_active = hist_fld_active('TMCO2') .or. hist_fld_active('TMCO2_INST')
