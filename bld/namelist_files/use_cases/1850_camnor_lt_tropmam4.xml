@@ -78,6 +78,10 @@
 <cldfrc_iceopt    hgrid="1.9x2.5"> 4 </cldfrc_iceopt>       <!--cldfrc_nl-->
 <do_circulation_diags> .true. </do_circulation_diags>       <!-- only used in fv -->
 
+<!-- Turn off forcing files for PI control -->
+<co2_readflux_fuel>.false.</co2_readflux_fuel>
+<co2_readflux_aircraft>.false.</co2_readflux_aircraft>
+
 <!-- for prescribed deposition and emission fluxes -->
 <sim_year>1850</sim_year>
 

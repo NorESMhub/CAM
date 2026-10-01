@@ -136,6 +136,10 @@
 <prescribed_volcaero_cycle_yr>1850</prescribed_volcaero_cycle_yr>
 <prescribed_volcaero_type>CYCLICAL</prescribed_volcaero_type>
 
+<!-- Turn off forcing files for PI control -->
+<co2_readflux_fuel>.false.</co2_readflux_fuel>
+<co2_readflux_aircraft>.false.</co2_readflux_aircraft>
+
 <!-- for prescribed deposition and emission fluxes -->
 <sim_year>1850</sim_year>
 
