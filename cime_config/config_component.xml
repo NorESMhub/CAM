@@ -417,20 +417,6 @@
     $CASEROOT/user_nl_cam file.</desc>
   </entry>
 
-  <entry id="CAM_CO2EXP">
-    <type>char</type>
-    <valid_values>none,OnePctCO2,RampCO2,X4CO2</valid_values>
-    <default_value>none</default_value>
-    <values match="last">
-      <value compset="_CAM7*%1PCT">OnePctCO2</value>
-      <value compset="_CAM7*%4xCO2">X4CO2</value>
-      <value compset="_CAM.*%RCO2">RampCO2</value>
-    </values>
-    <group>run_component_cam</group>
-    <file>env_run.xml</file>
-    <desc>CAM CO2 manipulation experiment (if any)</desc>
-  </entry>
-
   <entry id="CAM_USER_MODS">
     <type>char</type>
     <valid_values></valid_values>

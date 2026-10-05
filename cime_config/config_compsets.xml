@@ -116,6 +116,11 @@
        AerChemMIP)) should appear in the compset alias (shortname).
   -->
 
+  <compset>
+    <alias>NFAMIPghg</alias>
+    <lname>AMIP_CAM70%LT%NORESM%GHGCAMoslo_CLM60%FATES-NCFB%NORESM_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV_SESP</lname>
+  </compset>
+
   <!-- ********************************* -->
   <!-- Hybrid NorESM / CAM-chem compsets -->
   <!-- ********************************* -->
