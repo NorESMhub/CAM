@@ -356,6 +356,7 @@
       <value compset="1850_CAM70%LT%NORESM%GHGCAMoslo"  >1850_camnor_lt_ghgosloaero</value>
       <value compset="HIST_CAM70%LT%NORESM%TROPMAM4" >hist_camnor_lt_tropmam4</value>
       <value compset="HIST_CAM70%LT%NORESM%CAMoslo"  >hist_camnor_lt_osloaero</value>
+      <value compset="HIST_CAM70%LT%NORESM%GHGCAMoslo"  >hist_camnor_lt_ghgosloaero</value>
       <value compset="2000_CAM70%LT%NORESM%TROPMAM4" >2000_camnor_tropmam4</value>
       <value compset="2000_CAM70%LT%NORESM%CAMoslo"  >2000_camnor_osloaero</value>
       <value compset="AMIP_CAM70%LT%NORESM%CAMoslo"  >1979-2022_camnor_lt_osloaero</value>
