@@ -109,15 +109,15 @@
     <lname>2000_CAM70%LT%NORESM%GHGCAMoslo_CLM60%FATES-NCFB%NORESM_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV_SESP_BGC%BPRP</lname>
   </compset>
 
-  <!-- CAM7 AMIP-style experiments -->
-  <!-- These experiments should use "AMIP" as the time period
-       designation (1979-2021).
-       The name of the specific experiment (e.g., amip, piClim-X (or
-       AerChemMIP)) should appear in the compset alias (shortname).
+  <!-- CMIP7 AMIP-style experiments -->
+  <!--
+      NFAMIP:          amip DECK experiment
+      NFpiClimControl: piClim-Control DECK experiment
+      NFpiClimAnthro:  piClim-anthro DECK experiment
   -->
 
   <compset>
-    <alias>NFAMIPghg</alias>
+    <alias>NFAMIP</alias>
     <lname>AMIP_CAM70%LT%NORESM%GHGCAMoslo_CLM60%FATES-NCFB%NORESM_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV_SESP</lname>
   </compset>
 
