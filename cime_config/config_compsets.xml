@@ -135,11 +135,6 @@
     <lname>HIST_CAM70%LT%NORESM%CSO_CLM60%SP_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV</lname>
   </compset>
 
-  <compset>
-    <alias>NF2000mam4</alias>
-    <lname>2000_CAM70%LT%NORESM%CSO_CLM60%SP_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV</lname>
-  </compset>
-
   <!-- ********************************* -->
   <!-- NCAR CAM compsets                 -->
   <!-- ********************************* -->

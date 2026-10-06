@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+
+<namelist_defaults>
+
+<!-- Solar data from NRL -->
+<solar_irrad_data_file>atm/cam/solar/SolarForcingCMIP7piControl_c20250103.nc</solar_irrad_data_file>
+<solar_data_ymd>   20000101           </solar_data_ymd>
+<solar_data_type>    FIXED            </solar_data_type>
+
+<!-- LBC Files : -->
+<flbc_file>      'atm/waccm/lb/LBC_2000climo_CMIP6_0p5degLat_c180227.nc' </flbc_file>
+<flbc_cycle_yr>  2000                                </flbc_cycle_yr>
+<flbc_type>      'CYCLICAL'                          </flbc_type>
+<flbc_list>      'CO2','CH4','N2O','CFC11eq','CFC12' </flbc_list>
+
+<!-- Low top upper boundary conditions -->
+<ubc_specifier>'NOTSET'</ubc_specifier>
+<ubc_file_path>'NONE'</ubc_file_path>
+
+<!-- ozone data :  -->
+<prescribed_ozone_datapath>   atm/cam/ozone                                                  </prescribed_ozone_datapath>
+<prescribed_ozone_file>       ozone_strataero_CAM6chem_2000climo_zm_5day_c171004.nc          </prescribed_ozone_file>
+<prescribed_ozone_name>       'O3'                                                           </prescribed_ozone_name>
+<prescribed_ozone_type>       'CYCLICAL'                                                     </prescribed_ozone_type>
+<prescribed_ozone_cycle_yr>   2000                                                           </prescribed_ozone_cycle_yr>
+
+<!-- Prescribed oxidants for aerosol chemistry : -->
+<tracer_cnst_cycle_yr                  >2000                                                      </tracer_cnst_cycle_yr>
+<tracer_cnst_type                      >CYCLICAL                                                  </tracer_cnst_type>
+<tracer_cnst_datapath  >atm/cam/ozone                                             </tracer_cnst_datapath>
+<tracer_cnst_file      >tracer_cnst_CAM6chem_2000climo_3D_monthly_c171004.nc      </tracer_cnst_file>
+<tracer_cnst_specifier >'O3','OH','NO3','HO2'                                     </tracer_cnst_specifier>
+<tracer_cnst_filelist                  >''                                                        </tracer_cnst_filelist>
+
+<!-- External forcing -->
+<ext_frc_type>CYCLICAL</ext_frc_type>
+<ext_frc_cycle_yr>2000</ext_frc_cycle_yr>
+<ext_frc_specifier>
+  'H2O    -> $INPUTDATA_ROOT/atm/cam/chem/emis/elev/H2O_emission_CH4_oxidationx2_elev_3Dmonthly_L70_2000climo_c180511.nc',
+  'BC_AX  ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_BC_AX_airALL_vertical_1849-2015_0.9x1.25_version20180512.nc',
+  'BC_AX  ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_BC_AX_anthroprofALL_vertical_1849-2015_0.9x1.25_version20180512.nc',
+  'BC_N   ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_BC_N_airALL_vertical_1849-2015_0.9x1.25_version20180512.nc',
+  'BC_N   ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_BC_N_anthroprofALL_vertical_1849-2015_0.9x1.25_version20180512.nc',
+  'BC_NI  ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_BC_NI_bbALL_vertical_1849-2015_0.9x1.25_version20180512.nc',
+  'OM_NI  ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_OM_NI_airALL_vertical_1849-2015_0.9x1.25_version20180512.nc',
+  'OM_NI  ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_OM_NI_anthroprofALL_vertical_1849-2015_0.9x1.25_version20180512.nc',
+  'OM_NI  ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_OM_NI_bbALL_vertical_1849-2015_0.9x1.25_version20180512.nc',
+  'SO2    ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_SO2_airALL_vertical_1849-2015_0.9x1.25_version20180512.nc',
+  'SO2    ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_SO2_anthroprofALL_vertical_1849-2015_0.9x1.25_version20180512.nc',
+  'SO2    ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_SO2_bbALL_vertical_1849-2015_0.9x1.25_version20180512.nc',
+  'SO2    ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_SO2_volcALL_vertical_1849-2015_0.9x1.25_version20180512.nc',
+  'SO4_PR ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_SO4_PR_airALL_vertical_1849-2015_0.9x1.25_version20180512.nc',
+  'SO4_PR ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_SO4_PR_anthroprofALL_vertical_1849-2015_0.9x1.25_version20180512.nc',
+  'SO4_PR ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_SO4_PR_bbALL_vertical_1849-2015_0.9x1.25_version20180512.nc',
+  'SO4_PR ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_SO4_PR_volcALL_vertical_1849-2015_0.9x1.25_version20180512.nc'
+</ext_frc_specifier>
+
+<!-- Surface emissions -->
+<srf_emis_type>CYCLICAL</srf_emis_type>
+<srf_emis_cycle_yr>2000</srf_emis_cycle_yr>
+<srf_emis_specifier>
+  'BC_AX  ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_BC_AX_anthrosurfALL_surface_1849-2015_0.9x1.25_version20180512.nc',
+  'BC_N   ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_BC_N_anthrosurfALL_surface_1849-2015_0.9x1.25_version20180512.nc',
+  'OM_NI  ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_OM_NI_anthrosurfALL_surface_1849-2015_0.9x1.25_version20180512.nc',
+  'SO2    ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_SO2_anthrosurfALL_surface_1849-2015_0.9x1.25_version20180512.nc',
+  'SO4_PR ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20180512/emissions_cmip6_noresm2_SO4_PR_anthrosurfALL_surface_1849-2015_0.9x1.25_version20180512.nc'
+</srf_emis_specifier>
+
+<rad_climate              >'A:Q:H2O','N:O2:O2','N:CO2:CO2','N:ozone:O3','N:N2O:N2O','N:CH4:CH4','N:CFC11:CFC11','N:CFC12:CFC12'</rad_climate>
+<rad_climate co2_cycle="1">'A:Q:H2O','N:O2:O2','A:CO2:CO2','N:ozone:O3','N:N2O:N2O','N:CH4:CH4','N:CFC11:CFC11','N:CFC12:CFC12'</rad_climate>
+
+<!--Options for megan -->
+<megan_specifier>'isoprene = isoprene','monoterp = myrcene + sabinene + limonene+ carene_3 + ocimene_t_b + pinene_b + pinene_a'</megan_specifier>
+
+<prescribed_volcaero_datapath>atm/cam/volc</prescribed_volcaero_datapath>
+<prescribed_volcaero_file>CMIP_CAM6_radiation_average_v3_reformatted.nc</prescribed_volcaero_file>
+<prescribed_volcaero_cycle_yr>2000</prescribed_volcaero_cycle_yr>
+<prescribed_volcaero_type>CYCLICAL</prescribed_volcaero_type>
+
+<!-- for prescribed deposition and emission fluxes -->
+<sim_year>2000</sim_year>
+
+</namelist_defaults>
