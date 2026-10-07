@@ -11,9 +11,7 @@
 <flbc_type>'SERIAL'</flbc_type>
 <flbc_list>'CO2','CH4','N2O','CFC11','CFC12','CFC11eq'</flbc_list>
 
-<!-- Low top upper boundary conditions -->
-<ubc_specifier>'NOTSET'</ubc_specifier>
-<ubc_file_path>'NONE'</ubc_file_path>
+<!-- Low top upper boundary conditions disabled by default in NorESM3-->
 
 <!-- ozone data -->
 <prescribed_ozone_datapath>   'atm/cam/ozone_strataero'                                                         </prescribed_ozone_datapath>
