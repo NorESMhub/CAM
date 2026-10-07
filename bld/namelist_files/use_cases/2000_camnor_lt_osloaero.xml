@@ -72,7 +72,7 @@
 
 <prescribed_volcaero_datapath>atm/cam/volc</prescribed_volcaero_datapath>
 <prescribed_volcaero_file>CMIP_CAM6_radiation_average_v3_reformatted.nc</prescribed_volcaero_file>
-<prescribed_volcaero_cycle_yr>2000</prescribed_volcaero_cycle_yr>
+<prescribed_volcaero_cycle_yr>1850</prescribed_volcaero_cycle_yr>
 <prescribed_volcaero_type>CYCLICAL</prescribed_volcaero_type>
 
 <!-- for prescribed deposition and emission fluxes -->
