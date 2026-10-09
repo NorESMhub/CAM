@@ -12,11 +12,7 @@
 <flbc_type>'CYCLICAL'</flbc_type>
 <flbc_list>'CO2','CH4','N2O','CFC11','CFC12','CFC11eq'</flbc_list>
 
-<!-- Low top upper boundary conditions -->
-<ubc_specifier>'Q:H2O->UBC_FILE'</ubc_specifier>
-<ubc_file_path>atm/cam/chem/ubc/b.e21.BWHIST.f09_g17.CMIP6-historical-WACCM.ensAvg123.cam.h0zm.H2O.1849-2014_c240604.nc</ubc_file_path>
-<ubc_file_input_type>CYCLICAL</ubc_file_input_type>
-<ubc_file_cycle_yr>1850</ubc_file_cycle_yr>
+<!-- Low top upper boundary conditions disabled by default in NorESM3-->
 
 <!-- ozone data :  -->
 <prescribed_ozone_datapath>   'atm/cam/ozone_strataero'  </prescribed_ozone_datapath>
@@ -135,6 +131,10 @@
 <prescribed_volcaero_file>UOEXETER-CMIP-2-2-1_185001-202112-clim_intpwghtavg_v20260105.nc</prescribed_volcaero_file>
 <prescribed_volcaero_cycle_yr>1850</prescribed_volcaero_cycle_yr>
 <prescribed_volcaero_type>CYCLICAL</prescribed_volcaero_type>
+
+<!-- Turn off forcing files for PI control -->
+<co2_readflux_fuel>.false.</co2_readflux_fuel>
+<co2_readflux_aircraft>.false.</co2_readflux_aircraft>
 
 <!-- for prescribed deposition and emission fluxes -->
 <sim_year>1850</sim_year>

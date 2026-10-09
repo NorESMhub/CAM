@@ -2117,7 +2117,7 @@
 <clubb_C8                                         > 4.2     </clubb_C8>
 <clubb_C8 phys="cam7"                             > 4.2     </clubb_C8>
 <clubb_C8 phys="cam7" hgrid="ne16np4"  npg="3"    > 4.95    </clubb_C8>
-<clubb_C8 phys="cam7" hgrid="ne30np4"  npg="3"    > 4.70    </clubb_C8>
+<clubb_C8 phys="cam7" hgrid="ne30np4"  npg="3"    > 4.50    </clubb_C8>
 <clubb_C8b                                        > 0.0     </clubb_C8b>
 <clubb_C_invrs_tau_bkgnd                          > 1.0     </clubb_C_invrs_tau_bkgnd>
 <clubb_C_invrs_tau_sfc                            > 0.1     </clubb_C_invrs_tau_sfc>
@@ -2324,7 +2324,7 @@
 <micro_mg_autocon_lwp_exp                                         > 2.47D0 </micro_mg_autocon_lwp_exp>
 <micro_mg_autocon_lwp_exp microphys="mg2"                         > 2.47D0 </micro_mg_autocon_lwp_exp>
 <micro_mg_autocon_lwp_exp microphys="mg3" hgrid="ne16np4" npg="3" > 2.47D0 </micro_mg_autocon_lwp_exp>
-<micro_mg_autocon_lwp_exp microphys="mg3" hgrid="ne30np4" npg="3" > 2.37D0 </micro_mg_autocon_lwp_exp>
+<micro_mg_autocon_lwp_exp microphys="mg3" hgrid="ne30np4" npg="3" > 2.50D0 </micro_mg_autocon_lwp_exp>
 
 <microp_aero_bulk_scale                  >  2.D0    </microp_aero_bulk_scale>
 

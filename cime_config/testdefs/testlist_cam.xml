@@ -5,17 +5,18 @@
 <!--              CAM-Nor test-supported COMPSETS             -->
 <!--              @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@             -->
 
-  <test compset="NFHIST" grid="ne16pg3_ne16pg3_mtn14" name="ERP_D_Ld3" testmods="cam/outfrq1d_fulloutput">
+  <test compset="NFAMIP" grid="ne16pg3_ne16pg3_mtn14" name="ERP_D_Ld3" testmods="cam/outfrq1d_fulloutput">
     <machines>
       <machine name="betzy"  compiler="intel" category="aux_cam_noresm"/>
       <machine name="olivia" compiler="intel" category="aux_cam_noresm"/>
     </machines>
     <options>
       <option name="wallclock">00:45:00</option>
-      <option name="comment">Test base historical at 2 degree with DEBUG</option>
+      <option name="comment">Test AMIP with full output at 2 degree with DEBUG</option>
     </options>
   </test>
 
+<!-- NFHIST tests paused until NHIST SST data are available
   <test compset="NFHIST" grid="ne30pg3_ne30pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d">
     <machines>
       <machine name="betzy"  compiler="intel" category="aux_cam_noresm"/>
@@ -37,6 +38,7 @@
       <option name="comment">Test HIST compset with MAM4 chemistry</option>
     </options>
   </test>
+-->
 
   <test compset="NF2000" grid="ne30pg3_ne30pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d">
     <machines>
