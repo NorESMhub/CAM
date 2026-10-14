@@ -159,14 +159,15 @@ end subroutine microp_driver_init
 
 !===============================================================================
 
-subroutine microp_driver_tend(state, ptend, dtime, pbuf)
+subroutine microp_driver_tend(state, ptend, dtime, tskin, pbuf)
 
    ! Call the microphysics parameterization run methods.
-
+   use camsrfexch,       only: cam_in_t
    ! Input arguments
 
    type(physics_state), intent(in)    :: state       ! State variables
    type(physics_ptend), intent(out)   :: ptend       ! Package tendencies
+   real(r8),            intent(in)    :: tskin(:)       ! Radiative  surface temperature
    type(physics_buffer_desc), pointer :: pbuf(:)
 
    real(r8), intent(in)  :: dtime                    ! Timestep
@@ -186,7 +187,7 @@ subroutine microp_driver_tend(state, ptend, dtime, pbuf)
    select case (microp_scheme)
    case ('MG')
       call t_startf('microp_mg_tend')
-      call micro_mg_cam_tend(state, ptend, dtime, pbuf)
+      call micro_mg_cam_tend(state, ptend, dtime, tskin, pbuf)
       call t_stopf('microp_mg_tend')
    case ('RK')
       ! microp_driver doesn't handle this one

@@ -1,14 +1,17 @@
-!PG RaFSIP PARAMETERS
+!PG RaFSIP and RafWBF PARAMETERS
 
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !This MODULE holds the subroutines which are used to initialize all  +
 !built random forest regressors.                                     +
+!For both RafSIP and RafWBF parameteriztions                         +
+!Routines with postfix 'wbf' and vars with 'b' are related to RafWBF.+
 !This MODULE CONTAINS the following routines:                        +
 !  *forestbrhm                                                       +
 !  *forestbr                                                         +
 !  *forestall                                                        +
 !  *forestbrds                                                       +
 !  *forestbrwarm                                                     +
+!  *forestwbf                                                        +
 !Each subroutine opens, reads and stores the parameters of all 4     +
 !random forest regressors. The initial .txt files are first          +
 !converted into binary files so that the processing is faster.       +
@@ -19,6 +22,7 @@
 !  *runforest                                                        +
 !  *runforestriv                                                     +
 !  *runforestmulti                                                   +
+!RafWBF uses *runforest routine                                      +
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 module module_random_forests
@@ -30,7 +34,9 @@ module module_random_forests
    PRIVATE
 
    PUBLIC :: sec_ice_readnl
+   PUBLIC :: wbf_readnl
    PUBLIC :: sec_ice_init
+   PUBLIC :: wbf_init
 
    PUBLIC :: runforest
    PUBLIC :: runforestriv
@@ -38,8 +44,12 @@ module module_random_forests
 
    !!MDIM DEFINES THE NUMBER OF FEATURES/INPUTS TO THE RaFSIP PARAMETERIZATION
    INTEGER, PARAMETER, PUBLIC :: MDIM5=5
-   INTEGER, PARAMETER, PUBLIC :: MDIM6=6
+   INTEGER, PARAMETER, PUBLIC :: MDIM6=6 
    INTEGER, PARAMETER, PUBLIC :: JBT=10  !!The number of trees in each random forest regressor
+
+   !!  NUMBER OF FEATURES/INPUTS TO THE RaFWBF PARAMETERIZATION
+   INTEGER, PARAMETER, PUBLIC :: MDIMB=6 ! for WBF
+   INTEGER, PARAMETER, PUBLIC :: JBTB=10  !!The number of trees in each random forest regressor
 
    !!The maximum number of nodes across trees
    INTEGER, PARAMETER, PUBLIC :: MAX_NODES1=7705  !forestBRHM
@@ -47,6 +57,7 @@ module module_random_forests
    INTEGER, PARAMETER, PUBLIC :: MAX_NODES3=7833  !forestALL
    INTEGER, PARAMETER, PUBLIC :: MAX_NODES4=7093  !forestBRDS
    INTEGER, PARAMETER, PUBLIC :: MAX_NODES5=8593  !forestBRwarm
+   INTEGER, PARAMETER, PUBLIC :: MAX_NODESB=124209  !forestWBF
 
    !!Thresh = threshold value at each internal node
    !!Outi = prediction for a given node
@@ -55,6 +66,7 @@ module module_random_forests
    REAL(r8), DIMENSION(JBT,MAX_NODES3), PUBLIC    :: THRESH3,OUT31,OUT32,OUT33,OUT34,OUT35
    REAL(r8), DIMENSION(JBT,MAX_NODES4), PUBLIC    :: THRESH4,OUT41,OUT42,OUT43
    REAL(r8), DIMENSION(JBT,MAX_NODES5), PUBLIC    :: THRESH5,OUT51
+   REAL(r8), DIMENSION(JBTB,MAX_NODESB), PUBLIC   :: THRESHB,OUTB
 
    !!Splitfeat = feature used for splitting the node
    !!Leftchild = left child of node
@@ -64,21 +76,30 @@ module module_random_forests
    INTEGER, DIMENSION(JBT,MAX_NODES3), PUBLIC, PROTECTED :: SPLITFEAT3,LEFTCHILD3,RIGHTCHILD3
    INTEGER, DIMENSION(JBT,MAX_NODES4), PUBLIC, PROTECTED :: SPLITFEAT4,LEFTCHILD4,RIGHTCHILD4
    INTEGER, DIMENSION(JBT,MAX_NODES5), PUBLIC, PROTECTED :: SPLITFEAT5,LEFTCHILD5,RIGHTCHILD5
+   INTEGER, DIMENSION(JBTB,MAX_NODESB), PUBLIC, PROTECTED :: SPLITFEATB,LEFTCHILDB,RIGHTCHILDB
 
    !!The exact number of nodes across in consecutive trees of the forest
-   INTEGER, DIMENSION(JBT), PUBLIC, PROTECTED :: NRNODES1,NRNODES2,NRNODES3,NRNODES4,NRNODES5
+   INTEGER, DIMENSION(JBT), PUBLIC, PROTECTED  :: NRNODES1,NRNODES2,NRNODES3,NRNODES4,NRNODES5
+   INTEGER, DIMENSION(JBTB), PUBLIC, PROTECTED :: NRNODESB
+
+   ! RAFWBF specific parameters
+   REAL(r8), PUBLIC, PARAMETER :: TUPB = 273.15 ! Upper bound for temperature for running RF [K]
+   REAL(r8), PUBLIC, PARAMETER :: TLOB = 238.15 ! Lower bound for temperature for running RF [K]
 
    !! Namelist variables
    logical, public, protected :: rafsip_on = .false.
+   logical, public, protected :: rafwbf_on = .false.
 
    character(len=256) :: forestfileALL = 'NONE'
    character(len=256) :: forestfileBRDS = 'NONE'
    character(len=256) :: forestfileBRHM = 'NONE'
    character(len=256) :: forestfileBR = 'NONE'
    character(len=256) :: forestfileBRwarm = 'NONE'
+   character(len=256) :: forestfileWBF = 'NONE'
 
    !! Make sure init is only called once
    logical :: rafsip_initialized = .false.
+   logical :: rafwbf_initialized = .false.
 
 CONTAINS
 
@@ -152,6 +173,58 @@ CONTAINS
       end if
 
    end subroutine sec_ice_readnl
+
+   !------------------------------------------------------------------------+
+
+   subroutine wbf_readnl(nlfile, mg_ver)
+      ! Read files needed for random forest tables of wbf factor
+
+      use mpi,            only: mpi_character, mpi_logical
+      use spmd_utils,     only: masterproc, mstrid=>masterprocid, mpicom
+      use namelist_utils, only: find_group_name
+      use cam_logfile,    only: iulog
+
+      character(len=*), intent(in) :: nlfile ! path to file containing namelist input
+      integer,          intent(in) :: mg_ver
+
+      ! Local variables
+      integer                     :: unitn, ierr
+      character(len=*), parameter :: subname = 'wbf_readnl'
+
+      namelist /wbf_nl/ rafwbf_on, forestfileWBF
+
+      ! Initialize all namelist variables
+      rafwbf_on = .false.
+      forestfileWBF = 'None'
+      if (mg_ver>1) then
+        if (masterproc) then
+          open(newunit=unitn, file=trim(nlfile), status='old' )
+          call find_group_name(unitn, 'wbf_nl', status=ierr)
+          if (ierr == 0) then
+              read(unitn, wbf_nl, iostat=ierr)
+              if (ierr /= 0) then
+                call endrun(subname//':: ERROR reading namelist')
+              end if
+          end if
+          close(unitn)
+        end if
+      else
+         call endrun(subname//':: ERROR rafwbf_on = .true. is incompatible with micro_mg_version=1')
+      endif
+
+      call MPI_Bcast(rafwbf_on, 1, mpi_logical, mstrid, mpicom, ierr)
+
+      call MPI_Bcast(forestfileWBF,   len(forestfileWBF),    mpi_character,   &
+           mstrid, mpicom, ierr)
+
+      if (masterproc) then
+         write(iulog ,*) 'Microphysics WBF factor namelist:'
+         write(iulog ,*) '  rafwbf_on        = ', rafwbf_on
+         if (rafsip_on) then
+            write(iulog, *) '  forestfileWBF    = ', trim(forestfileWBF)
+         end if
+      end if
+   end subroutine wbf_readnl
 
    !------------------------------------------------------------------------+
 
@@ -318,6 +391,60 @@ CONTAINS
 
    end subroutine sec_ice_init
 
+   !------------------------------------------------------------------------+
+
+   subroutine wbf_init()
+      use mpi,        only: mpi_integer, mpi_real8
+      use spmd_utils, only: masterproc, mstrid=>masterprocid, mpicom
+
+      integer :: j_ind, n_ind
+      integer :: unitn
+      integer :: ierr
+      character(len=*), parameter :: subname = 'wbf_init'
+
+      if (.not. rafwbf_initialized) then
+         !---------------------------------------------------------------------
+         ! RaFWBF: INITIALIZE THE RANDOM FOREST PARAMETERS
+         !         Initialize on the root processor, then broadcast
+         !---------------------------------------------------------------------
+
+         if (masterproc) then
+            ! Initialize forestBRHM parameters
+            ! Initialize forestALL parameters
+            open(newunit=unitn, file=trim(forestfileWBF), status="old",       &
+                 action="read")
+            do j_ind = 1, JBTB
+               read(unitn, *) nrnodesb(j_ind)
+               read(unitn, *) (leftchildb(j_ind, n_ind),                      &
+                    rightchildb(j_ind, n_ind),                                &
+                    outb(j_ind, n_ind), threshb(j_ind, n_ind),               &
+                    splitfeatb(j_ind, n_ind), n_ind=1,nrnodesb(j_ind))
+            end do
+
+            close(unitn)
+              if (any(SPLITFEATB<-1)) then
+                call endrun(subname//':: ERROR tree has split feature index invalid')
+              end if
+         end if ! masterproc
+
+         ! Broadcast
+         call MPI_Bcast(nrnodesb, JBTB, mpi_integer,                           &
+           mstrid, mpicom, ierr)
+         call MPI_Bcast(leftchildb, JBTB*MAX_NODESB, mpi_integer,              &
+              mstrid, mpicom, ierr)
+         call MPI_Bcast(rightchildb, JBTB*MAX_NODESB, mpi_integer,             &
+              mstrid, mpicom, ierr)
+         call MPI_Bcast(outb, JBTB*MAX_NODESB, mpi_real8,                     &
+              mstrid, mpicom, ierr)
+         call MPI_Bcast(splitfeatb, JBTB*MAX_NODESB, mpi_integer,              &
+              mstrid, mpicom, ierr)
+         call MPI_Bcast(threshb, JBTB*MAX_NODESB, mpi_real8,              &
+              mstrid, mpicom, ierr)
+
+         rafwbf_initialized = .true.
+      end if
+
+   end subroutine wbf_init
    !------------------------------------------------------------------------+
 
    !======================================================================+

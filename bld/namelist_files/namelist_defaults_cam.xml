@@ -1275,6 +1275,11 @@
 <forestfileBR>atm/cam/RaFSIP/forestBR.txt</forestfileBR>
 <forestfileBRwarm>atm/cam/RaFSIP/forestBRwarm.txt</forestfileBRwarm>
 
+<!-- WBF multiplier -->
+<rafwbf_on>.false.</rafwbf_on>
+<forestfileWBF>atm/cam/RaFWBF/forestWBF_c260424.txt</forestfileWBF>
+
+
 <chem_use_chemtrop>.true.</chem_use_chemtrop>
 
 <prescribed_strataero_use_chemtrop>.false.</prescribed_strataero_use_chemtrop>

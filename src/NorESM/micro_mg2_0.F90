@@ -146,6 +146,11 @@ use module_random_forests, only: thresh4, out41, out42, out43
 use module_random_forests, only: max_nodes5, leftchild5, rightchild5, splitfeat5
 use module_random_forests, only: thresh5, out51
 
+!RafWBF
+use module_random_forests, only: rafwbf_on, jbtb, tupb, tlob
+use module_random_forests, only: max_nodesb, leftchildb, rightchildb, splitfeatb
+use module_random_forests, only: threshb, outb
+
 implicit none
 private
 save
@@ -254,7 +259,7 @@ subroutine micro_mg_init( &
      allow_sed_supersat_in, do_sb_physics_in, &
      nccons_in, nicons_in, ncnst_in, ninst_in, errstring)
 
-  use module_random_forests, only: sec_ice_init
+  use module_random_forests, only: sec_ice_init, wbf_init
   use micro_mg_utils,        only: micro_mg_utils_init
 
   !-----------------------------------------------------------------------
@@ -364,7 +369,10 @@ subroutine micro_mg_init( &
      ! RaFSIP: INITIALIZE THE RANDOM FOREST PARAMETERS
      call sec_ice_init()
   end if
-
+  if (rafwbf_on) then
+     ! RaFWBF: INITIALIZE THE RANDOM FOREST PARAMETERS
+     call wbf_init()
+  end if
 
 end subroutine micro_mg_init
 
@@ -373,7 +381,7 @@ end subroutine micro_mg_init
 
 subroutine micro_mg_tend ( &
      mgncol,             nlev,               deltatin,           &
-     t,                            q,                            &
+     t,                  q,        tsk,      pblh,               &
      qcn,                          qin,                          &
      ncn,                          nin,                          &
      qrn,                          qsn,                          &
@@ -408,7 +416,7 @@ subroutine micro_mg_tend ( &
      qrsedten,                     qssedten,                     &
      pratot,                       prctot,                       &
      mnuccctot,          mnuccttot,          msacwitot,          &
-     psacwstot,          bergstot,           bergtot,            &
+     psacwstot,          bergstot,           bergtot, bergf,     &
      melttot,                      homotot,                      &
      qcrestot,           prcitot,            praitot,            &
      qirestot,           mnuccrtot,          pracstot,           &
@@ -471,7 +479,7 @@ subroutine micro_mg_tend ( &
        evaporate_sublimate_precip, &
        bergeron_process_snow
 
-  use module_random_forests, only: MDIM5, MDIM6
+  use module_random_forests, only: MDIM5, MDIM6, MDIMB
   use module_random_forests, only: runforestmulti
   use module_random_forests, only: runforestriv
   use module_random_forests, only: runforest
@@ -485,6 +493,8 @@ subroutine micro_mg_tend ( &
   real(r8), intent(in) :: deltatin       ! time step (s)
   real(r8), intent(in) :: t(mgncol,nlev) ! input temperature (K)
   real(r8), intent(in) :: q(mgncol,nlev) ! input h20 vapor mixing ratio (kg/kg)
+  real(r8), intent(in) :: tsk(mgncol)    ! input skin temperature for RaFWBF (K)
+  real(r8), intent(in) :: pblh(mgncol)   ! input planetary boundary layer for RaFWBF (K)
 
   ! note: all input cloud variables are grid-averaged
   real(r8), intent(in) :: qcn(mgncol,nlev)       ! cloud water mixing ratio (kg/kg)
@@ -518,6 +528,7 @@ subroutine micro_mg_tend ( &
   ! (For example, in CAM, the last dimension is always size 4.)
   real(r8), intent(in) :: rndst(:,:,:)  ! radius of each dust bin, for contact freezing (from microp_aero_ts) (m)
   real(r8), intent(in) :: nacon(:,:,:) ! number in each dust bin, for contact freezing  (from microp_aero_ts) (1/m^3)
+
 
   ! output arguments
 
@@ -581,6 +592,7 @@ subroutine micro_mg_tend ( &
   real(r8), intent(out) :: psacwstot(mgncol,nlev)       ! collection of cloud water by snow
   real(r8), intent(out) :: bergstot(mgncol,nlev)        ! bergeron process on snow
   real(r8), intent(out) :: bergtot(mgncol,nlev)         ! bergeron process on cloud ice
+  real(r8), intent(out) :: bergf(mgncol,nlev)           ! factor for bergeron process in RafWBF
   real(r8), intent(out) :: melttot(mgncol,nlev)         ! melting of cloud ice
   real(r8), intent(out) :: homotot(mgncol,nlev)         ! homogeneous freezing cloud water
   real(r8), intent(out) :: qcrestot(mgncol,nlev)        ! residual cloud condensation due to removal of excess supersat
@@ -928,6 +940,10 @@ subroutine micro_mg_tend ( &
   real(r8) :: FEATURES5(MDIM5),FEATURES6(MDIM6)
   real(r8) :: YPRED1,YPRED2,YPRED3,YPRED4,YPRED5
 
+  ! RaFWBF variables:
+  real(r8) :: Pb, LWCb, IWCb, Tb, PBLHb, TSKb ! INPUT, dummy
+  real(r8) :: FEATURESB(MDIMB),YPREDB
+  real(r8) :: wbf_factor(mgncol,nlev) ! will be applied regardless if RafWBF is ON or OFF
 
 
   !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -1272,7 +1288,18 @@ subroutine micro_mg_tend ( &
   SIP_RATE=0._r8
   QIRSIP=0._r8
   QICSIP=0._r8
-
+  
+ ! RaFWBF zero vars
+  Pb = 0._r8
+  LWCb = 0._r8
+  IWCb = 0._r8
+  Tb = 0._r8
+  PBLHb = 0._r8
+  TSKb = 0._r8
+  FEATURESB(:) = 0._r8
+  YPREDB = 0._r8
+  wbf_factor(:,:) = 1._r8 ! this should default to 1
+  bergf=1.0_r8
 
 
   !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -1725,21 +1752,51 @@ subroutine micro_mg_tend ( &
           qric(:,k), qsic(:,k), lamr(:,k), n0r(:,k), lams(:,k), n0s(:,k), &
           pre(:,k), prds(:,k), am_evp_st(:,k), mgncol)
 
+     ! RaFWBF parameterisattion:
+     if (rafwbf_on) then
+        do i = 1,mgncol
+           if (t(i,k) >= tlob .and. t(i,k) <= tupb) then
+              ! make inputs:
+              Pb    = p(i,k)                ! Pa
+              !  input contents are used to be consistent
+              ! with WRF data used to constract RF
+              LWCb  = qc(i,k) + qr(i,k) !kg/kg
+              IWCb  = qi(i,k) + qs(i,k) !kg/kg
+              Tb    = t(i,k) - 273.15_r8    ! DegC
+              PBLHb = pblh(i)               !m
+              TSKb  = tsk(i) - 273.15_r8       ! DegC
+              if (LWCb > 1.0e-9_r8 .and. IWCb > 1.0e-9_r8) then
+                 FEATURESB(:) =(/ Pb, LWCb, IWCb, Tb, PBLHb, TSKb /)
+                 call runforest(MDIMB, MAX_NODESB, JBTB, FEATURESB, YPREDB, &
+                               LEFTCHILDB, RIGHTCHILDB, SPLITFEATB, THRESHB, OUTB)
+                  wbf_factor(i,k) = max(0.0_r8, min(1.0_r8,YPREDB))
+              else 
+                wbf_factor(i,k) = 1.0_r8
+              endif
+
+           else
+              wbf_factor(i,k) = 1.0_r8
+           end if
+        end do
+     else
+        wbf_factor(:,k) = 1.0_r8
+     end if
+
      call bergeron_process_snow(t(:,k), rho(:,k), dv(:,k), mu(:,k), sc(:,k), &
           qvl(:,k), qvi(:,k), asn(:,k), qcic(1:mgncol,k), qsic(:,k), lams(:,k), n0s(:,k), &
           bergs(:,k), mgncol)
-
-     bergs(:,k)=bergs(:,k)*micro_mg_berg_eff_factor
-
+     do i = 1,mgncol
+        bergs(i,k)=bergs(i,k)*micro_mg_berg_eff_factor * wbf_factor(i,k)
+     end do
      !+++PMC 12/3/12 - NEW VAPOR DEP/SUBLIMATION GOES HERE!!!
      if (do_cldice) then
 
         call ice_deposition_sublimation(t(:,k), q(:,k), qi(:,k), ni(:,k), &
              icldm(:,k), rho(:,k), dv(:,k), qvl(:,k), qvi(:,k), &
              berg(:,k), vap_dep(:,k), ice_sublim(:,k), mgncol)
-
-        berg(:,k)=berg(:,k)*micro_mg_berg_eff_factor
-
+        do i = 1,mgncol
+           berg(i,k)=berg(i,k)*micro_mg_berg_eff_factor * wbf_factor(i,k)
+        end do
         where (ice_sublim(:,k) < 0._r8 .and. qi(:,k) > qsmall .and. icldm(:,k) > mincld)
            nsubi(:,k) = sublim_factor*ice_sublim(:,k) / qi(:,k) * ni(:,k) / icldm(:,k)
 
@@ -2430,6 +2487,7 @@ subroutine micro_mg_tend ( &
         psacwstot(i,k) = psacws(i,k)*lcldm(i,k)
         bergstot(i,k) = bergs(i,k)*lcldm(i,k)
         bergtot(i,k) = berg(i,k)
+        bergf(i,k) = wbf_factor(i,k)
         prcitot(i,k) = prci(i,k)*icldm(i,k)
         praitot(i,k) = prai(i,k)*icldm(i,k)
         mnuccdtot(i,k) = mnuccd(i,k)*icldm(i,k)
