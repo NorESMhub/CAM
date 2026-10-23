@@ -29,8 +29,10 @@
      CAM and WACCM Options
     ===============
    -->
-    <desc option="4xCO2"        >abrupt quadrupling of CO2 with other forcings maintained at 1850 piControl levels (CMIP6 DECK abrupt4xCO2 experiment) :</desc>
-    <desc option="1PCT"         >ramped CO2 increasing by 1% per year with other forcings maintained at 1850 piControl levels (CMIP6 DECK 1pctCO2 experiment) :</desc>
+    <desc option="4xCO2"        >abrupt quadrupling of CO2 with other forcings maintained at 1850 piControl levels (CMIP7 DECK abrupt-4xCO2 experiment) :</desc>
+    <desc option="2xCO2"        >abrupt doubling of CO2 with other forcings maintained at 1850 piControl levels (CMIP7 FAST-TRACK abrupt-2xCO2 experiment) :</desc>
+    <desc option="0p5xCO2"      >abrupt halving of CO2 with other forcings maintained at 1850 piControl levels (CMIP7 FAST-TRACK abrupt-0p5xCO2 experiment) :</desc>
+    <desc option="1PCT"         >ramped CO2 increasing by 1% per year with other forcings maintained at 1850 piControl levels (CMIP7 DECK 1pctCO2 experiment) :</desc>
 
   <!--
     ===============
