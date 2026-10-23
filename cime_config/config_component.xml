@@ -8,7 +8,7 @@
       CAM
     ===============
    -->
-    <desc atm="CAM70[%LT][%MT][%1PCT][%4xCO2][%WA][%WX][%CSO][%CT1S][%CT4S][%CT0MA][%CT1MA][%CT4MA][%NORESM][%TROPMAM4][%CAMoslo][%GHGCAMoslo]"                                                                                                                                                                                                                                                                                >CAM cam7 physics:</desc>
+    <desc atm="CAM70[%LT][%MT][%1PCT][%4xCO2][%2xCO2][%0p5xCO2][%WA][%WX][%CSO][%CT1S][%CT4S][%CT0MA][%CT1MA][%CT4MA][%NORESM][%TROPMAM4][%CAMoslo][%GHGCAMoslo]"                                                                                                                                                                                                                                                                                >CAM cam7 physics:</desc>
     <desc atm="CAM60[%1PCT][%4xCO2][%CARMATS][%CARMAWM][%CT1S][%CT2S][%CFIRE][%CVBSX][%NUDG][%PORT][%RCO2][%SCAM][%SDYN][%WCCM][%WCMD][%WCSC][%WCTS][%WXIE][%WXIED][%HEMCO][%GEOSCHEM][%SCAMARM95][%SCAMARM97][%SCAMATEX][%SCAMBOMEX][%SCAMCGILSS11][%SCAMCGILSS12][%SCAMCGILSS6][%SCAMDYCOMSRF01][%SCAMDYCOMSRF02][%SCAMGATE3][%SCAMMPACE][%SCAMRICO][%SCAMSPARTICUS][%SCAMTOGA2][%SCAMTWP06][%SCAMCAMFRC]" >CAM cam6 physics:</desc>
     <desc atm="CAM50[%CT1S][%CLB][%PORT][%RCO2][%MAM7][%SCAM][%SDYN][%WCSC][%WCTS][%SCAMARM95][%SCAMARM97][%SCAMATEX][%SCAMBOMEX][%SCAMCGILSS11][%SCAMCGILSS12][%SCAMCGILSS6][%SCAMDYCOMSRF01][%SCAMDYCOMSRF02][%SCAMGATE3][%SCAMMPACE][%SCAMRICO][%SCAMSPARTICUS][%SCAMTOGA2][%SCAMTWP06][%SCAMCAMFRC]"                                                                                                     >CAM cam5 physics:</desc>
     <desc atm="CAM40[%PORT][%RCO2][%SCAM][%SDYN][%TMOZ][%WX][%WXIE][%WXIED][%WCCM][%WCMD][%SCAMARM95][%SCAMARM97][%SCAMATEX][%SCAMBOMEX][%SCAMCGILSS11][%SCAMCGILSS12][%SCAMCGILSS6][%SCAMDYCOMSRF01][%SCAMDYCOMSRF02][%SCAMGATE3][%SCAMMPACE][%SCAMRICO][%SCAMSPARTICUS][%SCAMTOGA2][%SCAMTWP06][%SCAMCAMFRC]"                                                                                              >CAM cam4 physics:</desc>
@@ -29,8 +29,10 @@
      CAM and WACCM Options
     ===============
    -->
-    <desc option="4xCO2"        >abrupt quadrupling of CO2 with other forcings maintained at 1850 piControl levels (CMIP6 DECK abrupt4xCO2 experiment) :</desc>
-    <desc option="1PCT"         >ramped CO2 increasing by 1% per year with other forcings maintained at 1850 piControl levels (CMIP6 DECK 1pctCO2 experiment) :</desc>
+    <desc option="4xCO2"        >abrupt quadrupling of CO2 with other forcings maintained at 1850 piControl levels (CMIP7 DECK abrupt-4xCO2 experiment) :</desc>
+    <desc option="2xCO2"        >abrupt doubling of CO2 with other forcings maintained at 1850 piControl levels (CMIP7 FAST-TRACK abrupt-2xCO2 experiment) :</desc>
+    <desc option="0p5xCO2"      >abrupt halving of CO2 with other forcings maintained at 1850 piControl levels (CMIP7 FAST-TRACK abrupt-0p5xCO2 experiment) :</desc>
+    <desc option="1PCT"         >ramped CO2 increasing by 1% per year with other forcings maintained at 1850 piControl levels (CMIP7 DECK 1pctCO2 experiment) :</desc>
 
   <!--
     ===============
@@ -361,6 +363,8 @@
       <value compset="AMIP_CAM70%LT%NORESM%GHGCAMoslo"       >1979-2022_camnor_lt_osloaero</value>
       <value compset="1850_CAM70%LT%NORESM%GHGCAMoslo%1PCT"  >OnePctCO2_camnor_lt_ghgosloaero</value>
       <value compset="1850_CAM70%LT%NORESM%GHGCAMoslo%4xCO2" >X4CO2_camnor_lt_ghgosloaero</value>
+      <value compset="1850_CAM70%LT%NORESM%GHGCAMoslo%2xCO2" >X2CO2_camnor_lt_ghgosloaero</value>
+      <value compset="1850_CAM70%LT%NORESM%GHGCAMoslo%0p5xCO2" >X0p5CO2_camnor_lt_ghgosloaero</value>
 
       <!-- SCAM defaults to ARM97, all other IOPs are in usermods_dirs -->
       <!--       <value compset="CAM[456]0%SCAM"    >scam_arm97</value> -->
