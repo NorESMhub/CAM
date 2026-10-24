@@ -12,17 +12,17 @@
 <!-- Low top upper boundary conditions disabled by default in NorESM3-->
 
 <!-- ozone data -->
-<prescribed_ozone_datapath> 'atm/cam/ozone_strataero'                                                                                             </prescribed_ozone_datapath>
-<prescribed_ozone_file    > 'ozone_vmro3_CMIP_FZJ-CMIP-ozone-2-0_1849-2022_1.9x2.5_version20260722.nc'                                            </prescribed_ozone_file>
-<prescribed_ozone_name    > 'O3'                                                                                                                  </prescribed_ozone_name>
-<prescribed_ozone_type    > INTERP_MISSING_MONTHS                                                                                                 </prescribed_ozone_type>
+<prescribed_ozone_datapath> 'atm/cam/ozone_strataero'                                                  </prescribed_ozone_datapath>
+<prescribed_ozone_file    > 'ozone_vmro3_CMIP_FZJ-CMIP-ozone-2-0_1849-2022_1.9x2.5_version20260722.nc' </prescribed_ozone_file>
+<prescribed_ozone_name    > 'O3'                                                                       </prescribed_ozone_name>
+<prescribed_ozone_type    > INTERP_MISSING_MONTHS                                                      </prescribed_ozone_type>
 
 <!-- Prescribed oxidants for aerosol chemistry -->
-<tracer_cnst_datapath >   'atm/cam/tracer_cnst'                                                 </tracer_cnst_datapath>
-<tracer_cnst_file     >   'oxidants_1849-2026_1.9x2.5_version20261021.nc'                       </tracer_cnst_file>
-<tracer_cnst_specifier>   'O3','OH','NO3','HO2'                                                 </tracer_cnst_specifier>
-<tracer_cnst_type     >   INTERP_MISSING_MONTHS                                                 </tracer_cnst_type>
-<tracer_cnst_filelist >   ''                                                                    </tracer_cnst_filelist>
+<tracer_cnst_datapath >   'atm/cam/tracer_cnst'                                                        </tracer_cnst_datapath>
+<tracer_cnst_file     >   'oxidants_1849-2026_1.9x2.5_version20261021.nc'                              </tracer_cnst_file>
+<tracer_cnst_specifier>   'O3','OH','NO3','HO2'                                                        </tracer_cnst_specifier>
+<tracer_cnst_type     >   INTERP_MISSING_MONTHS                                                        </tracer_cnst_type>
+<tracer_cnst_filelist >   ''                                                                           </tracer_cnst_filelist>
 
 <!-- External forcing -->
 <ext_frc_type>INTERP_MISSING_MONTHS</ext_frc_type>
