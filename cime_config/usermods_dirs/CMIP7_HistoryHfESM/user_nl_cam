@@ -65,5 +65,5 @@ fincl3 = 'FLDS:A', 'PRECT:A', 'PS:A', 'PSDRY:A', 'PSL:A', 'QREFHT:A',
 nhtfrq(4) = -6
 mfilt(4) = 20
 fincl4 = 'DAYFOC:I', 'PRECT:I', 'PS:I', 'PSDRY:I', 'PSL:I', 'Q:I',
- 'RELHUM100:I', 'RELHUM500:I', 'RELHUM850:I', 'T:I', 'TMQ:I', 'TS:I', 'U200:I',
+ 'RELHUM100:I', 'RELHUM500:I', 'RELHUM:I', 'T:I', 'TMQ:I', 'TS:I', 'U200:I',
  'U:I', 'V200:I', 'V:I', 'Z3:I', 'Z500:I', 'Z700:I', 'uIVT:I', 'vIVT:I'
