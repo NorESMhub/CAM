@@ -81,7 +81,7 @@ fincl3 = 'FLDS:A', 'PRECT:A', 'PS:A', 'PSDRY:A', 'PSL:A', 'QREFHT:A',
 nhtfrq(4) = -6
 mfilt(4) = 20
 fincl4 = 'BS550AER:I', 'DAYFOC:I', 'EC550AER:I', 'PRECT:I', 'PS:I', 'PSDRY:I',
- 'PSL:I', 'Q:I', 'RELHUM100:I', 'RELHUM500:I', 'RELHUM850:I', 'T:I', 'TMQ:I',
+ 'PSL:I', 'Q:I', 'RELHUM100:I', 'RELHUM500:I', 'RELHUM:I', 'T:I', 'TMQ:I',
  'TS:I', 'U200:I', 'U:I', 'V200:I', 'V:I', 'Z3:I', 'Z500:I', 'Z700:I',
  'uIVT:I', 'vIVT:I'
 
@@ -124,5 +124,5 @@ fincl9 = 'AREL:I', 'CLDICE:I', 'CLDLIQ:I', 'CLDTOT:I', 'CLOUD:I', 'CMFMC:I',
  'FSNTC:I', 'FSNTOA:I', 'FSNTOAC:I', 'FSUTOA:I', 'FULC:I', 'FUS:I', 'FUSC:I',
  'LHFLX:I', 'OMEGA:I', 'PINT:I', 'PRECC:I', 'PRECSC:I', 'PRECSL:I', 'PRECT:I',
  'PS:I', 'PSDRY:I', 'PSL:I', 'Q:I', 'QFLX:I', 'QREFHT:I', 'RELHUM:I',
- 'RHREFHT:I', 'RHW:I', 'SHFLX:I', 'SOLIN:I', 'T:I', 'TAUX:I', 'TAUY:I',
- 'TGCLDCWP:I', 'TGCLDIWP:I', 'TREFHT:I', 'TS:I', 'U10:I', 'U:I', 'V:I', 'Z3:I'
+ 'RHREFHT:I', 'SHFLX:I', 'SOLIN:I', 'T:I', 'TAUX:I', 'TAUY:I', 'TGCLDCWP:I',
+ 'TGCLDIWP:I', 'TREFHT:I', 'TS:I', 'U10:I', 'U:I', 'V:I', 'Z3:I'

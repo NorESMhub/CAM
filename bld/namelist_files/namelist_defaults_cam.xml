@@ -4132,7 +4132,7 @@
 <opom_source_type                         > CYCLICAL                    </opom_source_type>
 <opom_cycle_year                          > 2000                        </opom_cycle_year>
 <ocean_filename                           > Lana_ocean_1849_2006.nc     </ocean_filename>
-<ocean_filepath                           > noresm-only/atm/cam/camoslo </ocean_filepath>
+<ocean_filepath                           >$INPUTDATA_ROOT/noresm-only/atm/cam/camoslo </ocean_filepath>
 <aerotab_table_dir                        >$INPUTDATA_ROOT/noresm-only/atm/cam/camoslo/AeroTab_8jun17/</aerotab_table_dir>
 
 <!-- sub-column switches for physics packages -->

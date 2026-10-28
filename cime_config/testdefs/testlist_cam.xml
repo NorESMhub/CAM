@@ -16,8 +16,7 @@
     </options>
   </test>
 
-<!-- NFHIST tests paused until NHIST SST data are available
-  <test compset="NFHIST" grid="ne30pg3_ne30pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d">
+  <test compset="NFHISTGhg" grid="ne30pg3_ne30pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d">
     <machines>
       <machine name="betzy"  compiler="intel" category="aux_cam_noresm"/>
       <machine name="olivia" compiler="intel" category="aux_cam_noresm"/>
@@ -28,7 +27,7 @@
     </options>
   </test>
 
-  <test compset="NFHISTmam4" grid="ne16pg3_ne16pg3_mtn14" name="ERP_D_Ln9" testmods="cam/outfrq9s">
+  <test compset="NFHISTmam4" grid="ne16pg3_ne16pg3_mtn14" name="ERP_D_Ln9" testmods="cam/outfrq9s" supported="false">
     <machines>
       <machine name="betzy"  compiler="intel" category="aux_cam_noresm"/>
       <machine name="olivia" compiler="intel" category="aux_cam_noresm"/>
@@ -38,8 +37,8 @@
       <option name="comment">Test HIST compset with MAM4 chemistry</option>
     </options>
   </test>
--->
 
+<!-- Not currently an active compset
   <test compset="NF2000" grid="ne30pg3_ne30pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d">
     <machines>
       <machine name="betzy"  compiler="intel" category="aux_cam_noresm"/>
@@ -50,8 +49,9 @@
       <option name="comment">Test 2000 compset at 1 degree</option>
     </options>
   </test>
+-->
 
-  <test compset="NF1850" grid="ne16pg3_ne16pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d_aero_history">
+  <test compset="NF1850Ghg" grid="ne16pg3_ne16pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d_aero_history">
     <machines>
       <machine name="betzy"  compiler="gnu" category="aux_cam_noresm"/>
       <machine name="olivia" compiler="gnu" category="aux_cam_noresm"/>
@@ -63,7 +63,7 @@
     </options>
   </test>
 
-  <test compset="NF1850" grid="ne30pg3_ne30pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d">
+  <test compset="NF1850Ghg" grid="ne30pg3_ne30pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d">
     <machines>
       <machine name="betzy"  compiler="intel" category="aux_cam_noresm"/>
       <machine name="olivia" compiler="intel" category="aux_cam_noresm"/>
@@ -74,7 +74,7 @@
     </options>
   </test>
 
-  <test compset="NF1850" grid="ne16pg3_ne16pg3_mtn14" name="ERP_Ld3" testmods="cam/secice">
+  <test compset="NF1850Ghg" grid="ne16pg3_ne16pg3_mtn14" name="ERP_Ld3" testmods="cam/secice">
     <machines>
       <machine name="betzy"  compiler="intel" category="aux_cam_noresm"/>
       <machine name="olivia" compiler="intel" category="aux_cam_noresm"/>
@@ -96,7 +96,7 @@
     </options>
   </test>
 
-  <test compset="NF1850esm" grid="ne16pg3_ne16pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d_esm">
+  <test compset="NF1850esmGhg" grid="ne16pg3_ne16pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d_esm">
     <machines>
       <machine name="betzy"  compiler="intel" category="aux_cam_noresm"/>
       <machine name="olivia" compiler="intel" category="aux_cam_noresm"/>
@@ -107,7 +107,7 @@
     </options>
   </test>
 
-  <test compset="NF1850ghg" grid="ne16pg3_ne16pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d_ghg">
+  <test compset="NF1850Ghg" grid="ne16pg3_ne16pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d_ghg">
     <machines>
       <machine name="betzy"  compiler="intel" category="aux_cam_noresm"/>
       <machine name="olivia" compiler="intel" category="aux_cam_noresm"/>
@@ -130,18 +130,18 @@
     </options>
   </test>
 
-  <test compset="NF1850mam4" grid="ne16pg3_ne16pg3_mtn14" name="ERP_Ln9" testmods="cam/outfrq9s">
+  <test compset="NF1850mam4" grid="ne16pg3_ne16pg3_mtn14" name="ERP_Ln9" testmods="cam/outfrq9s" supported="false">
     <machines>
       <machine name="betzy"  compiler="intel" category="aux_cam_noresm"/>
       <machine name="olivia" compiler="intel" category="aux_cam_noresm"/>
     </machines>
     <options>
       <option name="wallclock">00:30:00</option>
-      <option name="comment">Test of 1850 compset at 2 degrees with MAM chemistry</option>
+      <option name="comment">Test of 1850 compset at 2 degrees with GHG MAM chemistry</option>
     </options>
   </test>
 
-  <test compset="NF1850" grid="ne16pg3_ne16pg3_mtn14" name="REP_Ld1" testmods="cam/outfrq6h_aero_history">
+  <test compset="NF1850Ghg" grid="ne16pg3_ne16pg3_mtn14" name="REP_Ld1" testmods="cam/outfrq6h_aero_history">
     <machines>
       <machine name="betzy" compiler="intel" category="aux_cam_noresm"/>
     </machines>

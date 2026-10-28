@@ -10222,13 +10222,13 @@ Default: 2000
 <entry id="ocean_filename" type="char*256" input_pathname="rel:ocean_filepath" category="cam_oslo"
        group="oslo_ctl_nl" valid_values="" >
 Filename for ocean concentration of DMS, chlorophyll and poc
-Default: name
+Default:  Lana_ocean_1849_2006.nc
 </entry>
 
-<entry id="ocean_filepath" type="char*256" input_pathname="abs" category="cam_oslo"
+<entry id="ocean_filepath" type="char*256" category="cam_oslo"
        group="oslo_ctl_nl" valid_values="" >
 Path to ocean file
-Default: path
+Default: noresm-only/atm/cam/camoslo
 </entry>
 
 <!-- co2 surface source stream -->
@@ -10243,7 +10243,7 @@ Default: path
   Mapping algorithm to map co2 data to model grid. Nearest lat assumes
   that a mesh file is not needed and that the forcing data is lat/time or lat/lev/time.
   In this case the mesh is set to none.
-  Must be set by user 
+  Must be set by user
 </entry>
 <entry id="stream_co2_surface_source_lat_dimname" type="char*256" category="CO2 surface source"
        group="co2_surface_source_stream_nl" valid_values="" >
