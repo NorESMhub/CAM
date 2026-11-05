@@ -1,0 +1,6 @@
+! Orbital parameters for the CMIP7 PMIP abrupt-127k experiment
+
+orb_mode = 'fixed_parameters'
+orb_eccen = 0.039378
+orb_mvelp = 275.41
+orb_obliq = 24.040
