@@ -3,13 +3,19 @@ Guide to CAM CMIP7 usermods output sets
 - CMIP7_HistoryBase: base
 - CMIP7_HistoryAerocom: aerocom
 - CMIP7_HistoryHf: HighFrequency
-- CMIP7_HistoryCosp: max
+- CMIP7_HistoryCosp: COSP
 - CMIP7_HistoryMinESM: reduced ESM
 - CMIP7_HistoryBaseESM: base ESM
 - CMIP7_HistoryAerocomESM: aerocom ESM
 - CMIP7_HistoryHfESM: HighFrequency ESM
-- CMIP7_HistoryCospESM: max ESM
+- CMIP7_HistoryCospESM: COSP ESM
+- CMIP7_HistoryMinGhg: reduced GHG
 - CMIP7_HistoryBaseGhg: base GHG
+- CMIP7_HistoryAerocomGhg: aerocom GHG
 - CMIP7_HistoryHfGhg: HighFrequency GHG
-- CMIP7_HistoryBaseGhgESM: base GHG ESM
-- CMIP7_HistoryHfGhgESM: HighFrequency GHG ESM
+- CMIP7_HistoryCospGhg: COSP GHG
+- CMIP7_HistoryMinESMGhg: reduced ESM GHG
+- CMIP7_HistoryBaseGhgESMGhg: base ESM GHG
+- CMIP7_HistoryAerocomESMGhg: aerocom ESM GHG
+- CMIP7_HistoryHfESMGhg: HighFrequency GHG ESM
+- CMIP7_HistoryCospESMGhg: COSP ESM GHG
