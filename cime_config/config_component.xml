@@ -433,7 +433,7 @@
     <value compset="DOCN%SOMAQP">$COMP_ROOT_DIR_ATM/cime_config/usermods_dirs/aquap</value>
     <value compset="CAM.*SCAM" >$COMP_ROOT_DIR_ATM/cime_config/usermods_dirs/scam_mandatory</value>
     <value compset="CAM.*%SCAMCAMFRC">$COMP_ROOT_DIR_ATM/cime_config/usermods_dirs/scam_camfrc</value>
-    <value compset="CAM70%LT%NORESM%GHGCAMoslo%abrupt127k">$COMP_ROOT_DIR_ATM/cime_config/usermods_dirs/abrupt127k</value>
+    <value compset="CAM70%LT%NORESM%GHGCAMoslo%abrupt127k">$COMP_ROOT_DIR_ATM/cime_config/usermods_dirs/CMIP7_abrupt127k</value>
     </values>
     <group>run_component_cam</group>
     <file>env_case.xml</file>
