@@ -496,7 +496,7 @@ def generate_namelist_entries(data_request, usermod_config, fixed_fieldnames,
     Return a dictionary of field names not found in the CAM fixed list. The missing
     names are found and reported from each config set """
     missing_fields = {}
-    readme="Guide to CAM CMIP7 usermods output sets"
+    readme = []
     readme_file = os.path.join(usermods_dir, "README_CMIP7.md")
     for usermod in usermod_config.values():
         if usermods_sets and (usermod.name not in usermods_sets):
@@ -527,7 +527,7 @@ def generate_namelist_entries(data_request, usermod_config, fixed_fieldnames,
             missing_fields[field].append(usermod.name)
         # end for
         rpath = os.path.basename(os.path.split(usermod.namelist_file())[0])
-        readme+=f"\n- {rpath}: {usermod.name}"
+        readme.append(f"{rpath}: {usermod.name}")
         with open(usermod.namelist_file(), mode="w") as outfile:
             outfile.write(f"! CAM {usermod.name} diagnostic namelist entries\n\n")
             if usermod.include_aerocom:
@@ -576,8 +576,12 @@ def generate_namelist_entries(data_request, usermod_config, fixed_fieldnames,
         # end with (open file)
     # end for (sections)
     if readme and readme_file:
+        readme.sort()
         with open(readme_file, mode="w") as outfile:
-            outfile.write(f"{readme}\n")
+            outfile.write("Guide to CAM CMIP7 usermods output sets\n\n")
+            for line in readme:
+                outfile.write(f"- {line}\n")
+            # end for
         # end with
     # end if
 
