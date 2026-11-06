@@ -1,4 +1,4 @@
-! CAM HighFrequency GHG ESM diagnostic namelist entries
+! CAM HighFrequency ESM GHG diagnostic namelist entries
 
 ! Only output fields listed in this file
 empty_htapes = .true.
