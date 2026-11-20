@@ -6,7 +6,8 @@ create the cam library
 #pylint: disable=multiple-imports, wrong-import-position, wildcard-import
 #pylint: disable=unused-wildcard-import, bad-whitespace, too-many-locals
 #pylint: disable=invalid-name
-import sys, os, filecmp, shutil, imp
+import sys, os, filecmp, shutil
+from importlib.machinery import SourceFileLoader
 
 _CIMEROOT = os.environ.get("CIMEROOT")
 if _CIMEROOT is None:
@@ -43,7 +44,7 @@ def _build_cam():
                                         "cime_config", "buildcpp"))
         logger.info("     ...calling cam buildcpp to set build time options")
         try:
-            mod = imp.load_source("buildcpp", cmd)
+            mod = SourceFileLoader("buildcpp", cmd).load_module()
             cam_cppdefs = mod.buildcpp(case)
         except:
             raise
