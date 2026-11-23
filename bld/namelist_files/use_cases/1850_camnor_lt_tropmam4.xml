@@ -78,6 +78,15 @@
 <co2_readflux_fuel>.false.</co2_readflux_fuel>
 <co2_readflux_aircraft>.false.</co2_readflux_aircraft>
 
+<!-- Nitrogen deposition -->
+<stream_ndep_data_filename>atm/ndep/cmip7/ndep_input4MIPs_surfaceFluxes_CMIP_FZJ-CMIP-nitrogen-2-0_gn_185001-185012-clim_cdf5_c20260409.nc</stream_ndep_data_filename>
+<stream_ndep_mesh_filename>atm/ndep/cmip7/ndep_input4MIPs_surfaceFluxes_ESMFmesh_cdf5_c20251211.nc</stream_ndep_mesh_filename>
+<stream_ndep_taxmode>cycle</stream_ndep_taxmode>
+<stream_ndep_varlist>drynhx:wetnhx:drynoy:wetnoy</stream_ndep_varlist>
+<stream_ndep_year_align>1</stream_ndep_year_align>
+<stream_ndep_year_first>1850</stream_ndep_year_first>
+<stream_ndep_year_last>1850</stream_ndep_year_last>
+
 <!-- for prescribed deposition and emission fluxes -->
 <sim_year>1850</sim_year>
 

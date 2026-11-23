@@ -67,6 +67,7 @@
     <desc option="MT"           >CAM mid top model </desc>
     <desc option="RCO2"         >CAM CO2 ramp: </desc>
     <desc option="TMOZ"         >CAM tropospheric chemistry with bulk aerosols:</desc>
+    <desc option="TROPMAM4"     >CAM tropospheric chemistry with MAM4 aerosols:</desc>
     <desc option="WA"           >WACCM model </desc>
     <desc option="WX"           >WACCMX extended model </desc>
 

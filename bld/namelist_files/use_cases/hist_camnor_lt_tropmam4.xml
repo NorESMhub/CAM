@@ -39,23 +39,14 @@
 <srf_emis_type>INTERP_MISSING_MONTHS</srf_emis_type>
 <csw_time_type>SERIAL</csw_time_type>
 
-<!-- ================================================= -->
-<!-- noresm-physics -->
-<!-- ================================================= -->
-
-<dme_energy_adjust>.true.</dme_energy_adjust>
-<zmconv_c0_lnd>0.0200D0</zmconv_c0_lnd>                     <!--zmconv_nl-->
-<zmconv_c0_ocn>0.0200D0</zmconv_c0_ocn>                     <!--zmconv_nl-->
-<zmconv_ke    >8.0E-6</zmconv_ke>                           <!--zmconv_nl-->
-<zmconv_ke_lnd>8.0E-6</zmconv_ke_lnd>                       <!--zmconv_nl-->
-<tau_0_ubc>.true.</tau_0_ubc>                               <!--gw_drag_nl-->
-<clubb_gamma_coef hgrid="0.9x1.25">0.286</clubb_gamma_coef>
-<clubb_gamma_coef hgrid="1.9x2.5" >0.264</clubb_gamma_coef>
-<micro_mg_dcs     hgrid="0.9x1.25">5.5e-4</micro_mg_dcs>    <!--micro_mg_nl-->
-<micro_mg_dcs     hgrid="1.9x2.5" >5.0e-4</micro_mg_dcs>    <!--micro_mg_nl-->
-<cldfrc2m_rhmini  hgrid="0.9x1.25">0.90D0</cldfrc2m_rhmini> <!--cldfrc2m_nl-->
-<cldfrc_iceopt    hgrid="1.9x2.5">4</cldfrc_iceopt>         <!--cldfrc_nl-->
-<do_circulation_diags>.true.</do_circulation_diags>         <!-- only used in fv -->
+<!-- Nitrogen deposition -->
+<stream_ndep_data_filename>atm/ndep/cmip7/ndep_input4MIPs_surfaceFluxes_CMIP_FZJ-CMIP-nitrogen-2-0_gn_185001-202212_cdf5_c20260409.nc</stream_ndep_data_filename>
+<stream_ndep_mesh_filename>atm/ndep/cmip7/ndep_input4MIPs_surfaceFluxes_ESMFmesh_cdf5_c20251211.nc</stream_ndep_mesh_filename>
+<stream_ndep_taxmode>cycle</stream_ndep_taxmode>
+<stream_ndep_varlist>drynhx:wetnhx:drynoy:wetnoy</stream_ndep_varlist>
+<stream_ndep_year_align>1</stream_ndep_year_align>
+<stream_ndep_year_first>2000</stream_ndep_year_first>
+<stream_ndep_year_last>2000</stream_ndep_year_last>
 
 <!-- for prescribed deposition and emission fluxes -->
 <sim_year>1850-2015</sim_year>

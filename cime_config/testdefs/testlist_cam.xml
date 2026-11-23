@@ -38,19 +38,6 @@
     </options>
   </test>
 
-<!-- Not currently an active compset
-  <test compset="NF2000" grid="ne30pg3_ne30pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d">
-    <machines>
-      <machine name="betzy"  compiler="intel" category="aux_cam_noresm"/>
-      <machine name="olivia" compiler="intel" category="aux_cam_noresm"/>
-    </machines>
-    <options>
-      <option name="wallclock">01:00:00</option>
-      <option name="comment">Test 2000 compset at 1 degree</option>
-    </options>
-  </test>
--->
-
   <test compset="NF1850Ghg" grid="ne16pg3_ne16pg3_mtn14" name="ERP_Ld3" testmods="cam/outfrq1d_aero_history">
     <machines>
       <machine name="betzy"  compiler="gnu" category="aux_cam_noresm"/>
@@ -137,7 +124,7 @@
     </machines>
     <options>
       <option name="wallclock">00:30:00</option>
-      <option name="comment">Test of 1850 compset at 2 degrees with GHG MAM chemistry</option>
+      <option name="comment">Test of 1850 compset at 2 degrees with MAM4 chemistry</option>
     </options>
   </test>
 
