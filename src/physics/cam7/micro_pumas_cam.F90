@@ -1107,6 +1107,7 @@ subroutine micro_pumas_cam_init(pbuf2d)
    call addfld ('ICINC',      (/ 'lev' /), 'A', 'm-3',      'Prognostic in-cloud ice number conc',               sampled_on_subcycle=.true.)
    call addfld ('EFFLIQ_IND', (/ 'lev' /), 'A','Micron',    'Prognostic droplet effective radius (indirect effect)', sampled_on_subcycle=.true.)
    call addfld ('CDNUMC',     horiz_only,  'A', '1/m2',     'Vertically-integrated droplet concentration',           sampled_on_subcycle=.true.)
+   call addfld ('CINUMC',     horiz_only,  'A', '1/m2',     'Vertically-integrated ice crystal number concentration', sampled_on_subcycle=.true.)
    call addfld ('MPICLWPI',   horiz_only,  'A', 'kg/m2',    'Vertically-integrated &
         &in-cloud Initial Liquid WP (Before Micro)', sampled_on_subcycle=.true.)
    call addfld ('MPICIWPI',   horiz_only,  'A', 'kg/m2',    'Vertically-integrated &
@@ -1288,6 +1289,7 @@ subroutine micro_pumas_cam_init(pbuf2d)
       call add_default ('AWNC     ', 1, ' ')
       call add_default ('AWNI     ', 1, ' ')
       call add_default ('CDNUMC   ', 1, ' ')
+      call add_default ('CINUMC   ', 1, ' ')
       call add_default ('FREQR    ', 1, ' ')
       call add_default ('FREQS    ', 1, ' ')
       call add_default ('FREQL    ', 1, ' ')
@@ -1813,6 +1815,7 @@ subroutine micro_pumas_cam_tend(state, ptend, dtime, pbuf)
    real(r8) :: fctslm_grid(pcols)
 
    real(r8) :: cdnumc_grid(pcols)           ! Vertically-integrated droplet concentration
+   real(r8) :: cinumc_grid(pcols)           ! Vertically-integrated ice crystal number concentration
    real(r8) :: icimrst_grid_out(pcols,pver) ! In stratus ice mixing ratio
    real(r8) :: icwmrst_grid_out(pcols,pver) ! In stratus water mixing ratio
 
@@ -3460,6 +3463,10 @@ subroutine micro_pumas_cam_tend(state, ptend, dtime, pbuf)
    cdnumc_grid(:ngrdcol) = sum(nc_grid(:ngrdcol,top_lev:pver) * &
         pdel_grid(:ngrdcol,top_lev:pver)/gravit, dim=2)
 
+   ! Column ice crystal number concentration
+   cinumc_grid(:ngrdcol) = sum(ni_grid(:ngrdcol,top_lev:pver) * &
+        pdel_grid(:ngrdcol,top_lev:pver)/gravit, dim=2)
+
    ! Averaging for new output fields
    efcout_grid      = 0._r8
    efiout_grid      = 0._r8
@@ -3854,6 +3861,7 @@ subroutine micro_pumas_cam_tend(state, ptend, dtime, pbuf)
    call outfld('ICWNC',       icwnc_grid,       pcols, lchnk)
    call outfld('EFFLIQ_IND',  rel_fn_grid,      pcols, lchnk)
    call outfld('CDNUMC',      cdnumc_grid,      pcols, lchnk)
+   call outfld('CINUMC',      cinumc_grid,      pcols, lchnk)
    call outfld('REL',         rel_grid,         pcols, lchnk)
    call outfld('REI',         rei_grid,         pcols, lchnk)
    call outfld('MG_SADICE',   sadice_grid,      pcols, lchnk)
