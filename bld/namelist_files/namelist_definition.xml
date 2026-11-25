@@ -10162,6 +10162,15 @@ If true, turn on aerocom output
 Default: false
 </entry>
 
+<entry id="no_rad_dust_active" type="logical" category="cam_oslo"
+       group="oslo_ctl_nl" valid_values="" >
+If true, remove dust from the shortwave aerosol optics in the radiation
+calculation (the dust modes are excluded from the total aerosol extinction,
+single scattering albedo and asymmetry parameter). Dust is still transported
+and deposited, and the diagnostics are unaffected.
+Default: false
+</entry>
+
 <entry id="rh_fine_aer_scale_fact_optics" type="real" category="cam_oslo"
        group="oslo_ctl_nl" valid_values="" >
 - Scales the relative humidity in the optical calculations

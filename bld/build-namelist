@@ -3332,6 +3332,7 @@ $nl->set_variable_value('phys_ctl_nl', 'use_simple_phys', $use_simple_phys);
 
 #Cam-Oslo options
 add_default($nl, 'use_aerocom', 'ver'=>$aer_model);
+add_default($nl, 'no_rad_dust_active');
 add_default($nl, 'rh_fine_aer_scale_fact_optics', 'ver'=>$aer_model);
 add_default($nl, 'volc_fraction_coarse');
 add_default($nl, 'aerotab_table_dir');
