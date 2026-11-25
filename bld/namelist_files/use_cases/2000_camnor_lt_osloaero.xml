@@ -75,6 +75,10 @@
 <prescribed_volcaero_cycle_yr>1850</prescribed_volcaero_cycle_yr>
 <prescribed_volcaero_type>CYCLICAL</prescribed_volcaero_type>
 
+<!-- Turn off CO2 forcing files -->
+<co2_readflux_fuel>.false.</co2_readflux_fuel>
+<co2_readflux_aircraft>.false.</co2_readflux_aircraft>
+
 <!-- Nitrogen deposition -->
 <stream_ndep_data_filename>atm/ndep/cmip7/ndep_input4MIPs_surfaceFluxes_CMIP_FZJ-CMIP-nitrogen-2-0_gn_185001-202212_cdf5_c20260409.nc</stream_ndep_data_filename>
 <stream_ndep_mesh_filename>atm/ndep/cmip7/ndep_input4MIPs_surfaceFluxes_ESMFmesh_cdf5_c20251211.nc</stream_ndep_mesh_filename>

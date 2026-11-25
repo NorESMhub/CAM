@@ -90,16 +90,20 @@
 <prescribed_volcaero_datapath>atm/cam/volc/cmip7_volcaod_v20260105</prescribed_volcaero_datapath>
 <prescribed_volcaero_file>UOEXETER-CMIP-2-2-1_175001-202312_intpwghtavg_v20260105.nc</prescribed_volcaero_file>
 
+<!-- Turn off CO2 forcing files -->
+<co2_readflux_fuel>.false.</co2_readflux_fuel>
+<co2_readflux_aircraft>.false.</co2_readflux_aircraft>
+
 <!-- Nitrogen deposition -->
 <stream_ndep_data_filename>atm/ndep/cmip7/ndep_input4MIPs_surfaceFluxes_CMIP_FZJ-CMIP-nitrogen-2-0_gn_185001-202212_cdf5_c20260409.nc</stream_ndep_data_filename>
 <stream_ndep_mesh_filename>atm/ndep/cmip7/ndep_input4MIPs_surfaceFluxes_ESMFmesh_cdf5_c20251211.nc</stream_ndep_mesh_filename>
 <stream_ndep_taxmode>cycle</stream_ndep_taxmode>
 <stream_ndep_varlist>drynhx:wetnhx:drynoy:wetnoy</stream_ndep_varlist>
-<stream_ndep_year_align>1979</stream_ndep_year_align>
-<stream_ndep_year_first>1979</stream_ndep_year_first>
+<stream_ndep_year_align>1975</stream_ndep_year_align>
+<stream_ndep_year_first>1975</stream_ndep_year_first>
 <stream_ndep_year_last>2022</stream_ndep_year_last>
 
 <!-- for prescribed deposition and emission fluxes -->
-<sim_year>1979-2022</sim_year>
+<sim_year>1975-2022</sim_year>
 
 </namelist_defaults>

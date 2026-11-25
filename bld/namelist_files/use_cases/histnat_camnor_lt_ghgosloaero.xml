@@ -95,7 +95,7 @@
 <prescribed_volcaero_datapath>atm/cam/volc/cmip7_volcaod_v20260105</prescribed_volcaero_datapath>
 <prescribed_volcaero_file>UOEXETER-CMIP-2-2-1_175001-202312_intpwghtavg_v20260105.nc</prescribed_volcaero_file>
 
-<!-- Turn off forcing files for PI control -->
+<!-- Turn off CO2 forcing files -->
 <co2_readflux_fuel>.false.</co2_readflux_fuel>
 <co2_readflux_aircraft>.false.</co2_readflux_aircraft>
 
