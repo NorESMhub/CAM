@@ -12,7 +12,7 @@
     The notation for the compset longname is
     TIME_ATM[%phys]_LND[%phys]_ICE[%phys]_OCN[%phys]_ROF[%phys]_GLC[%phys]_WAV[%phys][_BGC%phys]
     Where for the CAM specific compsets below the following is supported
-    TIME = Time period (e.g. 2000, HIST, RCP8...)
+    TIME = Time period (e.g. 1850, HIST, RCP8...)
     ATM  = [CAM40, CAM50, CAM60, CAM70]
     LND  = [CLM45, CLM50, CLM60, SLND]
     ICE  = [CICE, DICE, SICE]
@@ -87,28 +87,6 @@
     <lname>HIST_CAM70%LT%NORESM%GHGCAMoslo_CLM60%FATES-NCFB%NORESM_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV_SESP_BGC%BPRP</lname>
   </compset>
 
-  <!-- CAM7 2000 -->
-
-  <compset>
-    <alias>NF2000</alias>
-    <lname>2000_CAM70%LT%NORESM%CAMoslo_CLM60%FATES-NCFB%NORESM_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV_SESP</lname>
-  </compset>
-
-  <compset>
-    <alias>NF2000esm</alias>
-    <lname>2000_CAM70%LT%NORESM%CAMoslo_CLM60%FATES-NCFB%NORESM_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV_SESP_BGC%BPRP</lname>
-  </compset>
-
-  <compset>
-    <alias>NF2000Ghg</alias>
-    <lname>2000_CAM70%LT%NORESM%GHGCAMoslo_CLM60%FATES-NCFB%NORESM_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV_SESP</lname>
-  </compset>
-
-  <compset>
-    <alias>NF2000esmGhg</alias>
-    <lname>2000_CAM70%LT%NORESM%GHGCAMoslo_CLM60%FATES-NCFB%NORESM_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV_SESP_BGC%BPRP</lname>
-  </compset>
-
   <!-- CMIP7 AMIP-style experiments -->
   <!--
       NFAMIP:          amip DECK experiment
@@ -127,12 +105,12 @@
 
   <compset>
     <alias>NF1850mam4</alias>
-    <lname>1850_CAM70%LT%NORESM%CSO_CLM60%SP_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV</lname>
+    <lname>1850_CAM70%LT%NORESM%TROPMAM4_CLM60%SP_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV</lname>
   </compset>
 
   <compset>
     <alias>NFHISTmam4</alias>
-    <lname>HIST_CAM70%LT%NORESM%CSO_CLM60%SP_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV</lname>
+    <lname>HIST_CAM70%LT%NORESM%TROPMAM4_CLM60%SP_CICE%PRES_DOCN%DOM_MOSART_DGLC%NOEVOLVE_SWAV</lname>
   </compset>
 
   <!-- ********************************* -->
