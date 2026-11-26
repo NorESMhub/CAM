@@ -4121,6 +4121,7 @@
 <!-- CAM-Oslo variables -->
 <use_aerocom                              > .false.                     </use_aerocom>
 <use_aerocom                   ver="oslo" > .false.                     </use_aerocom>
+<no_rad_dust_active                      > .false.                     </no_rad_dust_active>
 <rh_fine_aer_scale_fact_optics            > 1.0                         </rh_fine_aer_scale_fact_optics>
 <rh_fine_aer_scale_fact_optics ver="oslo" > 1.1                         </rh_fine_aer_scale_fact_optics>
 <dme_energy_adjust                        > .true.                      </dme_energy_adjust>
