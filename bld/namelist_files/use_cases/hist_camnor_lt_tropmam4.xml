@@ -28,7 +28,7 @@
 <!-- Prescribed oxidants for aerosol chemistry -->
 <tracer_cnst_datapath >   'atm/cam/tracer_cnst'                                         </tracer_cnst_datapath>
 <tracer_cnst_file     >   'tracer_cnst_halons_3D_L70_1849-2015_CMIP6ensAvg_c180927.nc'  </tracer_cnst_file>
-<tracer_cnst_specifier>   'O3','OH','NO3','HO2','HALONS'                                </tracer_cnst_specifier>
+<tracer_cnst_specifier>   'O3','OH','NO3','HO2'                                </tracer_cnst_specifier>
 <tracer_cnst_type     >   INTERP_MISSING_MONTHS                                         </tracer_cnst_type>
 <tracer_cnst_filelist >   ''                                                            </tracer_cnst_filelist>
 
