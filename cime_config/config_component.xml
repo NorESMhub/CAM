@@ -374,6 +374,13 @@
       <value compset="1850_CAM70%LT%NORESM%GHGCAMoslo%histGHG"     >histghg_camnor_lt_ghgosloaero</value>
       <value compset="1850_CAM70%LT%NORESM%GHGCAMoslo%histNAT"     >histnat_camnor_lt_ghgosloaero</value>
       <value compset="1850_CAM70%LT%NORESM%GHGCAMoslo%histAEROXID" >histaeroxid_camnor_lt_ghgosloaero</value>
+      <value compset="SCEN7H_CAM70%LT%NORESM%GHGCAMoslo"     >scen7h_camnor_lt_ghgosloaero</value>
+      <value compset="SCEN7HL_CAM70%LT%NORESM%GHGCAMoslo"    >scen7hl_camnor_lt_ghgosloaero</value>
+      <value compset="SCEN7M_CAM70%LT%NORESM%GHGCAMoslo"     >scen7m_camnor_lt_ghgosloaero</value>
+      <value compset="SCEN7ML_CAM70%LT%NORESM%GHGCAMoslo"    >scen7ml_camnor_lt_ghgosloaero</value>
+      <value compset="SCEN7L_CAM70%LT%NORESM%GHGCAMoslo"     >scen7l_camnor_lt_ghgosloaero</value>
+      <value compset="SCEN7LN_CAM70%LT%NORESM%GHGCAMoslo"    >scen7ln_camnor_lt_ghgosloaero</value>
+      <value compset="SCEN7VL_CAM70%LT%NORESM%GHGCAMoslo"    >scen7vl_camnor_lt_ghgosloaero</value>
 
       <!-- SCAM defaults to ARM97, all other IOPs are in usermods_dirs -->
       <!--       <value compset="CAM[456]0%SCAM"    >scam_arm97</value> -->

@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+<namelist_defaults>
+
+<!-- Solar data from NRL -->
+<solar_irrad_data_file>atm/cam/solar/SolarForcingCMIP7-4.6_18491230-25610510_sumEPP_c20261116.nc</solar_irrad_data_file>
+
+<!-- LBC Files -->
+<flbc_file>atm/waccm/lb/cmip7_ghg_version20261103/ghg_cmip7_CMIP_ScenarioMIP_ScenarioMIP_CR-CMIP-1-0-0_CR-m-1-1-0_CR-m-ext-1-1-0_1750-2500_monthly_gnz_0p5degLat_version20261103.nc</flbc_file>
+<flbc_type>'SERIAL'</flbc_type>
+<flbc_list>'CO2','CH4','N2O','CFC11','CFC12','CFC11eq'</flbc_list>
+
+<!-- Low top upper boundary conditions disabled by default in NorESM3-->
+
+<!-- ozone data -->
+<prescribed_ozone_datapath> 'atm/cam/ozone_strataero'                                                  </prescribed_ozone_datapath>
+<prescribed_ozone_file    > 'ozone_vmro3_ScenarioMIP_FZJ-CMIP-ozone-m-1-0_2021-2101_1.9x2.5_version20261031.nc' </prescribed_ozone_file>
+<prescribed_ozone_name    > 'O3'                                                                       </prescribed_ozone_name>
+<prescribed_ozone_type    > INTERP_MISSING_MONTHS                                                      </prescribed_ozone_type>
+
+<!-- Prescribed oxidants for aerosol chemistry -->
+<tracer_cnst_datapath >   'atm/cam/tracer_cnst'                                                        </tracer_cnst_datapath>
+<tracer_cnst_file     >   'oxidants_2021-2101_scen-m_1.9x2.5_version20261021.nc'                       </tracer_cnst_file>
+<tracer_cnst_specifier>   'O3','OH','NO3','HO2','HALONS'                                               </tracer_cnst_specifier>
+<tracer_cnst_type     >   INTERP_MISSING_MONTHS                                                        </tracer_cnst_type>
+<tracer_cnst_filelist >   ''                                                                           </tracer_cnst_filelist>
+
+<!-- External forcing -->
+<ext_frc_type>INTERP_MISSING_MONTHS</ext_frc_type>
+<ext_frc_specifier hgrid="ne16np4" npg="3">
+        'BC_AX  ->  0.1*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_BC_airALL_vertical_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-m-1-1-2_version20261028.nc',
+        'BC_AX  ->  0.1*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_BC_anthroprofALL_vertical_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'BC_N   ->  0.9*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_BC_airALL_vertical_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-m-1-1-2_version20261028.nc',
+        'BC_N   ->  0.9*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_BC_anthroprofALL_vertical_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'BC_NI  ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_BC_bbALL_vertical_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'OM_NI  ->  1.4*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_OC_airALL_vertical_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-m-1-1-2_version20261028.nc',
+        'OM_NI  ->  1.4*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_OC_anthroprofALL_vertical_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'OM_NI  ->  2.6*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_OC_bbALL_vertical_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'SO2    ->  0.975*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_S_airALL_vertical_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-m-1-1-2_version20261028.nc',
+        'SO2    ->  0.975*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_S_anthroprofALL_vertical_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'SO2    ->  0.975*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_S_bbALL_vertical_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'SO2    ->  0.975*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_S_volcALL_vertical_scenario-h_2021-2501_ne16pg3_AeroCom2006_version20261028.nc',
+        'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_S_airALL_vertical_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-m-1-1-2_version20261028.nc',
+        'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_S_anthroprofALL_vertical_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_S_bbALL_vertical_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_S_volcALL_vertical_scenario-h_2021-2501_ne16pg3_AeroCom2006_version20261028.nc'
+</ext_frc_specifier>
+
+<ext_frc_specifier hgrid="ne30np4" npg="3">
+        'BC_AX  ->  0.1*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_BC_airALL_vertical_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-m-1-1-2_version20261028.nc',
+        'BC_AX  ->  0.1*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_BC_anthroprofALL_vertical_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'BC_N   ->  0.9*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_BC_airALL_vertical_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-m-1-1-2_version20261028.nc',
+        'BC_N   ->  0.9*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_BC_anthroprofALL_vertical_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'BC_NI  ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_BC_bbALL_vertical_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'OM_NI  ->  1.4*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_OC_airALL_vertical_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-m-1-1-2_version20261028.nc',
+        'OM_NI  ->  1.4*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_OC_anthroprofALL_vertical_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'OM_NI  ->  2.6*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_OC_bbALL_vertical_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'SO2    ->  0.975*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_S_airALL_vertical_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-m-1-1-2_version20261028.nc',
+        'SO2    ->  0.975*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_S_anthroprofALL_vertical_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'SO2    ->  0.975*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_S_bbALL_vertical_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'SO2    ->  0.975*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_S_volcALL_vertical_scenario-h_2021-2501_ne30pg3_AeroCom2006_version20261028.nc',
+        'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_S_airALL_vertical_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-m-1-1-2_version20261028.nc',
+        'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_S_anthroprofALL_vertical_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_S_bbALL_vertical_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_S_volcALL_vertical_scenario-h_2021-2501_ne30pg3_AeroCom2006_version20261028.nc'
+</ext_frc_specifier>
+
+
+
+<!-- Surface emissions -->
+<srf_emis_type>INTERP_MISSING_MONTHS</srf_emis_type>
+<srf_emis_specifier hgrid="ne16np4" npg="3">
+        'BC_AX  ->  0.1*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_BC_anthrosurfALL_surface_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'BC_N   ->  0.9*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_BC_anthrosurfALL_surface_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'OM_NI  ->  1.4*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_OC_anthrosurfALL_surface_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'SO2    ->  0.975*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_S_anthrosurfALL_surface_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_S_anthrosurfALL_surface_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-m-1-1-1_version20261028.nc'
+</srf_emis_specifier>
+
+<srf_emis_specifier hgrid="ne30np4" npg="3">
+        'BC_AX  ->  0.1*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_BC_anthrosurfALL_surface_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'BC_N   ->  0.9*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_BC_anthrosurfALL_surface_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'OM_NI  ->  1.4*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_OC_anthrosurfALL_surface_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'SO2    ->  0.975*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_S_anthrosurfALL_surface_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-m-1-1-1_version20261028.nc',
+        'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_S_anthrosurfALL_surface_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-m-1-1-1_version20261028.nc'
+</srf_emis_specifier>
+
+<rad_climate>'A:Q:H2O','N:O2:O2','A:CO2:CO2','N:ozone:O3','A:N2O:N2O','A:CH4:CH4','N:CFC11STAR:CFC11','A:CFC12:CFC12'</rad_climate>
+
+<!--Options for megan -->
+<megan_specifier>'isoprene = isoprene','monoterp = myrcene + sabinene + limonene+ carene_3 + ocimene_t_b + pinene_b + pinene_a'</megan_specifier>
+
+<prescribed_volcaero_datapath>atm/cam/volc/cmip7_volcaod_v20261031</prescribed_volcaero_datapath>
+<prescribed_volcaero_file>UOEXETER-ScenarioMIP-2-2-2_202101-250112_intpwghtavg_v20261031.nc</prescribed_volcaero_file>
+
+<!-- CO2 forcing -->
+<co2_readflux_aircraft>.false.</co2_readflux_aircraft>
+<co2_readflux_fuel>.false.</co2_readflux_fuel>
+<co2_readflux_aircraft co2_cycle="1">.true.</co2_readflux_aircraft>
+<co2_readflux_fuel co2_cycle="1">.true.</co2_readflux_fuel>
+<aircraft_co2_datafile co2_cycle="1">atm/cam/ggas/emissions-cmip7_CO2_anthro_ac_ScenarioMIP_IIASA-IAMC-m-1-1-2_202101-210112_0.5x0.5_c20261026.nc</aircraft_co2_datafile>
+<aircraft_co2_meshfile co2_cycle="1">share/meshes/0.5x0.5_ESMFmesh_c20260714.nc</aircraft_co2_meshfile>
+<aircraft_co2_taxmode co2_cycle="1">extend</aircraft_co2_taxmode>
+<aircraft_co2_tintalgo co2_cycle="1">nearest</aircraft_co2_tintalgo>
+<aircraft_co2_year_align co2_cycle="1">2021</aircraft_co2_year_align>
+<aircraft_co2_year_first co2_cycle="1">2021</aircraft_co2_year_first>
+<aircraft_co2_year_last co2_cycle="1">2101</aircraft_co2_year_last>
+<co2flux_fuel_datafile co2_cycle="1">atm/cam/ggas/emissions-cmip7_CO2_anthro_surface_ScenarioMIP_IIASA-IAMC-m-1-1-1_202101-210112_0.5x0.5_c20261026.nc</co2flux_fuel_datafile>
+<co2flux_fuel_meshfile co2_cycle="1">share/meshes/0.5x0.5_ESMFmesh_c20260714.nc</co2flux_fuel_meshfile>
+<co2flux_fuel_taxmode co2_cycle="1">extend</co2flux_fuel_taxmode>
+<co2flux_fuel_tintalgo co2_cycle="1">nearest</co2flux_fuel_tintalgo>
+<co2flux_fuel_year_align co2_cycle="1">2021</co2flux_fuel_year_align>
+<co2flux_fuel_year_first co2_cycle="1">2021</co2flux_fuel_year_first>
+<co2flux_fuel_year_last co2_cycle="1">2101</co2flux_fuel_year_last>
+
+<!-- Nitrogen deposition -->
+<stream_ndep_data_filename>atm/ndep/cmip7/ndep_input4MIPs_surfaceFluxes_ScenarioMIP_FZJ-CMIP-nitrogen-m-1-0_gn_202101-210112_c20261026.nc</stream_ndep_data_filename>
+<stream_ndep_mesh_filename>atm/ndep/cmip7/ndep_input4MIPs_surfaceFluxes_ESMFmesh_cdf5_c20251211.nc</stream_ndep_mesh_filename>
+<stream_ndep_taxmode>extend</stream_ndep_taxmode>
+<stream_ndep_varlist>drynhx:wetnhx:drynoy:wetnoy</stream_ndep_varlist>
+<stream_ndep_year_align>2021</stream_ndep_year_align>
+<stream_ndep_year_first>2021</stream_ndep_year_first>
+<stream_ndep_year_last>2101</stream_ndep_year_last>
+
+<!-- for prescribed deposition and emission fluxes -->
+<sim_year>2021-2101</sim_year>
+
+</namelist_defaults>
