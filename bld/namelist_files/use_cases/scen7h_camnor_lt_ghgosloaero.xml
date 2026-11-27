@@ -38,11 +38,11 @@
         'SO2    ->  0.975*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_S_airALL_vertical_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-h-1-1-2_version20261028.nc',
         'SO2    ->  0.975*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_S_anthroprofALL_vertical_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-h-1-1-1_version20261028.nc',
         'SO2    ->  0.975*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_S_bbALL_vertical_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-h-1-1-1_version20261028.nc',
-        'SO2    ->  0.975*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_S_volcALL_vertical_scenario-h_2021-2501_ne16pg3_AeroCom2006_version20261028.nc',
+        'SO2    ->  0.975*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_S_volcALL_vertical_scenario-h_2021-2501_ne16pg3_Aerocom2006_version20261028.nc',
         'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_S_airALL_vertical_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-h-1-1-2_version20261028.nc',
         'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_S_anthroprofALL_vertical_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-h-1-1-1_version20261028.nc',
         'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_S_bbALL_vertical_scenario-h_2021-2501_ne16pg3_IIASA-IAMC-h-1-1-1_version20261028.nc',
-        'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_S_volcALL_vertical_scenario-h_2021-2501_ne16pg3_AeroCom2006_version20261028.nc'
+        'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/scenario-h/ne16pg3/emissions_cmip7_noresm3_S_volcALL_vertical_scenario-h_2021-2501_ne16pg3_Aerocom2006_version20261028.nc'
 </ext_frc_specifier>
 
 <ext_frc_specifier hgrid="ne30np4" npg="3">
@@ -57,11 +57,11 @@
         'SO2    ->  0.975*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_S_airALL_vertical_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-h-1-1-2_version20261028.nc',
         'SO2    ->  0.975*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_S_anthroprofALL_vertical_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-h-1-1-1_version20261028.nc',
         'SO2    ->  0.975*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_S_bbALL_vertical_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-h-1-1-1_version20261028.nc',
-        'SO2    ->  0.975*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_S_volcALL_vertical_scenario-h_2021-2501_ne30pg3_AeroCom2006_version20261028.nc',
+        'SO2    ->  0.975*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_S_volcALL_vertical_scenario-h_2021-2501_ne30pg3_Aerocom2006_version20261028.nc',
         'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_S_airALL_vertical_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-h-1-1-2_version20261028.nc',
         'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_S_anthroprofALL_vertical_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-h-1-1-1_version20261028.nc',
         'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_S_bbALL_vertical_scenario-h_2021-2501_ne30pg3_IIASA-IAMC-h-1-1-1_version20261028.nc',
-        'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_S_volcALL_vertical_scenario-h_2021-2501_ne30pg3_AeroCom2006_version20261028.nc'
+        'SO4_PR ->  0.025*$INPUTDATA_ROOT/atm/cam/chem/emis/cmip7_emissions_version20261028/ne30pg3/emissions_cmip7_noresm3_S_volcALL_vertical_scenario-h_2021-2501_ne30pg3_Aerocom2006_version20261028.nc'
 </ext_frc_specifier>
 
 
